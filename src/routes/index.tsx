@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, Menu, Pause, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Pause } from "lucide-react";
 import heroKid from "@/assets/bright-card-kid.jpg";
+import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -19,7 +20,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
   const slides = [
@@ -36,17 +36,7 @@ function Index() {
       <section className="relative min-h-[770px] overflow-hidden bg-[oklch(0.57_0.23_292)] text-primary-foreground lg:min-h-[850px]">
         <div className="absolute inset-0 bg-[linear-gradient(122deg,oklch(0.52_0.24_290),oklch(0.65_0.19_295))]" />
         <div className="relative mx-auto max-w-[1440px] px-6 pb-14 pt-5 lg:px-16">
-          <header className="flex items-center justify-between gap-6">
-            <a className="flex items-center gap-1 text-3xl font-black tracking-tight" href="#top" aria-label="Brightly home">
-              <span className="inline-grid h-7 w-7 place-items-center rounded-full bg-[oklch(0.7_0.22_28)] text-lg leading-none">∞</span>brightly
-            </a>
-            <nav className="hidden items-center gap-9 text-sm lg:flex">
-              {['Plans & pricing', 'Earn', 'Spend', 'Save', 'Invest', 'Learn'].map((item) => item === 'Earn' ? <Link key={item} to="/earn" className="transition-opacity hover:opacity-70">{item}</Link> : item === 'Spend' ? <Link key={item} to="/spend" className="transition-opacity hover:opacity-70">{item}</Link> : <a key={item} className="transition-opacity hover:opacity-70" href="#discover">{item}</a>)}
-            </nav>
-            <div className="hidden items-center gap-7 lg:flex"><a className="text-sm" href="#login">Login</a><Button className="h-12 rounded-full bg-primary px-8 text-primary-foreground hover:bg-primary/90">Get started</Button></div>
-            <Button onClick={() => setMenuOpen(!menuOpen)} variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/20 lg:hidden" aria-label="Open menu">{menuOpen ? <X /> : <Menu />}</Button>
-          </header>
-          {menuOpen && <nav className="absolute right-6 top-20 z-20 grid w-56 gap-3 rounded-lg bg-card p-5 text-card-foreground shadow-xl lg:hidden">{['Plans & pricing', 'Earn', 'Spend', 'Save', 'Invest', 'Learn'].map((item) => item === 'Earn' ? <Link key={item} to="/earn" onClick={() => setMenuOpen(false)}>{item}</Link> : item === 'Spend' ? <Link key={item} to="/spend" onClick={() => setMenuOpen(false)}>{item}</Link> : <a key={item} href="#discover" onClick={() => setMenuOpen(false)}>{item}</a>)}</nav>}
+          <BrightlyNav />
 
           <div id="top" className="grid items-center gap-4 pb-12 pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:pt-28">
             <div className="relative z-10 max-w-[620px]">
@@ -71,7 +61,7 @@ function Index() {
         <div className="relative mx-auto max-w-5xl px-6 pb-8 pt-8 text-center"><p className="text-3xl font-black leading-tight sm:text-4xl">Join more than 2 million young people building better money habits</p><p className="mt-3 text-xs text-[oklch(0.89_0.06_292)]">Based on active Brightly members since 2015</p></div>
       </section>
 
-      <section id="discover" className="bg-[oklch(0.985_0.015_91)] px-6 py-20 text-foreground lg:px-16"><div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.85fr_1.15fr]"><div><p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Made for real life</p><h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Little steps. Huge possibilities.</h2></div><div className="grid gap-4 sm:grid-cols-3">{[["Earn", "Turn completed chores into proud moments."], ["Save", "Bring goals into view, one pound at a time."], ["Spend", "Practice making choices with a safety net."]].map(([title, copy], index) => <article key={title} className="rounded-lg bg-card p-6 shadow-sm"><span className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-lg font-black">{index + 1}</span><h3 className="mt-6 text-2xl font-black">{title}</h3><p className="mt-3 leading-relaxed text-muted-foreground">{copy}</p></article>)}</div></div></section>
+      <section id="discover" className="bg-[oklch(0.985_0.015_91)] px-6 py-20 text-foreground lg:px-16"><div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.85fr_1.15fr]"><div><p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Made for real life</p><h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Little steps. Huge possibilities.</h2></div><div className="grid gap-4 sm:grid-cols-3">{[["Earn", "Turn completed chores into proud moments.", "/earn"], ["Save", "Bring goals into view, one pound at a time.", "/save"], ["Spend", "Practice making choices with a safety net.", "/spend"]].map(([title, copy, to], index) => <Link key={title} to={to as "/earn" | "/save" | "/spend"} className="rounded-lg bg-card p-6 shadow-sm transition-transform hover:-translate-y-1"><span className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-lg font-black">{index + 1}</span><h3 className="mt-6 text-2xl font-black">{title}</h3><p className="mt-3 leading-relaxed text-muted-foreground">{copy}</p></Link>)}</div></div></section>
       <section className="bg-[oklch(0.75_0.18_173)] px-6 py-16 text-accent-foreground"><div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 sm:flex-row sm:items-center"><div><p className="text-sm font-bold uppercase tracking-[0.16em]">Built alongside parents</p><h2 className="mt-2 text-3xl font-black sm:text-4xl">More confidence, every day.</h2></div><ul className="grid gap-3 text-lg">{['See activity at a glance', 'Set flexible spending rules', 'Celebrate healthy habits'].map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-5 w-5" />{item}</li>)}</ul></div></section>
     </main>
   );
