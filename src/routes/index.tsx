@@ -41,12 +41,12 @@ function Index() {
               <span className="inline-grid h-7 w-7 place-items-center rounded-full bg-[oklch(0.7_0.22_28)] text-lg leading-none">∞</span>brightly
             </a>
             <nav className="hidden items-center gap-9 text-sm lg:flex">
-              {['Plans & pricing', 'Earn', 'Spend', 'Save', 'Invest', 'Learn'].map((item) => item === 'Earn' ? <Link key={item} to="/earn" className="transition-opacity hover:opacity-70">{item}</Link> : <a key={item} className="transition-opacity hover:opacity-70" href="#discover">{item}</a>)}
+              {['Plans & pricing', 'Earn', 'Spend', 'Save', 'Invest', 'Learn'].map((item) => item === 'Earn' ? <Link key={item} to="/earn" className="transition-opacity hover:opacity-70">{item}</Link> : item === 'Spend' ? <Link key={item} to="/spend" className="transition-opacity hover:opacity-70">{item}</Link> : <a key={item} className="transition-opacity hover:opacity-70" href="#discover">{item}</a>)}
             </nav>
             <div className="hidden items-center gap-7 lg:flex"><a className="text-sm" href="#login">Login</a><Button className="h-12 rounded-full bg-primary px-8 text-primary-foreground hover:bg-primary/90">Get started</Button></div>
             <Button onClick={() => setMenuOpen(!menuOpen)} variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/20 lg:hidden" aria-label="Open menu">{menuOpen ? <X /> : <Menu />}</Button>
           </header>
-          {menuOpen && <nav className="absolute right-6 top-20 z-20 grid w-56 gap-3 rounded-lg bg-card p-5 text-card-foreground shadow-xl lg:hidden">{['Plans & pricing', 'Earn', 'Spend', 'Save', 'Invest', 'Learn'].map((item) => item === 'Earn' ? <Link key={item} to="/earn" onClick={() => setMenuOpen(false)}>{item}</Link> : <a key={item} href="#discover" onClick={() => setMenuOpen(false)}>{item}</a>)}</nav>}
+          {menuOpen && <nav className="absolute right-6 top-20 z-20 grid w-56 gap-3 rounded-lg bg-card p-5 text-card-foreground shadow-xl lg:hidden">{['Plans & pricing', 'Earn', 'Spend', 'Save', 'Invest', 'Learn'].map((item) => item === 'Earn' ? <Link key={item} to="/earn" onClick={() => setMenuOpen(false)}>{item}</Link> : item === 'Spend' ? <Link key={item} to="/spend" onClick={() => setMenuOpen(false)}>{item}</Link> : <a key={item} href="#discover" onClick={() => setMenuOpen(false)}>{item}</a>)}</nav>}
 
           <div id="top" className="grid items-center gap-4 pb-12 pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:pt-28">
             <div className="relative z-10 max-w-[620px]">

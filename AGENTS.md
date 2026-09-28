@@ -8,3 +8,4 @@
 
 ## Project rules
 - The homepage is a standalone marketing experience in `src/routes/index.tsx`; its visual vocabulary is defined through semantic tokens in `src/styles.css` to keep the brand treatment consistent.
+- Each Brightly product area lives in its own route and uses the shared visual vocabulary, so primary navigation remains direct and consistent.
