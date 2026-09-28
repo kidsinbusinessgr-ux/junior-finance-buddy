@@ -1,0 +1,1 @@
+A recreation is implemented as an original youth-finance landing screen inspired by the reference layout, without copying source code or downloading site assets.
