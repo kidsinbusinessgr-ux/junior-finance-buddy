@@ -27,7 +27,8 @@ function Index() {
     ["A money app they’ll actually enjoy", "Small choices today can grow into smart habits tomorrow."],
     ["Learning made brilliantly simple", "Set goals, earn rewards and see progress together."],
   ];
-  const current = slides[slide];
+  const currentTitle = slides[slide]?.[0] ?? "";
+  const currentCopy = slides[slide]?.[1] ?? "";
   const advance = (direction: number) => setSlide((slide + direction + slides.length) % slides.length);
 
   return (
@@ -50,8 +51,8 @@ function Index() {
           <div id="top" className="grid items-center gap-4 pb-12 pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:pt-28">
             <div className="relative z-10 max-w-[620px]">
               <p className="mb-5 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">For ages 6–18</p>
-              <h1 className="text-5xl font-black leading-[0.99] tracking-tight sm:text-6xl lg:text-7xl">{current[0]}</h1>
-              <p className="mt-7 max-w-xl text-xl leading-relaxed text-[oklch(0.96_0.02_292)] lg:text-2xl">{current[1]}</p>
+              <h1 className="text-5xl font-black leading-[0.99] tracking-tight sm:text-6xl lg:text-7xl">{currentTitle}</h1>
+              <p className="mt-7 max-w-xl text-xl leading-relaxed text-[oklch(0.96_0.02_292)] lg:text-2xl">{currentCopy}</p>
               <Button className="mt-9 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Get started</Button>
             </div>
             <div className="relative mx-auto mt-7 aspect-square w-full max-w-[610px] lg:mt-0">
