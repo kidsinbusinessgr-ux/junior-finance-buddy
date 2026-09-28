@@ -1,0 +1,13 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Award, BookOpenCheck, CircleHelp } from "lucide-react";
+import { BrightlyNav } from "@/components/brightly-nav";
+import { Button } from "@/components/ui/button";
+
+export const Route = createFileRoute("/learn")({
+  head: () => ({ meta: [{ title: "Learn with Brightly — Money skills for life" }, { name: "description", content: "Short, practical Brightly lessons help young people build useful money knowledge at their own pace." }, { property: "og:title", content: "Learn with Brightly — Money skills for life" }, { property: "og:description", content: "Short, practical Brightly lessons help young people build useful money knowledge at their own pace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
+  component: LearnPage,
+});
+
+function LearnPage() {
+  return <main className="min-h-screen overflow-hidden bg-background"><section className="bg-[oklch(0.74_0.17_51)] px-6 pb-24 pt-5 text-[oklch(0.24_0.08_293)] lg:px-16"><div className="mx-auto max-w-[1440px]"><BrightlyNav active="learn" tone="light" /><div className="mx-auto max-w-3xl pb-2 pt-20 text-center"><p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.43_0.14_37)]">Skills for the real world</p><h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Little lessons. Lasting confidence.</h1><p className="mt-7 text-xl leading-relaxed">Short activities make space for the questions that help money make sense.</p><Button className="mt-9 h-14 rounded-full bg-primary px-9 text-primary-foreground">Start learning</Button></div></div></section><section className="px-6 py-20 lg:px-16"><div className="mx-auto max-w-6xl"><p className="font-black uppercase tracking-[0.16em] text-[oklch(0.58_0.15_37)]">Pick a mission</p><div className="mt-6 grid gap-5 md:grid-cols-3">{[[BookOpenCheck, "How saving works", "Understand goals, patience and progress."], [CircleHelp, "Money choices", "Explore needs, wants and thoughtful spending."], [Award, "Your first budget", "Give incoming money a simple plan."]].map(([Icon, title, copy], index) => { const LessonIcon = Icon as typeof BookOpenCheck; return <article key={title as string} className="rounded-lg bg-card p-7 shadow-sm"><span className="text-sm font-black text-muted-foreground">0{index + 1}</span><LessonIcon className="mt-8 h-9 w-9 text-[oklch(0.61_0.19_292)]" /><h2 className="mt-6 text-2xl font-black">{title as string}</h2><p className="mt-3 leading-relaxed text-muted-foreground">{copy as string}</p><Button variant="outline" className="mt-7 rounded-full">Open lesson</Button></article>})}</div></div></section></main>;
+}
