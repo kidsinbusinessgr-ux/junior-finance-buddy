@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EarnRouteImport } from './routes/earn'
+import { Route as InvestRouteImport } from './routes/invest'
+import { Route as LearnRouteImport } from './routes/learn'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as SaveRouteImport } from './routes/save'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SpendRouteImport } from './routes/spend'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +29,36 @@ const EarnRoute = EarnRouteImport.update({
   path: '/earn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvestRoute = InvestRouteImport.update({
+  id: '/invest',
+  path: '/invest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaveRoute = SaveRouteImport.update({
+  id: '/save',
+  path: '/save',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SpendRoute = SpendRouteImport.update({
   id: '/spend',
   path: '/spend',
@@ -32,30 +68,82 @@ const SpendRoute = SpendRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/earn': typeof EarnRoute
+  '/invest': typeof InvestRoute
+  '/learn': typeof LearnRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/save': typeof SaveRoute
+  '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/earn': typeof EarnRoute
+  '/invest': typeof InvestRoute
+  '/learn': typeof LearnRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/save': typeof SaveRoute
+  '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/earn': typeof EarnRoute
+  '/invest': typeof InvestRoute
+  '/learn': typeof LearnRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/save': typeof SaveRoute
+  '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/earn' | '/spend'
+  fullPaths:
+    | '/'
+    | '/earn'
+    | '/invest'
+    | '/learn'
+    | '/login'
+    | '/pricing'
+    | '/save'
+    | '/signup'
+    | '/spend'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/earn' | '/spend'
-  id: '__root__' | '/' | '/earn' | '/spend'
+  to:
+    | '/'
+    | '/earn'
+    | '/invest'
+    | '/learn'
+    | '/login'
+    | '/pricing'
+    | '/save'
+    | '/signup'
+    | '/spend'
+  id:
+    | '__root__'
+    | '/'
+    | '/earn'
+    | '/invest'
+    | '/learn'
+    | '/login'
+    | '/pricing'
+    | '/save'
+    | '/signup'
+    | '/spend'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EarnRoute: typeof EarnRoute
+  InvestRoute: typeof InvestRoute
+  LearnRoute: typeof LearnRoute
+  LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
+  SaveRoute: typeof SaveRoute
+  SignupRoute: typeof SignupRoute
   SpendRoute: typeof SpendRoute
 }
 
@@ -75,6 +163,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EarnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invest': {
+      id: '/invest'
+      path: '/invest'
+      fullPath: '/invest'
+      preLoaderRoute: typeof InvestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/save': {
+      id: '/save'
+      path: '/save'
+      fullPath: '/save'
+      preLoaderRoute: typeof SaveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/spend': {
       id: '/spend'
       path: '/spend'
@@ -88,6 +218,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EarnRoute: EarnRoute,
+  InvestRoute: InvestRoute,
+  LearnRoute: LearnRoute,
+  LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
+  SaveRoute: SaveRoute,
+  SignupRoute: SignupRoute,
   SpendRoute: SpendRoute,
 }
 export const routeTree = rootRouteImport

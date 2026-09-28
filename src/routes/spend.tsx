@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { BellRing, Check, ChevronRight, Menu, ShieldCheck, Sparkles, WalletCards, X } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { BellRing, Check, ChevronRight, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import spendHero from "@/assets/spend-hero-kid.jpg";
+import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/spend")({
@@ -19,7 +20,6 @@ export const Route = createFileRoute("/spend")({
 });
 
 function SpendPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [cardLocked, setCardLocked] = useState(false);
   const [alertsOn, setAlertsOn] = useState(true);
 
@@ -29,13 +29,7 @@ function SpendPage() {
         <div className="absolute -left-12 top-28 h-48 w-48 rounded-full border-[22px] border-[oklch(0.86_0.12_102)]" />
         <div className="absolute right-[7%] top-24 h-12 w-28 rotate-[18deg] rounded-full bg-[oklch(0.72_0.2_28)]" />
         <div className="relative mx-auto max-w-[1440px] px-6 pb-20 pt-5 lg:px-16">
-          <header className="flex items-center justify-between gap-6">
-            <Link className="flex items-center gap-1 text-3xl font-black tracking-tight" to="/" aria-label="Brightly home"><span className="inline-grid h-7 w-7 place-items-center rounded-full bg-[oklch(0.7_0.22_28)] text-lg leading-none text-primary-foreground">∞</span>brightly</Link>
-            <nav className="hidden items-center gap-9 text-sm lg:flex"><a href="#plans">Plans & pricing</a><Link to="/earn">Earn</Link><Link to="/spend" className="font-black underline decoration-2 underline-offset-8">Spend</Link><a href="#plans">Save</a><a href="#plans">Invest</a><a href="#plans">Learn</a></nav>
-            <div className="hidden items-center gap-7 lg:flex"><a className="text-sm" href="#login">Login</a><Button className="h-12 rounded-full bg-primary px-8 text-primary-foreground hover:bg-primary/90">Get started</Button></div>
-            <Button onClick={() => setMenuOpen(!menuOpen)} variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">{menuOpen ? <X /> : <Menu />}</Button>
-          </header>
-          {menuOpen && <nav className="absolute right-6 top-20 z-20 grid w-56 gap-3 rounded-lg bg-card p-5 text-card-foreground shadow-xl lg:hidden"><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link><Link to="/earn" onClick={() => setMenuOpen(false)}>Earn</Link><Link to="/spend" onClick={() => setMenuOpen(false)}>Spend</Link><a href="#plans">Plans & pricing</a></nav>}
+          <BrightlyNav active="spend" tone="light" />
 
           <div className="grid items-center gap-10 pb-4 pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:pt-24">
             <div className="relative z-10 max-w-[610px]"><p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.35_0.1_217)]">Spend with confidence</p><h1 className="mt-5 text-5xl font-black leading-[0.98] sm:text-6xl lg:text-7xl">Big little choices start here.</h1><p className="mt-7 text-xl leading-relaxed lg:text-2xl">A card and app that helps young people practise spending wisely — while you stay close to every step.</p><Button className="mt-9 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Get started</Button></div>
