@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type BrightlyNavProps = {
-  active?: "pricing" | "earn" | "spend" | "save" | "invest" | "learn";
+  active?: "pricing" | "earn" | "spend" | "save" | "invest" | "learn" | "dashboard";
   tone?: "light" | "dark";
 };
 
@@ -43,6 +43,7 @@ export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
         ))}
       </nav>
       <div className="hidden items-center gap-7 lg:flex">
+        <Link className="flex items-center gap-2 text-sm transition-opacity hover:opacity-70" to="/dashboard"><LayoutDashboard size={16} /> Dashboard</Link>
         <Link className="text-sm transition-opacity hover:opacity-70" to="/login">Login</Link>
         <Link to="/signup" className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Get started</Link>
       </div>
@@ -57,6 +58,7 @@ export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
               {item.label}
             </Link>
           ))}
+          <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-secondary"><LayoutDashboard size={16} /> Dashboard</Link>
           <Link to="/login" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 hover:bg-secondary">Login</Link>
           <Link to="/signup" onClick={() => setMenuOpen(false)} className="mt-2 rounded-full bg-primary px-3 py-3 text-center font-bold text-primary-foreground">Get started</Link>
         </nav>
