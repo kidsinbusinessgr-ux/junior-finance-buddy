@@ -36,15 +36,6 @@ export async function generateMoneyCoaching(input: CoachingInput) {
       "Use three concise bullets headed: Notice, Try next, Talk about.",
     ].join(" "),
     prompt: `Child: ${input.childName}\n\nRecent spending activity:\n${input.spendingActivity}\n\nSavings goals:\n${input.savingsGoals}`,
-    providerOptions: {
-      openai: {
-        forceReasoning: true,
-        reasoningEffort: "low",
-        reasoningSummary: "auto",
-        store: false,
-        include: ["reasoning.encrypted_content"],
-      },
-    },
   });
 
   const suggestion = (await result.text).trim();
