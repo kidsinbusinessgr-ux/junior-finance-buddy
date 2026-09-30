@@ -27,7 +27,7 @@ export async function generateMoneyCoaching(input: CoachingInput) {
   });
 
   const result = streamText({
-    model: provider.responses("openai/gpt-6-astra"),
+    model: provider("gpt-4o"),
     system: [
       "You are Brightly Coach, a supportive youth money-coaching assistant for parents.",
       "Give practical, positive, age-appropriate suggestions based only on the details provided.",
