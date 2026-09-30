@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronRight, CircleDollarSign, Gift, Plus, ReceiptText, ShieldCheck, Target, TrendingUp, WalletCards } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowUpRight, ChevronRight, CircleDollarSign, Gift, LoaderCircle, MessageCircleHeart, Plus, ReceiptText, ShieldCheck, Target, TrendingUp, WalletCards } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { getMoneyCoaching } from "@/lib/money-coach.functions";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -34,6 +37,27 @@ function ParentDashboard() {
   const goalProgress = Math.min(Math.round((saved / goal) * 100), 100);
   const remaining = Math.max(goal - saved, 0);
   const weeklySummary = useMemo(() => `£${allowance}.00 every Friday`, [allowance]);
+  const getCoaching = useServerFn(getMoneyCoaching);
+  const [spendingActivity, setSpendingActivity] = useState("Corner Shop £2.35 for snacks; Game Planet £4.99 for a game; Bus fare £1.80.");
+  const [savingsGoals, setSavingsGoals] = useState("Roller skates: £21 saved of a £48 goal. Maya hopes to buy them in the next two months.");
+  const [coaching, setCoaching] = useState("");
+  const [coachingError, setCoachingError] = useState("");
+  const [isCoaching, setIsCoaching] = useState(false);
+
+  async function handleGetCoaching() {
+    setIsCoaching(true);
+    setCoachingError("");
+    try {
+      const response = await getCoaching({
+        data: { childName: "Maya", spendingActivity, savingsGoals },
+      });
+      setCoaching(response.suggestion);
+    } catch (error) {
+      setCoachingError(error instanceof Error ? error.message : "We could not create coaching suggestions right now. Please try again later.");
+    } finally {
+      setIsCoaching(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -91,6 +115,29 @@ function ParentDashboard() {
                 <div className="mt-8 flex items-end justify-between"><p className="text-4xl font-black">£{saved.toFixed(2)}</p><p className="pb-1 font-bold">of £{goal}.00</p></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[oklch(0.95_0.08_105)]"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${goalProgress}%` }} /></div><p className="mt-3 text-sm font-bold">£{remaining.toFixed(2)} to go</p><Button onClick={() => setGoalBoost((amount) => Math.min(amount + 5, goal - 21))} variant="secondary" className="mt-7 h-11 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"><Plus /> Add £5 to goal</Button></section>
 
               <section className="rounded-lg bg-card p-6 shadow-sm ring-1 ring-border sm:p-7"><div className="flex gap-4"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary"><ShieldCheck /></span><div><p className="font-black">Everything looks good</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Maya’s card is active and there are no unusual spending alerts.</p></div></div><Button variant="ghost" className="mt-5 w-full justify-between border border-border">Card settings <ChevronRight /></Button></section>
+              <section aria-labelledby="coach-heading" className="rounded-lg bg-card p-6 shadow-sm ring-1 ring-border sm:p-7">
+                <div className="flex gap-4">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary"><MessageCircleHeart /></span>
+                  <div>
+                    <p className="text-sm font-black uppercase tracking-[0.13em] text-muted-foreground">Brightly Coach</p>
+                    <h2 id="coach-heading" className="mt-1 text-2xl font-black">A helpful next conversation.</h2>
+                  </div>
+                </div>
+                <div className="mt-6 grid gap-4">
+                  <label className="grid gap-2 text-sm font-bold" htmlFor="coaching-spending">Recent spending activity
+                    <Textarea id="coaching-spending" value={spendingActivity} onChange={(event) => setSpendingActivity(event.target.value)} className="min-h-24 resize-y bg-background text-sm font-medium" />
+                  </label>
+                  <label className="grid gap-2 text-sm font-bold" htmlFor="coaching-goals">Savings goals
+                    <Textarea id="coaching-goals" value={savingsGoals} onChange={(event) => setSavingsGoals(event.target.value)} className="min-h-24 resize-y bg-background text-sm font-medium" />
+                  </label>
+                </div>
+                <Button onClick={handleGetCoaching} disabled={isCoaching || spendingActivity.trim().length < 10 || savingsGoals.trim().length < 5} className="mt-5 h-11 w-full rounded-full">
+                  {isCoaching ? <LoaderCircle className="animate-spin" /> : <MessageCircleHeart />}
+                  {isCoaching ? "Creating suggestions" : "Get coaching suggestions"}
+                </Button>
+                {coachingError ? <p role="alert" className="mt-4 text-sm font-bold text-destructive">{coachingError}</p> : null}
+                {coaching ? <div aria-live="polite" className="mt-5 whitespace-pre-line rounded-lg bg-secondary p-4 text-sm leading-relaxed text-secondary-foreground">{coaching}</div> : null}
+              </section>
             </aside>
           </div>
         </div>
