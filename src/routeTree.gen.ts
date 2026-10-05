@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EarnRouteImport } from './routes/earn'
 import { Route as InvestRouteImport } from './routes/invest'
 import { Route as LearnRouteImport } from './routes/learn'
+import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SaveRouteImport } from './routes/save'
@@ -43,6 +44,11 @@ const InvestRoute = InvestRouteImport.update({
 const LearnRoute = LearnRouteImport.update({
   id: '/learn',
   path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
+  id: '/learn/$lessonId',
+  path: '/learn/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/earn': typeof EarnRoute
   '/invest': typeof InvestRoute
   '/learn': typeof LearnRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/save': typeof SaveRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/earn': typeof EarnRoute
   '/invest': typeof InvestRoute
   '/learn': typeof LearnRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/save': typeof SaveRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/earn': typeof EarnRoute
   '/invest': typeof InvestRoute
   '/learn': typeof LearnRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/save': typeof SaveRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/earn'
     | '/invest'
     | '/learn'
+    | '/learn/$lessonId'
     | '/login'
     | '/pricing'
     | '/save'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/earn'
     | '/invest'
     | '/learn'
+    | '/learn/$lessonId'
     | '/login'
     | '/pricing'
     | '/save'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/earn'
     | '/invest'
     | '/learn'
+    | '/learn/$lessonId'
     | '/login'
     | '/pricing'
     | '/save'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   EarnRoute: typeof EarnRoute
   InvestRoute: typeof InvestRoute
   LearnRoute: typeof LearnRoute
+  LearnLessonIdRoute: typeof LearnLessonIdRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   SaveRoute: typeof SaveRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn'
       preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$lessonId': {
+      id: '/learn/$lessonId'
+      path: '/learn/$lessonId'
+      fullPath: '/learn/$lessonId'
+      preLoaderRoute: typeof LearnLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   EarnRoute: EarnRoute,
   InvestRoute: InvestRoute,
   LearnRoute: LearnRoute,
+  LearnLessonIdRoute: LearnLessonIdRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   SaveRoute: SaveRoute,
