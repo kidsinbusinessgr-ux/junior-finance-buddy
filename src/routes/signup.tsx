@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/signup")({
@@ -13,6 +14,8 @@ function SignupPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -43,13 +46,10 @@ function SignupPage() {
       return;
     }
 
-    // Auto sign in (email confirmation optional)
     const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
     if (!loginError) {
       navigate({ to: "/onboarding" });
     } else {
-      // Email confirmation required
-      setError("");
       navigate({ to: "/onboarding" });
     }
   }
@@ -110,25 +110,43 @@ function SignupPage() {
             </div>
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-1">Κωδικός</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Τουλάχιστον 8 χαρακτήρες"
-                required
-                className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Τουλάχιστον 8 χαρακτήρες"
+                  required
+                  className="w-full rounded-xl px-4 py-3 pr-12 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-1">Επιβεβαίωση κωδικού</label>
-              <input
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full rounded-xl px-4 py-3 pr-12 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <button
               type="submit"
