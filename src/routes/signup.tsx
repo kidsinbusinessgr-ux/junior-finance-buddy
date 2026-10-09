@@ -1,14 +1,24 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/signup")({
+  head: () => ({
+    meta: [
+      { title: "Create your account — Brightly" },
+      { name: "description", content: "Create a Brightly account and begin building confident money habits together." },
+      { property: "og:title", content: "Create your account — Brightly" },
+      { property: "og:description", content: "Create a Brightly account and begin building confident money habits together." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: SignupPage,
 });
 
 function SignupPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -16,6 +26,7 @@ function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState("");
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -46,12 +57,23 @@ function SignupPage() {
       return;
     }
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-    if (!loginError) {
-      navigate({ to: "/onboarding" });
-    } else {
-      navigate({ to: "/onboarding" });
-    }
+    setConfirmationEmail(email);
+    setLoading(false);
+  }
+
+  if (confirmationEmail) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-5 text-foreground">
+        <section className="w-full max-w-sm rounded-lg bg-card p-8 text-center shadow-sm ring-1 ring-border">
+          <CheckCircle2 className="mx-auto h-16 w-16 text-accent" aria-hidden="true" />
+          <h1 className="mt-6 text-3xl font-black">Check your email!</h1>
+          <p className="mt-4 leading-relaxed text-muted-foreground">We’ve sent a confirmation email to <span className="font-bold text-foreground">{confirmationEmail}</span>. Please check your inbox and confirm your email address.</p>
+          <Button asChild className="mt-7 w-full">
+            <Link to="/">Back to home</Link>
+          </Button>
+        </section>
+      </main>
+    );
   }
 
   return (
