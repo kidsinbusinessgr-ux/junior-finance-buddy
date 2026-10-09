@@ -10,21 +10,32 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChildDashboardRouteImport } from './routes/child-dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EarnRouteImport } from './routes/earn'
+import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as InvestRouteImport } from './routes/invest'
+import { Route as InvestmentsRouteImport } from './routes/investments'
 import { Route as LearnRouteImport } from './routes/learn'
-import { Route as LearnIndexRouteImport } from './routes/learn.index'
-import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ParentDashboardRouteImport } from './routes/parent-dashboard'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SaveRouteImport } from './routes/save'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SpendRouteImport } from './routes/spend'
+import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChildDashboardRoute = ChildDashboardRouteImport.update({
+  id: '/child-dashboard',
+  path: '/child-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -37,9 +48,19 @@ const EarnRoute = EarnRouteImport.update({
   path: '/earn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoalsRoute = GoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InvestRoute = InvestRouteImport.update({
   id: '/invest',
   path: '/invest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestmentsRoute = InvestmentsRouteImport.update({
+  id: '/investments',
+  path: '/investments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnRoute = LearnRouteImport.update({
@@ -47,19 +68,19 @@ const LearnRoute = LearnRouteImport.update({
   path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LearnIndexRoute = LearnIndexRouteImport.update({
-  id: '/learn/',
-  path: '/',
-  getParentRoute: () => LearnRoute,
-} as any)
-const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
-  id: '/learn/$lessonId',
-  path: '$lessonId',
-  getParentRoute: () => LearnRoute,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentDashboardRoute = ParentDashboardRouteImport.update({
+  id: '/parent-dashboard',
+  path: '/parent-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -82,110 +103,161 @@ const SpendRoute = SpendRouteImport.update({
   path: '/spend',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WalletRoute = WalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
+  id: '/$lessonId',
+  path: '/$lessonId',
+  getParentRoute: () => LearnRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
+  '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
-  '/learn': typeof LearnRoute
-  '/learn/': typeof LearnIndexRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/investments': typeof InvestmentsRoute
+  '/learn': typeof LearnRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
+  '/parent-dashboard': typeof ParentDashboardRoute
   '/pricing': typeof PricingRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/wallet': typeof WalletRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
+  '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
-  '/learn': typeof LearnRoute
-  '/learn/': typeof LearnIndexRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/investments': typeof InvestmentsRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
+  '/parent-dashboard': typeof ParentDashboardRoute
   '/pricing': typeof PricingRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/wallet': typeof WalletRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/learn': typeof LearnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
+  '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
-  '/learn': typeof LearnRoute
-  '/learn/': typeof LearnIndexRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/investments': typeof InvestmentsRoute
+  '/learn': typeof LearnRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
+  '/parent-dashboard': typeof ParentDashboardRoute
   '/pricing': typeof PricingRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/wallet': typeof WalletRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/child-dashboard'
     | '/dashboard'
     | '/earn'
+    | '/goals'
     | '/invest'
+    | '/investments'
     | '/learn'
-    | '/learn/'
-    | '/learn/$lessonId'
     | '/login'
+    | '/onboarding'
+    | '/parent-dashboard'
     | '/pricing'
     | '/save'
     | '/signup'
     | '/spend'
+    | '/wallet'
+    | '/learn/$lessonId'
+    | '/learn/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/child-dashboard'
     | '/dashboard'
     | '/earn'
+    | '/goals'
     | '/invest'
-    | '/learn'
-    | '/learn/'
-    | '/learn/$lessonId'
+    | '/investments'
     | '/login'
+    | '/onboarding'
+    | '/parent-dashboard'
     | '/pricing'
     | '/save'
     | '/signup'
     | '/spend'
+    | '/wallet'
+    | '/learn/$lessonId'
+    | '/learn'
   id:
     | '__root__'
     | '/'
+    | '/child-dashboard'
     | '/dashboard'
     | '/earn'
+    | '/goals'
     | '/invest'
+    | '/investments'
     | '/learn'
-    | '/learn/'
-    | '/learn/$lessonId'
     | '/login'
+    | '/onboarding'
+    | '/parent-dashboard'
     | '/pricing'
     | '/save'
     | '/signup'
     | '/spend'
+    | '/wallet'
+    | '/learn/$lessonId'
+    | '/learn/'
   fileRoutesById: FileRoutesById
-}
-export interface LearnRouteChildren {
-  LearnIndexRoute: typeof LearnIndexRoute
-  LearnLessonIdRoute: typeof LearnLessonIdRoute
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChildDashboardRoute: typeof ChildDashboardRoute
   DashboardRoute: typeof DashboardRoute
   EarnRoute: typeof EarnRoute
+  GoalsRoute: typeof GoalsRoute
   InvestRoute: typeof InvestRoute
-  LearnRoute: typeof LearnRoute
+  InvestmentsRoute: typeof InvestmentsRoute
+  LearnRoute: typeof LearnRouteWithChildren
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ParentDashboardRoute: typeof ParentDashboardRoute
   PricingRoute: typeof PricingRoute
   SaveRoute: typeof SaveRoute
   SignupRoute: typeof SignupRoute
   SpendRoute: typeof SpendRoute
+  WalletRoute: typeof WalletRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -195,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/child-dashboard': {
+      id: '/child-dashboard'
+      path: '/child-dashboard'
+      fullPath: '/child-dashboard'
+      preLoaderRoute: typeof ChildDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -211,11 +290,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EarnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/goals': {
+      id: '/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof GoalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invest': {
       id: '/invest'
       path: '/invest'
       fullPath: '/invest'
       preLoaderRoute: typeof InvestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investments': {
+      id: '/investments'
+      path: '/investments'
+      fullPath: '/investments'
+      preLoaderRoute: typeof InvestmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn': {
@@ -225,25 +318,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/learn/': {
-      id: '/learn/'
-      path: '/'
-      fullPath: '/learn/'
-      preLoaderRoute: typeof LearnIndexRouteImport
-      parentRoute: typeof LearnRoute
-    }
-    '/learn/$lessonId': {
-      id: '/learn/$lessonId'
-      path: '$lessonId'
-      fullPath: '/learn/$lessonId'
-      preLoaderRoute: typeof LearnLessonIdRouteImport
-      parentRoute: typeof LearnRoute
-    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent-dashboard': {
+      id: '/parent-dashboard'
+      path: '/parent-dashboard'
+      fullPath: '/parent-dashboard'
+      preLoaderRoute: typeof ParentDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -274,25 +367,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wallet': {
+      id: '/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/$lessonId': {
+      id: '/learn/$lessonId'
+      path: '/$lessonId'
+      fullPath: '/learn/$lessonId'
+      preLoaderRoute: typeof LearnLessonIdRouteImport
+      parentRoute: typeof LearnRoute
+    }
   }
 }
 
-const learnRouteChildren: LearnRouteChildren = {
-  LearnIndexRoute: LearnIndexRoute,
-  LearnLessonIdRoute: LearnLessonIdRoute,
+interface LearnRouteChildren {
+  LearnLessonIdRoute: typeof LearnLessonIdRoute
+  LearnIndexRoute: typeof LearnIndexRoute
 }
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnLessonIdRoute: LearnLessonIdRoute,
+  LearnIndexRoute: LearnIndexRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChildDashboardRoute: ChildDashboardRoute,
   DashboardRoute: DashboardRoute,
   EarnRoute: EarnRoute,
+  GoalsRoute: GoalsRoute,
   InvestRoute: InvestRoute,
-  LearnRoute: LearnRoute._addFileChildren(learnRouteChildren),
+  InvestmentsRoute: InvestmentsRoute,
+  LearnRoute: LearnRouteWithChildren,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRoute,
+  ParentDashboardRoute: ParentDashboardRoute,
   PricingRoute: PricingRoute,
   SaveRoute: SaveRoute,
   SignupRoute: SignupRoute,
   SpendRoute: SpendRoute,
+  WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
