@@ -20,7 +20,7 @@ function LoginPage() {
 
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
-      setError("Λάθος email ή κωδικός. Δοκίμασε ξανά.");
+      setError("Ξ›Ξ¬ΞΈΞΏΟ‚ email Ξ® ΞΊΟ‰Ξ΄ΞΉΞΊΟΟ‚. Ξ”ΞΏΞΊΞ―ΞΌΞ±ΟƒΞµ ΞΎΞ±Ξ½Ξ¬.");
       setLoading(false);
       return;
     }
@@ -51,7 +51,7 @@ function LoginPage() {
       return;
     }
 
-    // No profile yet → onboarding
+    // No profile yet β†’ onboarding
     navigate({ to: "/onboarding" });
   }
 
@@ -67,15 +67,15 @@ function LoginPage() {
             className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg"
             style={{ background: "oklch(0.57 0.23 292)" }}
           >
-            🪙
+            π™
           </div>
           <h1 className="text-2xl font-black text-gray-800">Kids in Business</h1>
-          <p className="text-gray-400 text-sm font-semibold">Χρηματοοικονομική παιδεία για παιδιά</p>
+          <p className="text-gray-400 text-sm font-semibold">Ξ§ΟΞ·ΞΌΞ±Ο„ΞΏΞΏΞΉΞΊΞΏΞ½ΞΏΞΌΞΉΞΊΞ® Ο€Ξ±ΞΉΞ΄ΞµΞ―Ξ± Ξ³ΞΉΞ± Ο€Ξ±ΞΉΞ΄ΞΉΞ¬</p>
         </div>
 
         {/* Form */}
         <div className="bg-white rounded-3xl p-6 ring-1 ring-border shadow-sm">
-          <h2 className="font-black text-gray-800 text-xl mb-5">Σύνδεση</h2>
+          <h2 className="font-black text-gray-800 text-xl mb-5">Ξ£ΟΞ½Ξ΄ΞµΟƒΞ·</h2>
 
           {error && (
             <div className="bg-red-50 text-red-600 text-sm font-semibold rounded-xl px-4 py-3 mb-4">
@@ -97,12 +97,12 @@ function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-bold text-gray-600 block mb-1">Κωδικός</label>
+              <label className="text-sm font-bold text-gray-600 block mb-1">ΞΟ‰Ξ΄ΞΉΞΊΟΟ‚</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="β€Άβ€Άβ€Άβ€Άβ€Άβ€Άβ€Άβ€Ά"
                 required
                 className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
               />
@@ -113,14 +113,20 @@ function LoginPage() {
               className="w-full py-3 rounded-xl font-black text-white disabled:opacity-60 transition-all hover:-translate-y-0.5 active:scale-95 mt-2"
               style={{ background: "oklch(0.57 0.23 292)" }}
             >
-              {loading ? "Σύνδεση…" : "Σύνδεση →"}
+              {loading ? "Ξ£ΟΞ½Ξ΄ΞµΟƒΞ·β€¦" : "Ξ£ΟΞ½Ξ΄ΞµΟƒΞ· β†’"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 font-semibold mt-5">
-            Δεν έχεις λογαριασμό;{" "}
+          <p className="text-center text-sm mt-4">
+            <a href="/forgot-password" className="text-gray-400 font-semibold hover:underline">
+              ΞΞ­Ο‡Ξ±ΟƒΞµΟ‚ Ο„ΞΏΞ½ ΞΊΟ‰Ξ΄ΞΉΞΊΟ;
+            </a>
+          </p>
+
+          <p className="text-center text-sm text-gray-400 font-semibold mt-3">
+            Ξ”ΞµΞ½ Ξ­Ο‡ΞµΞΉΟ‚ Ξ»ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΟ;{" "}
             <a href="/signup" className="font-black" style={{ color: "oklch(0.57 0.23 292)" }}>
-              Εγγραφή
+              Ξ•Ξ³Ξ³ΟΞ±Ο†Ξ®
             </a>
           </p>
         </div>
@@ -128,3 +134,4 @@ function LoginPage() {
     </div>
   );
 }
+
