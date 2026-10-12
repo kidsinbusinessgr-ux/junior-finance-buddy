@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&subset=greek&display=swap');
 
 @theme inline {
   --font-sans: "Nunito", Arial, "Helvetica Neue", sans-serif;

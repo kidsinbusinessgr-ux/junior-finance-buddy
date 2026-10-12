@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoImg from "@/assets/logo-kidsinbusiness.png";
+import logoImg from "@/assets/logo-kidsinbusiness_1.png";
 
 type BrightlyNavProps = {
   active?: "pricing" | "earn" | "spend" | "save" | "invest" | "learn" | "dashboard";
