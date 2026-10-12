@@ -1,9 +1,10 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&subset=greek&display=swap');
 
 @theme inline {
-  --font-sans: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif;
+  --font-sans: "Nunito", Arial, sans-serif;
   --radius: 0.8rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
