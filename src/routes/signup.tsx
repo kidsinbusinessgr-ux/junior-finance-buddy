@@ -3,14 +3,15 @@ import { useState } from "react";
 import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo-kidsinbusiness_1.png";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Create your account — Brightly" },
-      { name: "description", content: "Create a Brightly account and begin building confident money habits together." },
-      { property: "og:title", content: "Create your account — Brightly" },
-      { property: "og:description", content: "Create a Brightly account and begin building confident money habits together." },
+      { title: "Εγγραφή — Kids in Business" },
+      { name: "description", content: "Δημιούργησε λογαριασμό στο Kids in Business και ξεκίνα να χτίζεις οικονομικές δεξιότητες με το παιδί σου." },
+      { property: "og:title", content: "Εγγραφή — Kids in Business" },
+      { property: "og:description", content: "Δημιούργησε λογαριασμό στο Kids in Business και ξεκίνα να χτίζεις οικονομικές δεξιότητες με το παιδί σου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -66,10 +67,10 @@ function SignupPage() {
       <main className="flex min-h-screen items-center justify-center bg-background px-5 text-foreground">
         <section className="w-full max-w-sm rounded-lg bg-card p-8 text-center shadow-sm ring-1 ring-border">
           <CheckCircle2 className="mx-auto h-16 w-16 text-accent" aria-hidden="true" />
-          <h1 className="mt-6 text-3xl font-black">Check your email!</h1>
-          <p className="mt-4 leading-relaxed text-muted-foreground">We’ve sent a confirmation email to <span className="font-bold text-foreground">{confirmationEmail}</span>. Please check your inbox and confirm your email address.</p>
+          <h1 className="mt-6 text-3xl font-black">Έλεγξε το email σου!</h1>
+          <p className="mt-4 leading-relaxed text-muted-foreground">Στείλαμε email επιβεβαίωσης στο <span className="font-bold text-foreground">{confirmationEmail}</span>. Άνοιξε τα εισερχόμενά σου και επιβεβαίωσε τη διεύθυνσή σου.</p>
           <Button asChild className="mt-7 w-full">
-            <Link to="/">Back to home</Link>
+            <Link to="/">Επιστροφή στην αρχική</Link>
           </Button>
         </section>
       </main>
@@ -84,12 +85,11 @@ function SignupPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg"
-            style={{ background: "oklch(0.57 0.23 292)" }}
-          >
-            🪙
-          </div>
+          <img
+            src={logo}
+            alt="Kids in Business"
+            className="mx-auto mb-3 h-16 w-auto"
+          />
           <h1 className="text-2xl font-black text-gray-800">Kids in Business</h1>
           <p className="text-gray-400 text-sm font-semibold">Ξεκίνα δωρεάν — 14 μέρες trial</p>
         </div>
@@ -187,12 +187,13 @@ function SignupPage() {
 
           <p className="text-center text-sm text-gray-400 font-semibold mt-3">
             Έχεις ήδη λογαριασμό;{" "}
-            <a href="/login" className="font-black" style={{ color: "oklch(0.57 0.23 292)" }}>
+            <Link to="/login" className="font-black" style={{ color: "oklch(0.57 0.23 292)" }}>
               Σύνδεση
-            </a>
+            </Link>
           </p>
         </div>
       </div>
     </div>
   );
 }
+
