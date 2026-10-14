@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Circle } from "lucide-react";
-import earnHeroKid from "@/assets/earn-girl.png";
+import earnHero from "@/assets/earn-girl.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
