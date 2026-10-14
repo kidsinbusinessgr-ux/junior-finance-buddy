@@ -1,10 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, BellOff, Lock, Unlock, Palette, Sparkles } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
 import spendHero from "@/assets/spend-hero-kid.jpg";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
+// ── Supabase client (uses env vars set by Vercel/Vite) ──────────────────────
+const supabaseUrl =
+  typeof import.meta !== "undefined"
+    ? (import.meta.env?.VITE_SUPABASE_URL as string)
+    : "";
+const supabaseAnonKey =
+  typeof import.meta !== "undefined"
+    ? (import.meta.env?.VITE_SUPABASE_ANON_KEY as string)
+    : "";
+
+const supabase =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
+
+// ── Route ────────────────────────────────────────────────────────────────────
 export const Route = createFileRoute("/spend")({
   head: () => ({
     meta: [
@@ -19,6 +36,7 @@ export const Route = createFileRoute("/spend")({
   component: SpendPage,
 });
 
+// ── Card customization data ──────────────────────────────────────────────────
 const CARD_GRADIENTS = [
   { id: "purple", label: "Μωβ", gradient: "linear-gradient(135deg,oklch(0.52 0.24 290),oklch(0.65 0.19 295))" },
   { id: "pink", label: "Ροζ", gradient: "linear-gradient(135deg,#f472b6,#ec4899)" },
@@ -52,18 +70,31 @@ const DESIGN_PATTERNS: Record<string, string[]> = {
   soccer: ["⚽", "🏆", "⚽", "🏆", "⚽", "🏆"],
 };
 
+// ── CardPreview ──────────────────────────────────────────────────────────────
 function CardPreview({
   gradient,
   design,
   name,
   locked,
+  coins,
+  loading,
 }: {
   gradient: string;
   design: string;
   name: string;
   locked: boolean;
+  coins: number | null;
+  loading: boolean;
 }) {
   const emojis = DESIGN_PATTERNS[design] ?? [];
+
+  // Format balance: real coins if available, demo fallback for unauthenticated
+  const balanceLabel = loading
+    ? "..."
+    : coins !== null
+    ? `🪙 ${coins}`
+    : "🪙 —";
+
   return (
     <div
       className="relative rounded-2xl p-6 text-white shadow-2xl transition-all duration-500 select-none"
@@ -93,8 +124,10 @@ function CardPreview({
             <p className="font-bold">{name || "Το όνομά σου"}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs uppercase opacity-60">Υπόλοιπο</p>
-            <p className="text-2xl font-black">€14,50</p>
+            <p className="text-xs uppercase opacity-60">Κέρματα</p>
+            <p className={`text-2xl font-black transition-opacity duration-300 ${loading ? "opacity-40" : "opacity-100"}`}>
+              {balanceLabel}
+            </p>
           </div>
         </div>
       </div>
@@ -111,6 +144,7 @@ function CardPreview({
   );
 }
 
+// ── SpendPage ────────────────────────────────────────────────────────────────
 function SpendPage() {
   const [cardLocked, setCardLocked] = useState(false);
   const [alertsOn, setAlertsOn] = useState(true);
@@ -120,6 +154,76 @@ function SpendPage() {
   const [selectedDesign, setSelectedDesign] = useState(CARD_DESIGNS[0]);
   const [cardName, setCardName] = useState("Σοφία Παπαδάκη");
   const [customizerTab, setCustomizerTab] = useState<"color" | "design">("color");
+
+  // Live balance from Supabase
+  const [coins, setCoins] = useState<number | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
+
+  useEffect(() => {
+    if (!supabase) {
+      setBalanceLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function fetchBalance() {
+      try {
+        // Get the currently logged-in user
+        const { data: { user } } = await supabase!.auth.getUser();
+        if (!user || cancelled) {
+          setBalanceLoading(false);
+          return;
+        }
+
+        // Fetch this child's record
+        const { data, error } = await supabase!
+          .from("jfb_children")
+          .select("name, coins")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (cancelled) return;
+
+        if (!error && data) {
+          setCoins(data.coins ?? 0);
+          // Pre-fill name from DB if present
+          if (data.name) setCardName(data.name);
+        }
+      } catch {
+        // Non-fatal — show demo state
+      } finally {
+        if (!cancelled) setBalanceLoading(false);
+      }
+    }
+
+    fetchBalance();
+
+    // Subscribe to real-time coin changes
+    const channel = supabase!
+      .channel("jfb_children_coins")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "jfb_children",
+          filter: `user_id=eq.${supabase!.auth.getUser().then(r => r.data.user?.id ?? "")}`,
+        },
+        (payload) => {
+          const updated = payload.new as { coins?: number };
+          if (typeof updated.coins === "number") {
+            setCoins(updated.coins);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase!.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <main className="min-h-screen overflow-hidden bg-background">
@@ -162,6 +266,8 @@ function SpendPage() {
                 design={selectedDesign.id}
                 name={cardName}
                 locked={cardLocked}
+                coins={coins}
+                loading={balanceLoading}
               />
 
               {/* Name input */}
@@ -280,9 +386,9 @@ function SpendPage() {
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
                   ["🗓️", "Αυτόματη κατάθεση", "Κάθε Δευτέρα (ή όποια μέρα θέλεις)"],
-                  ["💳", "Ποσό στην κάρτα", "Εσύ ορίζεις πόσο — π.χ. €5/εβδ."],
+                  ["💳", "Ποσό στην κάρτα", "Εσύ ορίζεις πόσο — π.χ. 50 κέρματα/εβδ."],
                   ["📊", "Παρακολούθηση", "Δες πού πηγαίνουν τα χρήματα"],
-                  ["🏆", "Smart rewards", "Κέρδισε πόντους με έξυπνες αγορές"],
+                  ["🏆", "Smart rewards", "Κέρδισε κέρματα με έξυπνες επιλογές"],
                 ].map(([icon, title, desc]) => (
                   <div key={title as string} className="rounded-xl bg-card p-4 shadow-sm">
                     <div className="text-2xl">{icon as string}</div>
@@ -293,7 +399,7 @@ function SpendPage() {
               </div>
             </div>
             <div className="rounded-2xl border-2 border-dashed border-[oklch(0.57_0.23_292)]/30 bg-card p-8 text-center">
-              <div className="text-5xl">💰</div>
+              <div className="text-5xl">🪙</div>
               <h3 className="mt-4 text-2xl font-black">Έρχεται σύντομα!</h3>
               <p className="mt-3 text-muted-foreground">Το σύστημα αυτόματου χαρτζιλικιού και smart rewards θα είναι διαθέσιμο στους συνδρομητές μας.</p>
               <Link to="/signup">
