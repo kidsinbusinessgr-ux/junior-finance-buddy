@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, Pause } from "lucide-react";
-import heroKid from "@/assets/bright-card-kid.jpg";
+import heroKid from "@/assets/hero-kids.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
