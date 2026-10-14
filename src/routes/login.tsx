@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-kidsinbusiness_1.png";
 
@@ -68,6 +69,13 @@ function LoginPage() {
       style={{ background: "oklch(0.98 0.01 292)" }}
     >
       <div className="w-full max-w-sm">
+        {/* Back to home */}
+        <div className="mb-4">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400 hover:text-gray-700 transition-colors">
+            <ArrowLeft size={15} /> Αρχική
+          </Link>
+        </div>
+
         {/* Logo */}
         <div className="text-center mb-8">
           <img

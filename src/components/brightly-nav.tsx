@@ -10,6 +10,7 @@ type BrightlyNavProps = {
 };
 
 const navigation = [
+  { label: "Αρχική", to: "/" as const, key: "home" },
   { label: "Τιμές", to: "/pricing" as const, key: "pricing" },
   { label: "Κέρδη", to: "/earn" as const, key: "earn" },
   { label: "Δαπάνες", to: "/spend" as const, key: "spend" },
@@ -52,9 +53,8 @@ export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
       </Button>
       {menuOpen ? (
         <nav className="absolute right-0 top-16 grid w-60 gap-1 rounded-lg bg-card p-4 text-card-foreground shadow-xl lg:hidden" aria-label="Πλοήγηση κινητού">
-          <Link to="/" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 font-bold hover:bg-secondary">Αρχική</Link>
           {navigation.map((item) => (
-            <Link key={item.key} to={item.to} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 hover:bg-secondary">
+            <Link key={item.key} to={item.to} onClick={() => setMenuOpen(false)} className={`rounded-md px-3 py-2 hover:bg-secondary ${active === item.key ? "font-black" : ""}`}>
               {item.label}
             </Link>
           ))}
