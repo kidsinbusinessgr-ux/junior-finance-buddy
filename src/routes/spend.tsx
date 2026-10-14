@@ -1,25 +1,10 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, BellOff, Lock, Unlock, Palette, Sparkles } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import spendHero from "@/assets/spend-hero-kid.jpg";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
-
-// ── Supabase client (uses env vars set by Vercel/Vite) ──────────────────────
-const supabaseUrl =
-  typeof import.meta !== "undefined"
-    ? (import.meta.env?.VITE_SUPABASE_URL as string)
-    : "";
-const supabaseAnonKey =
-  typeof import.meta !== "undefined"
-    ? (import.meta.env?.VITE_SUPABASE_ANON_KEY as string)
-    : "";
-
-const supabase =
-  supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
 
 // ── Route ────────────────────────────────────────────────────────────────────
 export const Route = createFileRoute("/spend")({
@@ -160,24 +145,19 @@ function SpendPage() {
   const [balanceLoading, setBalanceLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabase) {
-      setBalanceLoading(false);
-      return;
-    }
-
     let cancelled = false;
 
     async function fetchBalance() {
       try {
         // Get the currently logged-in user
-        const { data: { user } } = await supabase!.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user || cancelled) {
           setBalanceLoading(false);
           return;
         }
 
         // Fetch this child's record
-        const { data, error } = await supabase!
+        const { data, error } = await supabase
           .from("jfb_children")
           .select("name, coins")
           .eq("user_id", user.id)
@@ -186,12 +166,12 @@ function SpendPage() {
         if (cancelled) return;
 
         if (!error && data) {
-          setCoins(data.coins ?? 0);
+          setCoins((data as { coins: number; name: string }).coins ?? 0);
           // Pre-fill name from DB if present
-          if (data.name) setCardName(data.name);
+          if ((data as { name: string }).name) setCardName((data as { name: string }).name);
         }
       } catch {
-        // Non-fatal — show demo state
+        // Non-fatal — show demo state (🪙 —)
       } finally {
         if (!cancelled) setBalanceLoading(false);
       }
@@ -200,28 +180,32 @@ function SpendPage() {
     fetchBalance();
 
     // Subscribe to real-time coin changes
-    const channel = supabase!
-      .channel("jfb_children_coins")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "jfb_children",
-          filter: `user_id=eq.${supabase!.auth.getUser().then(r => r.data.user?.id ?? "")}`,
-        },
-        (payload) => {
-          const updated = payload.new as { coins?: number };
-          if (typeof updated.coins === "number") {
-            setCoins(updated.coins);
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user || cancelled) return;
+      channel = supabase
+        .channel("jfb_children_coins")
+        .on(
+          "postgres_changes" as any,
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "jfb_children",
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload: any) => {
+            const updated = payload.new as { coins?: number };
+            if (typeof updated.coins === "number") {
+              setCoins(updated.coins);
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    });
 
     return () => {
       cancelled = true;
-      supabase!.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, []);
 
