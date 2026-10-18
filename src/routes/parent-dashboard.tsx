@@ -13,6 +13,9 @@ import {
   reviewChore,
   approveRewardRequest as approveRewardRequestFn,
   parentLoadCoins,
+useAllowances,
+upsertAllowance,
+deleteAllowance,
   xpToLevel,
   LEVEL_NAMES,
   XP_LEVELS,
@@ -41,6 +44,12 @@ function ParentDashboard() {
   const [showLoadCoins, setShowLoadCoins] = useState(false);
   const [loadAmount, setLoadAmount] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const { allowance, refetch: refetchAllowance } = useAllowances(parent?.id ?? null, child?.id ?? null);
+  const [allowanceAmount, setAllowanceAmount] = useState(50);
+  const [allowanceDayOfWeek, setAllowanceDayOfWeek] = useState(1);
+  const [allowanceActive, setAllowanceActive] = useState(true);
+  const [allowanceSaving, setAllowanceSaving] = useState(false);
 
   // ── Auth guard ──────────────────────────────────────────────────────────────
   if (!authLoading && !userId) {
@@ -124,6 +133,28 @@ function ParentDashboard() {
       setShowLoadCoins(false);
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function handleSaveAllowance() {
+    if (!parent || !child) return;
+    setAllowanceSaving(true);
+    try {
+      await upsertAllowance(parent.id, child.id, allowanceAmount, allowanceDayOfWeek, allowanceActive, allowance?.id);
+      await refetchAllowance();
+    } finally {
+      setAllowanceSaving(false);
+    }
+  }
+
+  async function handleDeleteAllowance() {
+    if (!allowance) return;
+    setAllowanceSaving(true);
+    try {
+      await deleteAllowance(allowance.id);
+      await refetchAllowance();
+    } finally {
+      setAllowanceSaving(false);
     }
   }
 
@@ -477,12 +508,98 @@ function ParentDashboard() {
           <>
             <h2 className="font-black text-gray-800 text-lg">Ρυθμίσεις</h2>
 
+            {/* Allowance section */}
+            <div className="bg-white rounded-2xl ring-1 ring-border shadow-sm p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-black text-gray-800">💰 Εβδομαδιαίο Χαρτζιλίκι</p>
+                  <p className="text-xs text-gray-400 font-semibold">
+                    {allowance ? `Ενεργό: ${allowance.amount_coins}🪙 κάθε ${["Κυρ","Δευ","Τρι","Τετ","Πεμ","Παρ","Σαβ"][allowance.day_of_week]}` : "Δεν έχει οριστεί"}
+                  </p>
+                </div>
+                <div
+                  onClick={() => setAllowanceActive(a => !a)}
+                  className="w-12 h-6 rounded-full cursor-pointer transition-all relative"
+                  style={{ background: allowanceActive ? "oklch(0.65 0.20 142)" : "#d1d5db" }}
+                >
+                  <div
+                    className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all"
+                    style={{ left: allowanceActive ? "26px" : "2px" }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-black text-gray-500 uppercase tracking-wide mb-2">Ποσό (KidsCoins)</p>
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  {[25, 50, 100, 200].map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setAllowanceAmount(p)}
+                      className="py-2 rounded-xl font-black text-sm transition-all"
+                      style={{
+                        background: allowanceAmount === p ? "oklch(0.57 0.23 292)" : "oklch(0.97 0.01 292)",
+                        color: allowanceAmount === p ? "white" : "oklch(0.40 0.10 292)",
+                      }}
+                    >
+                      {p}🪙
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="number"
+                  value={allowanceAmount}
+                  onChange={e => setAllowanceAmount(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full rounded-xl px-4 py-2.5 border border-gray-200 font-semibold text-gray-800 focus:outline-none text-sm"
+                  placeholder="Ή πληκτρολόγησε ποσό…"
+                />
+              </div>
+
+              <div>
+                <p className="text-xs font-black text-gray-500 uppercase tracking-wide mb-2">Ημέρα πληρωμής</p>
+                <div className="grid grid-cols-7 gap-1">
+                  {["Κυρ","Δευ","Τρι","Τετ","Πεμ","Παρ","Σαβ"].map((day, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setAllowanceDayOfWeek(i)}
+                      className="py-2 rounded-xl font-black text-xs transition-all"
+                      style={{
+                        background: allowanceDayOfWeek === i ? "oklch(0.57 0.23 292)" : "oklch(0.97 0.01 292)",
+                        color: allowanceDayOfWeek === i ? "white" : "oklch(0.40 0.10 292)",
+                      }}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                {allowance && (
+                  <button
+                    onClick={handleDeleteAllowance}
+                    disabled={allowanceSaving}
+                    className="px-4 py-2.5 rounded-xl font-bold text-sm bg-red-50 text-red-500 ring-1 ring-red-100 disabled:opacity-40"
+                  >
+                    Διαγραφή
+                  </button>
+                )}
+                <button
+                  onClick={handleSaveAllowance}
+                  disabled={allowanceSaving || !child}
+                  className="flex-1 py-2.5 rounded-xl font-black text-white text-sm disabled:opacity-40 transition-all hover:-translate-y-0.5"
+                  style={{ background: "oklch(0.57 0.23 292)" }}
+                >
+                  {allowanceSaving ? "Αποθήκευση…" : allowance ? "Ενημέρωση ✓" : "Ενεργοποίηση 🚀"}
+                </button>
+              </div>
+            </div>
+
+            {/* Static info items */}
             <div className="bg-white rounded-2xl ring-1 ring-border shadow-sm divide-y divide-gray-100">
               {[
                 { icon: "👦", label: "Προφίλ παιδιού", sub: child ? `${child.name} · Επίπεδο ${level}` : "—" },
                 { icon: "🔔", label: "Ειδοποιήσεις", sub: "Ενεργές" },
-                { icon: "🔒", label: "Όρια δαπανών", sub: "Χωρίς όριο" },
-                { icon: "📊", label: "Εβδομαδιαία αναφορά", sub: "Κάθε Κυριακή" },
               ].map((s, i) => (
                 <div key={i} className="flex items-center gap-3 p-4">
                   <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-xl">{s.icon}</div>
