@@ -13,6 +13,7 @@ import {
   useSavingsGoals,
   useChores,
   useChoreSubmissions,
+  useAchievements,
   submitChore,
   xpForNextLevel,
   LEVEL_NAMES,
@@ -43,6 +44,7 @@ function ChildDashboard() {
   const { goals } = useSavingsGoals(child?.id);
   const { chores } = useChores(child?.parent_id);
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id);
+  const { earned: earnedBadges, all: allBadges } = useAchievements(child?.id);
 
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -312,31 +314,36 @@ function ChildDashboard() {
           </Link>
         </section>
 
-        {/* Achievements */}
+        {/* Achievements — real data from DB */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">Επιτεύγματα</h2>
-            <Trophy size={18} className="text-[oklch(0.7_0.2_60)]" />
+            <h2 className="font-black">Επιτεύγματα 🏆</h2>
+            <span className="text-xs font-bold text-[oklch(0.7_0.2_60)]">
+              {earnedBadges.length}/{allBadges.length} ξεκλείδωτα
+            </span>
           </div>
           <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
-            {[
-              { emoji: "🥇", label: "1ο Μάθημα", done: transactions.some((t) => t.type === "lesson") },
-              { emoji: "💰", label: "100 Coins", done: child.coins >= 100 },
-              { emoji: "📈", label: "1η Επένδυση", done: transactions.some((t) => t.type === "investment" && t.amount < 0) },
-              { emoji: "🎯", label: "1ος Στόχος", done: goals.length > 0 },
-              { emoji: "🌟", label: "Lvl 5", done: child.level >= 5 },
-            ].map((badge) => (
-              <div
-                key={badge.label}
-                className={`flex shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-3 ${
-                  badge.done ? "bg-[oklch(0.88_0.1_292)]" : "bg-secondary opacity-50"
-                }`}
-              >
-                <span className="text-2xl">{badge.emoji}</span>
-                <span className="text-[10px] font-black">{badge.label}</span>
-                {badge.done && <Star size={10} className="text-[oklch(0.6_0.2_60)]" fill="oklch(0.6 0.2 60)" />}
-              </div>
-            ))}
+            {allBadges.map((badge) => {
+              const isDone = earnedBadges.some((e) => e.badge_key === badge.key);
+              return (
+                <div
+                  key={badge.key}
+                  className={`flex shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-3 ${
+                    isDone ? "bg-[oklch(0.88_0.1_292)]" : "bg-secondary opacity-40"
+                  }`}
+                  title={badge.description_gr}
+                >
+                  <span className="text-2xl">{isDone ? badge.icon : "🔒"}</span>
+                  <span className="text-[10px] font-black text-center leading-tight max-w-[64px]">
+                    {badge.name_gr.replace("!", "")}
+                  </span>
+                  {isDone && <Star size={10} className="text-[oklch(0.6_0.2_60)]" fill="oklch(0.6 0.2 60)" />}
+                </div>
+              );
+            })}
+            {allBadges.length === 0 && (
+              <p className="text-sm text-muted-foreground py-2">Φόρτωση…</p>
+            )}
           </div>
         </section>
 
