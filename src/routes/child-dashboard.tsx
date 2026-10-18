@@ -19,6 +19,8 @@ import {
   submitChore,
   xpForNextLevel,
   LEVEL_NAMES,
+  useChildNotifications,
+  markNotificationRead,
 } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/child-dashboard")({
@@ -47,6 +49,8 @@ function ChildDashboard() {
   const { chores } = useChores(child?.parent_id);
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id);
   const { earned: earnedBadges, all: allBadges } = useAchievements(child?.id);
+  const { notifications, unreadCount } = useChildNotifications(child?.id ?? null);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -132,6 +136,40 @@ function ChildDashboard() {
                 </span>
               )}
             </button>
+            {/* Ειδοποιήσεις */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 rounded-full hover:bg-black/10 transition-colors"
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <div className="absolute right-0 top-10 z-50 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm text-gray-700">Ειδοποιήσεις</div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-gray-50">
+                    {notifications.length === 0 ? (
+                      <p className="p-4 text-sm text-gray-400 text-center">Καμία ειδοποίηση</p>
+                    ) : (
+                      notifications.map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={async () => { await markNotificationRead(n.id); setShowNotifications(false); }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50 font-medium" : "text-gray-600"}`}
+                        >
+                          {n.message}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="mt-8">
