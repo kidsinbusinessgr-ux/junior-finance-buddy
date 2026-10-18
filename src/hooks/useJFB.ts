@@ -658,3 +658,37 @@ export async function upsertAllowance(
 export async function deleteAllowance(id: string): Promise<void> {
   await supabase.from("jfb_allowances").delete().eq("id", id);
 }
+
+
+// ── Achievements ──────────────────────────────────────────────────────────────
+export type JFBAchievement = {
+  key: string;
+  name_gr: string;
+  description_gr: string;
+  icon: string;
+  sort_order: number;
+};
+
+export function useAchievements(childId: string | null | undefined) {
+  const [earned, setEarned] = useState<{ badge_key: string; earned_at: string }[]>([]);
+  const [all, setAll] = useState<JFBAchievement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAchievements = useCallback(async () => {
+    if (!childId) { setLoading(false); return; }
+    const [{ data: allBadges }, { data: earnedBadges }] = await Promise.all([
+      supabase.from("jfb_achievements").select("*").order("sort_order"),
+      supabase
+        .from("jfb_child_achievements")
+        .select("badge_key, earned_at")
+        .eq("child_id", childId),
+    ]);
+    setAll((allBadges ?? []) as JFBAchievement[]);
+    setEarned((earnedBadges ?? []) as { badge_key: string; earned_at: string }[]);
+    setLoading(false);
+  }, [childId]);
+
+  useEffect(() => { fetchAchievements(); }, [fetchAchievements]);
+
+  return { earned, all, loading, refetch: fetchAchievements };
+}
