@@ -873,3 +873,42 @@ export async function sendAllowanceCoins(childId: string, coins: number, note: s
   await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
   await supabase.from("jfb_transactions").insert({ child_id: childId, type: "deposit", amount: coins, description: note || "Χαρτζιλίκι", icon: "💸" });
 }
+
+
+// ─── Onboarding helpers ───────────────────────────────────────────────────────
+
+export async function createParentProfile(userId: string, name: string) {
+  const { data, error } = await supabase
+    .from("jfb_parents")
+    .upsert({ user_id: userId, name }, { onConflict: "user_id" })
+    .select("id, name")
+    .single();
+  if (error) throw error;
+  return data as { id: string; name: string };
+}
+
+export async function addFirstChild(
+  parentId: string,
+  name: string,
+  avatar: string,
+) {
+  const { error } = await supabase.from("jfb_children").insert({
+    parent_id: parentId,
+    name,
+    avatar,
+    coins: 0,
+    xp: 0,
+    level: 1,
+    current_streak: 0,
+  });
+  if (error) throw error;
+}
+
+export async function hasParentProfile(userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("jfb_parents")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return !!data;
+}
