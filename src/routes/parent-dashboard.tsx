@@ -6,7 +6,7 @@ import {
   usePendingSubmissions,
   approveChoreSubmission,
   rejectChoreSubmission,
-  sendAllowanceCoins,h
+  sendAllowanceCoins,
   type PendingSubmission,
 } from "@/hooks/useJFB";
 
