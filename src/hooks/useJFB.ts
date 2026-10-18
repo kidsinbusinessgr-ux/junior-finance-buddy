@@ -692,3 +692,78 @@ export function useAchievements(childId: string | null | undefined) {
 
   return { earned, all, loading, refetch: fetchAchievements };
 }
+
+
+// ── Spending Analytics ────────────────────────────────────────────────────────
+export type SpendingSource = {
+  label: string;
+  amount: number;
+  color: string;
+};
+
+export type SpendingStats = {
+  totalIn: number;
+  totalOut: number;
+  savingsRate: number;
+  bySource: SpendingSource[];
+  monthLabel: string;
+};
+
+export function useSpendingAnalytics(childId: string | null | undefined) {
+  const [stats, setStats] = useState<SpendingStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = useCallback(async () => {
+    if (!childId) { setLoading(false); return; }
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const monthLabel = now.toLocaleDateString("el-GR", { month: "long", year: "numeric" });
+
+    const { data } = await supabase
+      .from("jfb_transactions")
+      .select("amount, type, description")
+      .eq("child_id", childId)
+      .gte("created_at", startOfMonth);
+
+    if (!data) { setLoading(false); return; }
+
+    let totalIn = 0;
+    let totalOut = 0;
+    const sources: Record<string, number> = { allowance: 0, chore: 0, other_in: 0 };
+
+    for (const t of data) {
+      if (t.amount > 0) {
+        totalIn += t.amount;
+        const desc = (t.description ?? "").toLowerCase();
+        if (t.type === "allowance" || desc.includes("χαρτζιλίκι") || desc.includes("allowance")) {
+          sources.allowance += t.amount;
+        } else if (t.type === "chore_payment") {
+          sources.chore += t.amount;
+        } else {
+          sources.other_in += t.amount;
+        }
+      } else {
+        totalOut += Math.abs(t.amount);
+      }
+    }
+
+    const savingsRate = totalIn > 0 ? Math.round(((totalIn - totalOut) / totalIn) * 100) : 0;
+
+    setStats({
+      totalIn,
+      totalOut,
+      savingsRate,
+      monthLabel,
+      bySource: [
+        { label: "Χαρτζιλίκι", amount: sources.allowance, color: "oklch(0.65 0.2 292)" },
+        { label: "Δουλειές", amount: sources.chore, color: "oklch(0.65 0.18 170)" },
+        { label: "Άλλο", amount: sources.other_in, color: "oklch(0.65 0.18 60)" },
+      ].filter((s) => s.amount > 0),
+    });
+    setLoading(false);
+  }, [childId]);
+
+  useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  return { stats, loading, refetch: fetchStats };
+}
