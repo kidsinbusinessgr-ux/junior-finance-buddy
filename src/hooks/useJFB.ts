@@ -862,53 +862,72 @@ export async function approveChoreSubmission(subId: string, childId: string, cho
   const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
   await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
   await supabase.from("jfb_transactions").insert({ child_id: childId, type: "chore", amount: coins, description: choreEmoji + " " + choreName, icon: choreEmoji });
+  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "chore_approved", message: choreEmoji + " " + choreName + " εγκρίθηκε! Κέρδισες " + coins + " 🪙" });
 }
 
-export async function rejectChoreSubmission(subId: string) {
+export async function rejectChoreSubmission(subId: string, childId: string, choreName: string) {
   await supabase.from("jfb_chore_submissions").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", subId);
+  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "chore_rejected", message: "❌ " + choreName + " δεν εγκρίθηκε. Προσπάθησε ξανά!" });
 }
 
 export async function sendAllowanceCoins(childId: string, coins: number, note: string) {
   const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
   await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
-  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "deposit", amount: coins, description: note || "Χαρτζιλίκι", icon: "💸" });
+  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "deposit", amount: coins, description: note || "Χαρτζιλίκι", icon: "💰" });
+  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "allowance_received", message: "💰 έλαβες " + coins + " 🪙 χαρτζιλίκι!" });
 }
 
+// ── Notifications ─────────────────────────────────────────────────────────────────────────────────
 
-// ─── Onboarding helpers ───────────────────────────────────────────────────────
-
-export async function createParentProfile(userId: string, name: string) {
-  const { data, error } = await supabase
-    .from("jfb_parents")
-    .upsert({ user_id: userId, name }, { onConflict: "user_id" })
-    .select("id, name")
-    .single();
-  if (error) throw error;
-  return data as { id: string; name: string };
+export interface JFBNotification {
+  id: string;
+  child_id: string;
+  type: "chore_approved" | "chore_rejected" | "allowance_received";
+  message: string;
+  read: boolean;
+  created_at: string;
 }
 
-export async function addFirstChild(
-  parentId: string,
-  name: string,
-  avatar: string,
-) {
-  const { error } = await supabase.from("jfb_children").insert({
-    parent_id: parentId,
-    name,
-    avatar,
-    coins: 0,
-    xp: 0,
-    level: 1,
-    current_streak: 0,
-  });
-  if (error) throw error;
+export function useChildNotifications(childId: string | null) {
+  const [notifications, setNotifications] = useState<JFBNotification[]>([]);
+
+  useEffect(() => {
+    if (!childId) return;
+
+    supabase
+      .from("jfb_notifications")
+      .select("*")
+      .eq("child_id", childId)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setNotifications(data as JFBNotification[]);
+      });
+
+    const channel = supabase
+      .channel("notifications:" + childId)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "jfb_notifications",
+          filter: "child_id=eq." + childId,
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new as JFBNotification, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [childId]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  return { notifications, unreadCount };
 }
 
-export async function hasParentProfile(userId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("jfb_parents")
-    .select("id")
-    .eq("user_id", userId)
-    .maybeSingle();
-  return !!data;
+export async function markNotificationRead(id: string) {
+  await supabase.from("jfb_notifications").update({ read: true }).eq("id", id);
 }
