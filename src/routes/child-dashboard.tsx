@@ -54,6 +54,9 @@ function ChildDashboard() {
 
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const { streak } = useStreak(child?.id ?? null);
+  const { spendingStats } = useSpendingAnalytics(child?.id);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
 
   // Auth guard
   useEffect(() => {
