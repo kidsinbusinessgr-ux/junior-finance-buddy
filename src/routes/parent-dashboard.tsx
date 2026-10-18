@@ -106,6 +106,11 @@ function ParentDashboard() {
                   <p className="text-sm text-[oklch(0.5_0.04_250)]">
                     🪙 {c.coins} · 🔥 {c.current_streak} · {levelEmoji(c.level)} Lv {c.level}
                   </p>
+                  {(c as any).invite_code && (
+                    <p className="text-xs mt-1 font-mono font-bold tracking-widest text-purple-600 bg-purple-50 rounded-lg px-2 py-0.5 inline-block">
+                      🔑 {(c as any).invite_code}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
