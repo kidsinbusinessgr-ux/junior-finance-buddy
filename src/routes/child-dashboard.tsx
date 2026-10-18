@@ -14,6 +14,7 @@ import {
   useChores,
   useChoreSubmissions,
   useAchievements,
+  useSpendingAnalytics,
   submitChore,
   xpForNextLevel,
   LEVEL_NAMES,
@@ -386,6 +387,46 @@ function ChildDashboard() {
           </div>
         </section>
       </div>
+
+
+        {/* Spending Analytics */}
+        {spendingStats && (
+          <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
+            <h2 className="font-black">Στατιστικά {spendingStats.monthLabel} 📊</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-[oklch(0.9_0.08_170)] p-3">
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">Έσοδα</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">€{spendingStats.totalIn.toFixed(2)}</p>
+              </div>
+              <div className="rounded-xl bg-[oklch(0.9_0.08_22)] p-3">
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">Έξοδα</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">€{spendingStats.totalOut.toFixed(2)}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="mb-1 flex justify-between text-[10px] font-bold">
+                <span>Αποταμίευση</span>
+                <span className="text-[oklch(0.5_0.2_292)]">{spendingStats.savingsRate}%</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                <div
+                  className="h-full rounded-full bg-[oklch(0.65_0.2_292)] transition-all"
+                  style={{ width: `${Math.max(0, spendingStats.savingsRate)}%` }}
+                />
+              </div>
+            </div>
+            {spendingStats.bySource.length > 0 && (
+              <div className="mt-4 flex gap-2 flex-wrap">
+                {spendingStats.bySource.map((src) => (
+                  <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: src.color + '33', color: src.color }}>
+                    <span className="h-2 w-2 rounded-full" style={{ background: src.color }} />
+                    {src.label} €{src.amount.toFixed(2)}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-border bg-card px-2 py-3 shadow-lg">
