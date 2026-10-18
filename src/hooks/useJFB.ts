@@ -583,12 +583,22 @@ export async function createChildProfile(
 
 
 
+function generateInviteCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
 export async function addFirstChild(
-parentId: string, name: string, avatar: string
+  parentId: string, name: string, avatar: string
 ): Promise<JFBChild> {
+  const invite_code = generateInviteCode();
   const { data, error } = await supabase
     .from("jfb_children")
-    .insert({ parent_id: parentId, name, avatar, coins: 0, level: 1, xp: 0 })
+    .insert({ parent_id: parentId, name, avatar, coins: 0, level: 1, xp: 0, invite_code })
     .select()
     .single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create child");
