@@ -1,12 +1,12 @@
 /**
- * Junior Finance Buddy â Supabase data hooks
+ * Junior Finance Buddy Ã¢ÂÂ Supabase data hooks
  * Import from "@/hooks/useJFB"
  */
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
-// ââ Types ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Types Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export type JFBChild = Tables<"jfb_children">;
 export type JFBParent = Tables<"jfb_parents">;
 export type JFBTransaction = Tables<"jfb_transactions">;
@@ -19,15 +19,15 @@ export type JFBLessonProgress = Tables<"jfb_lesson_progress">;
 export type JFBStockHolding = Tables<"jfb_stock_holdings">;
 export type JFBStartupInvestment = Tables<"jfb_startup_investments">;
 
-// ââ Level helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Level helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export const XP_LEVELS = [0, 400, 1000, 1800, 3000, 5000] as const;
 export const LEVEL_NAMES = [
-  "ÎÏÏÎ¬ÏÎ¹Î¿Ï",
-  "ÎÎ±Î¸Î·ÏÎ®Ï",
-  "ÎÎ¹ÎºÏÏÏ ÎÏÎ¹ÏÎµÎ¹ÏÎ·Î¼Î±ÏÎ¯Î±Ï",
-  "ÎÏÎµÎ½Î´ÏÏÎ®Ï",
-  "ÎÎ¹ÎºÎ¿Î½Î¿Î¼Î¿Î»ÏÎ³Î¿Ï",
-  "Î§ÏÎ·Î¼Î±ÏÎ¿Î´ÏÏÎ·Ï",
+  "ÃÂÃÂÃÂÃÂ¬ÃÂÃÂ¹ÃÂ¿ÃÂ",
+  "ÃÂÃÂ±ÃÂ¸ÃÂ·ÃÂÃÂ®ÃÂ",
+  "ÃÂÃÂ¹ÃÂºÃÂÃÂÃÂ ÃÂÃÂÃÂ¹ÃÂÃÂµÃÂ¹ÃÂÃÂ·ÃÂ¼ÃÂ±ÃÂÃÂ¯ÃÂ±ÃÂ",
+  "ÃÂÃÂÃÂµÃÂ½ÃÂ´ÃÂÃÂÃÂ®ÃÂ",
+  "ÃÂÃÂ¹ÃÂºÃÂ¿ÃÂ½ÃÂ¿ÃÂ¼ÃÂ¿ÃÂ»ÃÂÃÂ³ÃÂ¿ÃÂ",
+  "ÃÂ§ÃÂÃÂ·ÃÂ¼ÃÂ±ÃÂÃÂ¿ÃÂ´ÃÂÃÂÃÂ·ÃÂ",
 ] as const;
 
 export function xpToLevel(xp: number): number {
@@ -46,7 +46,7 @@ export function xpForNextLevel(xp: number): { current: number; next: number; pct
   return { current, next, pct };
 }
 
-// ââ Auth helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Auth helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useCurrentUser() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export function useCurrentUser() {
   return { userId, loading };
 }
 
-// ââ Child profile ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Child profile Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChild() {
   const { userId } = useCurrentUser();
   const [child, setChild] = useState<JFBChild | null>(null);
@@ -102,7 +102,7 @@ export function useChild() {
   return { child, loading, refetch: fetch };
 }
 
-// ââ Parent profile âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Parent profile Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useParent() {
   const { userId } = useCurrentUser();
   const [parent, setParent] = useState<JFBParent | null>(null);
@@ -124,7 +124,7 @@ export function useParent() {
   return { parent, loading };
 }
 
-// ââ Children list (for parent) âââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Children list (for parent) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChildren(parentId: string | null | undefined) {
   const [children, setChildren] = useState<JFBChild[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +144,7 @@ export function useChildren(parentId: string | null | undefined) {
   return { children, loading };
 }
 
-// ââ Transactions âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Transactions Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useTransactions(childId: string | null | undefined) {
   const [transactions, setTransactions] = useState<JFBTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +178,7 @@ export async function addTransaction(
   });
 }
 
-// ââ Chores âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Chores Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChores(parentId: string | null | undefined) {
   const [chores, setChores] = useState<JFBChore[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,7 +200,7 @@ export function useChores(parentId: string | null | undefined) {
   return { chores, loading, refetch: fetch };
 }
 
-// ââ Chore submissions âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Chore submissions Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChoreSubmissions(childId: string | null | undefined) {
   const [submissions, setSubmissions] = useState<JFBChoreSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -247,12 +247,12 @@ export async function reviewChore(
       type: "chore",
       amount: coins,
       description: choreName,
-      icon: "â",
+      icon: "Ã¢ÂÂ",
     });
   }
 }
 
-// ââ Savings goals âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Savings goals Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useSavingsGoals(childId: string | null | undefined) {
   const [goals, setGoals] = useState<JFBSavingsGoal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -307,12 +307,12 @@ export async function depositToGoal(
     child_id: childId,
     type: "withdrawal",
     amount: -amount,
-    description: `ÎÏÎ¿ÏÎ±Î¼Î¯ÎµÏÏÎ·: ${goalName}`,
-    icon: "ð¯",
+    description: `ÃÂÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·: ${goalName}`,
+    icon: "Ã°ÂÂÂ¯",
   });
 }
 
-// ââ Rewards âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Rewards Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useRewards(parentId: string | null | undefined) {
   const [rewards, setRewards] = useState<JFBReward[]>([]);
   const [loading, setLoading] = useState(true);
@@ -376,12 +376,12 @@ export async function approveRewardRequest(
     child_id: childId,
     type: "reward",
     amount: -cost,
-    description: `ÎÏÎ±Î²ÎµÎ¯Î¿: ${rewardName}`,
-    icon: "ð",
+    description: `ÃÂÃÂÃÂ±ÃÂ²ÃÂµÃÂ¯ÃÂ¿: ${rewardName}`,
+    icon: "Ã°ÂÂÂ",
   });
 }
 
-// ââ Lesson progress âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Lesson progress Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useLessonProgress(childId: string | null | undefined) {
   const [progress, setProgress] = useState<JFBLessonProgress[]>([]);
   const [loading, setLoading] = useState(true);
@@ -408,7 +408,7 @@ export async function completeLesson(
   xpEarned: number,
   coinsEarned: number
 ): Promise<void> {
-  // Upsert â if lesson already completed, skip
+  // Upsert Ã¢ÂÂ if lesson already completed, skip
   const { error } = await supabase.from("jfb_lesson_progress").upsert(
     { child_id: childId, lesson_id: lessonId, lesson_title: lessonTitle, xp_earned: xpEarned, coins_earned: coinsEarned },
     { onConflict: "child_id,lesson_id", ignoreDuplicates: true }
@@ -418,11 +418,11 @@ export async function completeLesson(
       child_id: childId,
       type: "lesson",
       amount: coinsEarned,
-      description: `ÎÎ¬Î¸Î·Î¼Î±: ${lessonTitle}`,
-      icon: "ð",
+      description: `ÃÂÃÂ¬ÃÂ¸ÃÂ·ÃÂ¼ÃÂ±: ${lessonTitle}`,
+      icon: "Ã°ÂÂÂ",
     });
     // XP is added inside addTransaction via jfb_add_coins (xp = amount for lessons)
-    // But we want xpEarned, not coinsEarned, for XP â call directly
+    // But we want xpEarned, not coinsEarned, for XP Ã¢ÂÂ call directly
     await supabase.rpc("jfb_add_coins", {
       p_child_id: childId,
       p_amount: 0,
@@ -431,7 +431,7 @@ export async function completeLesson(
   }
 }
 
-// ââ Stock holdings ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Stock holdings Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useStockHoldings(childId: string | null | undefined) {
   const [holdings, setHoldings] = useState<JFBStockHolding[]>([]);
   const [loading, setLoading] = useState(true);
@@ -481,7 +481,7 @@ export async function buyStock(
     child_id: childId,
     type: "investment",
     amount: -totalCost,
-    description: `ÎÎ³Î¿ÏÎ¬ ${quantity} Î¼ÎµÏÎ¿ÏÏÎ½ ${companyName}`,
+    description: `ÃÂÃÂ³ÃÂ¿ÃÂÃÂ¬ ${quantity} ÃÂ¼ÃÂµÃÂÃÂ¿ÃÂÃÂÃÂ½ ${companyName}`,
     icon: emoji,
   });
 }
@@ -512,12 +512,12 @@ export async function sellStock(
     child_id: childId,
     type: "investment",
     amount: totalValue,
-    description: `Î ÏÎ»Î·ÏÎ· ${quantity} Î¼ÎµÏÎ¿ÏÏÎ½ ${companyName}`,
+    description: `ÃÂ ÃÂÃÂ»ÃÂ·ÃÂÃÂ· ${quantity} ÃÂ¼ÃÂµÃÂÃÂ¿ÃÂÃÂÃÂ½ ${companyName}`,
     icon: emoji,
   });
 }
 
-// ââ Startup investments âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Startup investments Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useStartupInvestments(childId: string | null | undefined) {
   const [investments, setInvestments] = useState<JFBStartupInvestment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -560,23 +560,23 @@ export async function investInStartup(
     child_id: childId,
     type: "investment",
     amount: -totalCost,
-    description: `ÎÏÎ­Î½Î´ÏÏÎ· ÏÎµ ${startupName} (${quantity} Î¼ÎµÏÎ¯Î´Î¹Î±)`,
+    description: `ÃÂÃÂÃÂ­ÃÂ½ÃÂ´ÃÂÃÂÃÂ· ÃÂÃÂµ ${startupName} (${quantity} ÃÂ¼ÃÂµÃÂÃÂ¯ÃÂ´ÃÂ¹ÃÂ±)`,
     icon: emoji,
   });
 }
 
-// ââ Parent: load coins manually âââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Parent: load coins manually Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export async function parentLoadCoins(childId: string, amount: number): Promise<void> {
   await addTransaction({
     child_id: childId,
     type: "deposit",
     amount,
-    description: "Î¦ÏÏÏÏÏÎ· Î±ÏÏ Î³Î¿Î½Î­Î±",
-    icon: "ð°",
+    description: "ÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ· ÃÂ±ÃÂÃÂ ÃÂ³ÃÂ¿ÃÂ½ÃÂ­ÃÂ±",
+    icon: "Ã°ÂÂÂ°",
   });
 }
 
-// ââ Onboarding helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Onboarding helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export async function createParentProfile(userId: string, name: string): Promise<JFBParent | null> {
   const { data, error } = await supabase
     .from("jfb_parents")
@@ -604,7 +604,7 @@ export async function createChildProfile(
 }
 
 
-// ââ Allowances ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Allowances Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export type JFBAllowance = Tables<"jfb_allowances">;
 
 export function useAllowances(
@@ -660,7 +660,7 @@ export async function deleteAllowance(id: string): Promise<void> {
 }
 
 
-// ââ Achievements ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Achievements Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export type JFBAchievement = {
   key: string;
   name_gr: string;
@@ -694,7 +694,7 @@ export function useAchievements(childId: string | null | undefined) {
 }
 
 
-// ââ Spending Analytics ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Spending Analytics Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export type SpendingSource = {
   label: string;
   amount: number;
@@ -735,7 +735,7 @@ export function useSpendingAnalytics(childId: string | null | undefined) {
       if (t.amount > 0) {
         totalIn += t.amount;
         const desc = (t.description ?? "").toLowerCase();
-        if (t.type === "allowance" || desc.includes("ÏÎ±ÏÏÎ¶Î¹Î»Î¯ÎºÎ¹") || desc.includes("allowance")) {
+        if (t.type === "allowance" || desc.includes("ÃÂÃÂ±ÃÂÃÂÃÂ¶ÃÂ¹ÃÂ»ÃÂ¯ÃÂºÃÂ¹") || desc.includes("allowance")) {
           sources.allowance += t.amount;
         } else if (t.type === "chore_payment") {
           sources.chore += t.amount;
@@ -755,9 +755,9 @@ export function useSpendingAnalytics(childId: string | null | undefined) {
       savingsRate,
       monthLabel,
       bySource: [
-        { label: "Î§Î±ÏÏÎ¶Î¹Î»Î¯ÎºÎ¹", amount: sources.allowance, color: "oklch(0.65 0.2 292)" },
-        { label: "ÎÎ¿ÏÎ»ÎµÎ¹Î­Ï", amount: sources.chore, color: "oklch(0.65 0.18 170)" },
-        { label: "ÎÎ»Î»Î¿", amount: sources.other_in, color: "oklch(0.65 0.18 60)" },
+        { label: "ÃÂ§ÃÂ±ÃÂÃÂÃÂ¶ÃÂ¹ÃÂ»ÃÂ¯ÃÂºÃÂ¹", amount: sources.allowance, color: "oklch(0.65 0.2 292)" },
+        { label: "ÃÂÃÂ¿ÃÂÃÂ»ÃÂµÃÂ¹ÃÂ­ÃÂ", amount: sources.chore, color: "oklch(0.65 0.18 170)" },
+        { label: "ÃÂÃÂ»ÃÂ»ÃÂ¿", amount: sources.other_in, color: "oklch(0.65 0.18 60)" },
       ].filter((s) => s.amount > 0),
     });
     setLoading(false);
@@ -768,7 +768,7 @@ export function useSpendingAnalytics(childId: string | null | undefined) {
   return { stats, loading, refetch: fetchStats };
 }
 
-// ── Streak ────────────────────────────────────────────────────────────────────
+// ââ Streak ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 export function useStreak(childId: string | null | undefined) {
   const [streak, setStreak] = useState<number>(0);
 
@@ -791,16 +791,16 @@ export function useStreak(childId: string | null | undefined) {
       let newStreak = child.current_streak as number;
 
       if (last === today) {
-        // already visited today — no change
+        // already visited today â no change
       } else if (last === new Date(Date.now() - 86400000).toISOString().slice(0, 10)) {
-        // visited yesterday — increment
+        // visited yesterday â increment
         newStreak = newStreak + 1;
         await supabase
           .from("jfb_children")
           .update({ current_streak: newStreak, last_login_date: today })
           .eq("id", childId);
       } else {
-        // gap — reset to 1
+        // gap â reset to 1
         newStreak = 1;
         await supabase
           .from("jfb_children")
@@ -813,4 +813,63 @@ export function useStreak(childId: string | null | undefined) {
   }, [childId]);
 
   return streak;
+}
+
+// ─── Parent hooks ─────────────────────────────────────────────────────────────
+
+export function useParent() {
+  const [parent, setParent] = useState<{ id: string; name: string } | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("jfb_parents").select("id, name").eq("user_id", user.id).single().then(({ data }) => setParent(data));
+    });
+  }, []);
+  return parent;
+}
+
+export interface ParentChild { id: string; name: string; avatar: string; coins: number; xp: number; level: number; current_streak: number; }
+
+export function useParentChildren(parentId: string | null | undefined) {
+  const [children, setChildren] = useState<ParentChild[]>([]);
+  const refresh = useCallback(async () => {
+    if (!parentId) return;
+    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak").eq("parent_id", parentId).order("name");
+    setChildren(data ?? []);
+  }, [parentId]);
+  useEffect(() => { refresh(); }, [refresh]);
+  return { children, refresh };
+}
+
+export interface PendingSubmission { id: string; child_id: string; chore_id: string; submitted_at: string; jfb_chores: { name: string; emoji: string; coins: number } | null; jfb_children: { name: string; avatar: string } | null; }
+
+export function usePendingSubmissions(parentId: string | null | undefined) {
+  const [submissions, setSubmissions] = useState<PendingSubmission[]>([]);
+  const refresh = useCallback(async () => {
+    if (!parentId) return;
+    const { data: cr } = await supabase.from("jfb_children").select("id").eq("parent_id", parentId);
+    const ids = (cr ?? []).map((c: { id: string }) => c.id);
+    if (!ids.length) { setSubmissions([]); return; }
+    const { data } = await supabase.from("jfb_chore_submissions").select("id, child_id, chore_id, submitted_at, jfb_chores(name, emoji, coins), jfb_children(name, avatar)").in("child_id", ids).eq("status", "pending").order("submitted_at", { ascending: false });
+    setSubmissions((data as PendingSubmission[]) ?? []);
+  }, [parentId]);
+  useEffect(() => { refresh(); }, [refresh]);
+  return { submissions, refresh };
+}
+
+export async function approveChoreSubmission(subId: string, childId: string, choreName: string, choreEmoji: string, coins: number) {
+  await supabase.from("jfb_chore_submissions").update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", subId);
+  const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
+  await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
+  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "chore", amount: coins, description: choreEmoji + " " + choreName, icon: choreEmoji });
+}
+
+export async function rejectChoreSubmission(subId: string) {
+  await supabase.from("jfb_chore_submissions").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", subId);
+}
+
+export async function sendAllowanceCoins(childId: string, coins: number, note: string) {
+  const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
+  await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
+  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "deposit", amount: coins, description: note || "Χαρτζιλίκι", icon: "💸" });
 }
