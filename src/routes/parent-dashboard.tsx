@@ -6,7 +6,7 @@ import {
   usePendingSubmissions,
   approveChoreSubmission,
   rejectChoreSubmission,
-  sendAllowanceCoins,
+  sendAllowanceCoins,h
   type PendingSubmission,
 } from "@/hooks/useJFB";
 
@@ -43,7 +43,7 @@ function ParentDashboard() {
 
   async function handleReject(sub: PendingSubmission) {
     setActing(sub.id);
-    await rejectChoreSubmission(sub.id);
+        await rejectChoreSubmission(sub.id, sub.child_id, sub.jfb_chores?.name ?? "");
     await refreshSubmissions();
     setActing(null);
   }
