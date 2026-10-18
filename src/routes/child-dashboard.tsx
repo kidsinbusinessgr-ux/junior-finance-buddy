@@ -15,6 +15,7 @@ import {
   useChoreSubmissions,
   useAchievements,
   useSpendingAnalytics,
+  useStreak,
   submitChore,
   xpForNextLevel,
   LEVEL_NAMES,
@@ -23,19 +24,19 @@ import {
 export const Route = createFileRoute("/child-dashboard")({
   head: () => ({
     meta: [
-      { title: "Αρχική — Kids in Business" },
-      { name: "description", content: "Το dashboard σου στο Kids in Business" },
+      { title: "ÎÏÏÎ¹ÎºÎ® â Kids in Business" },
+      { name: "description", content: "Î¤Î¿ dashboard ÏÎ¿Ï ÏÏÎ¿ Kids in Business" },
     ],
   }),
   component: ChildDashboard,
 });
 
 const bottomNav = [
-  { label: "Αρχική", to: "/child-dashboard" as const, icon: Home },
-  { label: "Μάθε", to: "/learn" as const, icon: BookOpen },
-  { label: "Πορτοφόλι", to: "/wallet" as const, icon: Wallet },
-  { label: "Στόχοι", to: "/goals" as const, icon: Target },
-  { label: "Επενδύσεις", to: "/investments" as const, icon: TrendingUp },
+  { label: "ÎÏÏÎ¹ÎºÎ®", to: "/child-dashboard" as const, icon: Home },
+  { label: "ÎÎ¬Î¸Îµ", to: "/learn" as const, icon: BookOpen },
+  { label: "Î Î¿ÏÏÎ¿ÏÏÎ»Î¹", to: "/wallet" as const, icon: Wallet },
+  { label: "Î£ÏÏÏÎ¿Î¹", to: "/goals" as const, icon: Target },
+  { label: "ÎÏÎµÎ½Î´ÏÏÎµÎ¹Ï", to: "/investments" as const, icon: TrendingUp },
 ];
 
 function ChildDashboard() {
@@ -66,8 +67,8 @@ function ChildDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "oklch(0.98 0.01 292)" }}>
         <div className="text-center">
-          <div className="text-4xl mb-3 animate-pulse">🪙</div>
-          <p className="font-bold text-gray-400">Φόρτωση…</p>
+          <div className="text-4xl mb-3 animate-pulse">ðª</div>
+          <p className="font-bold text-gray-400">Î¦ÏÏÏÏÏÎ·â¦</p>
         </div>
       </div>
     );
@@ -75,7 +76,7 @@ function ChildDashboard() {
 
   // XP progress
   const { next: xpNext, pct: xpPct } = xpForNextLevel(child.xp);
-  const levelName = LEVEL_NAMES[child.level - 1] ?? "Αρχάριος";
+  const levelName = LEVEL_NAMES[child.level - 1] ?? "ÎÏÏÎ¬ÏÎ¹Î¿Ï";
 
   // First active savings goal
   const activeGoal = goals.find((g) => !g.completed);
@@ -103,12 +104,12 @@ function ChildDashboard() {
   const recentTx = transactions.slice(0, 3);
 
   const txIcon: Record<string, string> = {
-    lesson: "📚",
-    chore: "✅",
-    investment: "📈",
-    reward: "🎁",
-    deposit: "💰",
-    withdrawal: "🎯",
+    lesson: "ð",
+    chore: "â",
+    investment: "ð",
+    reward: "ð",
+    deposit: "ð°",
+    withdrawal: "ð¯",
   };
 
   return (
@@ -119,7 +120,7 @@ function ChildDashboard() {
           <div className="flex items-center justify-between">
             <span className="text-2xl font-black tracking-tight">
               <span className="inline-grid h-7 w-7 place-items-center rounded-full bg-[oklch(0.7_0.22_28)] text-base leading-none text-primary-foreground mr-1">
-                ∞
+                â
               </span>
               Kids in Business
             </span>
@@ -135,20 +136,27 @@ function ChildDashboard() {
 
           <div className="mt-8">
             <p className="text-sm font-black uppercase tracking-[0.15em] text-[oklch(0.86_0.1_292)]">
-              Καλημέρα 👋
+              ÎÎ±Î»Î·Î¼Î­ÏÎ± ð
             </p>
-            <h1 className="mt-1 text-4xl font-black">{child.name}!</h1>
+            <div className="flex items-center gap-2 mt-1">
+            <h1 className="text-4xl font-black">{child.name}!</h1>
+            {streak > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.88_0.12_60)] px-2.5 py-1 text-sm font-black text-[oklch(0.45_0.2_50)]">
+                🔥 {streak}
+              </span>
+            )}
+          </div>
 
             {/* Coins + Level */}
             <div className="mt-6 flex items-end gap-5">
               <div className="rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
                 <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">KidsCoins</p>
-                <p className="mt-1 text-4xl font-black">🪙 {child.coins}</p>
+                <p className="mt-1 text-4xl font-black">ðª {child.coins}</p>
               </div>
               <div className="flex-1 rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">
-                    Επίπεδο {child.level}
+                    ÎÏÎ¯ÏÎµÎ´Î¿ {child.level}
                   </p>
                   <span className="flex items-center gap-1 text-xs font-black text-[oklch(0.86_0.1_292)]">
                     <Zap size={12} /> {child.xp}/{xpNext} XP
@@ -170,7 +178,7 @@ function ChildDashboard() {
             <div className="flex items-center gap-2">
               <Bell size={16} className="text-[oklch(0.55_0.18_37)]" />
               <p className="text-sm font-black text-[oklch(0.35_0.12_37)]">
-                {extraChores.length} διαθέσιμες πληρωμένες δουλειές!
+                {extraChores.length} Î´Î¹Î±Î¸Î­ÏÎ¹Î¼ÎµÏ ÏÎ»Î·ÏÏÎ¼Î­Î½ÎµÏ Î´Î¿ÏÎ»ÎµÎ¹Î­Ï!
               </p>
             </div>
             <div className="mt-3 grid gap-2">
@@ -203,12 +211,12 @@ function ChildDashboard() {
                         {chore.name}
                       </span>
                       <span className="ml-2 rounded-full bg-[oklch(0.88_0.1_292)] px-2 py-0.5 text-[10px] font-black text-[oklch(0.36_0.18_292)]">
-                        ΕΞΤΡΑ
+                        ÎÎÎ¤Î¡Î
                       </span>
                     </div>
                   </span>
                   <span className="text-sm font-black text-[oklch(0.55_0.18_37)]">
-                    +{chore.coins} 🪙
+                    +{chore.coins} ðª
                   </span>
                 </button>
               ))}
@@ -219,7 +227,7 @@ function ChildDashboard() {
                 disabled={submitting}
                 className="mt-3 h-10 w-full rounded-full text-sm"
               >
-                {submitting ? "…" : `Στείλε για έγκριση (${selectedChores.length})`}
+                {submitting ? "â¦" : `Î£ÏÎµÎ¯Î»Îµ Î³Î¹Î± Î­Î³ÎºÏÎ¹ÏÎ· (${selectedChores.length})`}
               </Button>
             )}
           </section>
@@ -229,7 +237,7 @@ function ChildDashboard() {
         {pendingSubmissionIds.length > 0 && (
           <section className="mt-4 rounded-2xl bg-[oklch(0.95_0.04_292)] p-4 ring-1 ring-[oklch(0.85_0.05_292)]">
             <p className="text-sm font-black text-gray-600">
-              ⏳ {pendingSubmissionIds.length} δουλειές αναμένουν έγκριση γονέα…
+              â³ {pendingSubmissionIds.length} Î´Î¿ÏÎ»ÎµÎ¹Î­Ï Î±Î½Î±Î¼Î­Î½Î¿ÏÎ½ Î­Î³ÎºÏÎ¹ÏÎ· Î³Î¿Î½Î­Î±â¦
             </p>
           </section>
         )}
@@ -240,7 +248,7 @@ function ChildDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.35_0.12_175)]">
-                  Στόχος αποταμίευσης
+                  Î£ÏÏÏÎ¿Ï Î±ÏÎ¿ÏÎ±Î¼Î¯ÎµÏÏÎ·Ï
                 </p>
                 <h2 className="mt-1 text-xl font-black">
                   {activeGoal.emoji} {activeGoal.name}
@@ -249,9 +257,9 @@ function ChildDashboard() {
               <PiggyBank size={24} className="text-[oklch(0.35_0.12_175)]" />
             </div>
             <div className="mt-4 flex items-end justify-between">
-              <p className="text-3xl font-black">🪙 {activeGoal.saved_coins}</p>
+              <p className="text-3xl font-black">ðª {activeGoal.saved_coins}</p>
               <p className="pb-1 font-bold text-[oklch(0.35_0.12_175)]">
-                από {activeGoal.target_coins}
+                Î±ÏÏ {activeGoal.target_coins}
               </p>
             </div>
             <Progress
@@ -259,8 +267,8 @@ function ChildDashboard() {
               className="mt-2 h-3 bg-[oklch(0.95_0.08_105)]"
             />
             <p className="mt-2 text-sm font-bold">
-              {Math.round((activeGoal.saved_coins / activeGoal.target_coins) * 100)}% εκεί! Λείπουν{" "}
-              {activeGoal.target_coins - activeGoal.saved_coins} 🪙
+              {Math.round((activeGoal.saved_coins / activeGoal.target_coins) * 100)}% ÎµÎºÎµÎ¯! ÎÎµÎ¯ÏÎ¿ÏÎ½{" "}
+              {activeGoal.target_coins - activeGoal.saved_coins} ðª
             </p>
           </section>
         )}
@@ -272,8 +280,8 @@ function ChildDashboard() {
           >
             <Target size={24} className="text-[oklch(0.45_0.15_142)]" />
             <div>
-              <p className="font-black text-gray-800">Βάλε στόχο αποταμίευσης!</p>
-              <p className="text-sm text-gray-500">Κάτι που θέλεις να αγοράσεις 🎯</p>
+              <p className="font-black text-gray-800">ÎÎ¬Î»Îµ ÏÏÏÏÎ¿ Î±ÏÎ¿ÏÎ±Î¼Î¯ÎµÏÏÎ·Ï!</p>
+              <p className="text-sm text-gray-500">ÎÎ¬ÏÎ¹ ÏÎ¿Ï Î¸Î­Î»ÎµÎ¹Ï Î½Î± Î±Î³Î¿ÏÎ¬ÏÎµÎ¹Ï ð¯</p>
             </div>
             <ChevronRight size={18} className="ml-auto text-gray-400" />
           </Link>
@@ -286,41 +294,41 @@ function ChildDashboard() {
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.88_0.1_292)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <BookOpen size={22} className="text-primary" />
-            <p className="font-black text-foreground">Μάθε</p>
-            <p className="text-xs text-muted-foreground">6 μαθήματα · +XP</p>
+            <p className="font-black text-foreground">ÎÎ¬Î¸Îµ</p>
+            <p className="text-xs text-muted-foreground">6 Î¼Î±Î¸Î®Î¼Î±ÏÎ± Â· +XP</p>
           </Link>
           <Link
             to="/investments"
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.89_0.11_51)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <TrendingUp size={22} className="text-[oklch(0.55_0.18_37)]" />
-            <p className="font-black text-foreground">Επένδυσε</p>
-            <p className="text-xs text-muted-foreground">Μετοχές · Startups</p>
+            <p className="font-black text-foreground">ÎÏÎ­Î½Î´ÏÏÎµ</p>
+            <p className="text-xs text-muted-foreground">ÎÎµÏÎ¿ÏÎ­Ï Â· Startups</p>
           </Link>
           <Link
             to="/wallet"
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.86_0.09_214)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <Wallet size={22} className="text-[oklch(0.4_0.14_214)]" />
-            <p className="font-black text-foreground">Πορτοφόλι</p>
-            <p className="text-xs text-muted-foreground">Coins · Δουλειές</p>
+            <p className="font-black text-foreground">Î Î¿ÏÏÎ¿ÏÏÎ»Î¹</p>
+            <p className="text-xs text-muted-foreground">Coins Â· ÎÎ¿ÏÎ»ÎµÎ¹Î­Ï</p>
           </Link>
           <Link
             to="/goals"
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.92_0.08_105)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <Target size={22} className="text-[oklch(0.45_0.15_142)]" />
-            <p className="font-black text-foreground">Στόχοι</p>
-            <p className="text-xs text-muted-foreground">Αποταμίευση</p>
+            <p className="font-black text-foreground">Î£ÏÏÏÎ¿Î¹</p>
+            <p className="text-xs text-muted-foreground">ÎÏÎ¿ÏÎ±Î¼Î¯ÎµÏÏÎ·</p>
           </Link>
         </section>
 
-        {/* Achievements — real data from DB */}
+        {/* Achievements â real data from DB */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">Επιτεύγματα 🏆</h2>
+            <h2 className="font-black">ÎÏÎ¹ÏÎµÏÎ³Î¼Î±ÏÎ± ð</h2>
             <span className="text-xs font-bold text-[oklch(0.7_0.2_60)]">
-              {earnedBadges.length}/{allBadges.length} ξεκλείδωτα
+              {earnedBadges.length}/{allBadges.length} Î¾ÎµÎºÎ»ÎµÎ¯Î´ÏÏÎ±
             </span>
           </div>
           <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
@@ -334,7 +342,7 @@ function ChildDashboard() {
                   }`}
                   title={badge.description_gr}
                 >
-                  <span className="text-2xl">{isDone ? badge.icon : "🔒"}</span>
+                  <span className="text-2xl">{isDone ? badge.icon : "ð"}</span>
                   <span className="text-[10px] font-black text-center leading-tight max-w-[64px]">
                     {badge.name_gr.replace("!", "")}
                   </span>
@@ -343,7 +351,7 @@ function ChildDashboard() {
               );
             })}
             {allBadges.length === 0 && (
-              <p className="text-sm text-muted-foreground py-2">Φόρτωση…</p>
+              <p className="text-sm text-muted-foreground py-2">Î¦ÏÏÏÏÏÎ·â¦</p>
             )}
           </div>
         </section>
@@ -351,24 +359,24 @@ function ChildDashboard() {
         {/* Recent Activity */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">Πρόσφατη Δραστηριότητα</h2>
+            <h2 className="font-black">Î ÏÏÏÏÎ±ÏÎ· ÎÏÎ±ÏÏÎ·ÏÎ¹ÏÏÎ·ÏÎ±</h2>
             <Link
               to="/wallet"
               className="flex items-center gap-1 text-xs font-bold text-muted-foreground"
             >
-              Όλα <ChevronRight size={14} />
+              ÎÎ»Î± <ChevronRight size={14} />
             </Link>
           </div>
           <div className="mt-4 divide-y divide-border">
             {recentTx.length === 0 && (
               <p className="text-sm text-muted-foreground py-3 text-center">
-                Καμία δραστηριότητα ακόμα. Ξεκίνα μαθήματα ή δουλειές! 🚀
+                ÎÎ±Î¼Î¯Î± Î´ÏÎ±ÏÏÎ·ÏÎ¹ÏÏÎ·ÏÎ± Î±ÎºÏÎ¼Î±. ÎÎµÎºÎ¯Î½Î± Î¼Î±Î¸Î®Î¼Î±ÏÎ± Î® Î´Î¿ÏÎ»ÎµÎ¹Î­Ï! ð
               </p>
             )}
             {recentTx.map((tx) => (
               <div key={tx.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[oklch(0.93_0.03_292)] text-lg">
-                  {txIcon[tx.type] ?? "🪙"}
+                  {txIcon[tx.type] ?? "ðª"}
                 </span>
                 <p className="min-w-0 flex-1 text-sm font-bold leading-tight">{tx.description}</p>
                 <div className="text-right">
@@ -376,7 +384,7 @@ function ChildDashboard() {
                     className="text-sm font-black"
                     style={{ color: tx.amount >= 0 ? "oklch(0.55 0.18 37)" : "oklch(0.55 0.18 22)" }}
                   >
-                    {tx.amount >= 0 ? "+" : ""}{tx.amount} 🪙
+                    {tx.amount >= 0 ? "+" : ""}{tx.amount} ðª
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(tx.created_at).toLocaleDateString("el-GR", { day: "numeric", month: "short" })}
@@ -392,20 +400,20 @@ function ChildDashboard() {
         {/* Spending Analytics */}
         {spendingStats && (
           <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
-            <h2 className="font-black">Στατιστικά {spendingStats.monthLabel} 📊</h2>
+            <h2 className="font-black">Î£ÏÎ±ÏÎ¹ÏÏÎ¹ÎºÎ¬ {spendingStats.monthLabel} ð</h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[oklch(0.9_0.08_170)] p-3">
-                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">Έσοδα</p>
-                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">€{spendingStats.totalIn.toFixed(2)}</p>
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">ÎÏÎ¿Î´Î±</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">â¬{spendingStats.totalIn.toFixed(2)}</p>
               </div>
               <div className="rounded-xl bg-[oklch(0.9_0.08_22)] p-3">
-                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">Έξοδα</p>
-                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">€{spendingStats.totalOut.toFixed(2)}</p>
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">ÎÎ¾Î¿Î´Î±</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">â¬{spendingStats.totalOut.toFixed(2)}</p>
               </div>
             </div>
             <div className="mt-4">
               <div className="mb-1 flex justify-between text-[10px] font-bold">
-                <span>Αποταμίευση</span>
+                <span>ÎÏÎ¿ÏÎ±Î¼Î¯ÎµÏÏÎ·</span>
                 <span className="text-[oklch(0.5_0.2_292)]">{spendingStats.savingsRate}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
@@ -420,7 +428,7 @@ function ChildDashboard() {
                 {spendingStats.bySource.map((src) => (
                   <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: src.color + '33', color: src.color }}>
                     <span className="h-2 w-2 rounded-full" style={{ background: src.color }} />
-                    {src.label} €{src.amount.toFixed(2)}
+                    {src.label} â¬{src.amount.toFixed(2)}
                   </div>
                 ))}
               </div>
