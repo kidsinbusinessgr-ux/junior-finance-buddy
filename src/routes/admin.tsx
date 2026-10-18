@@ -5,9 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 const ADMIN_PASSWORD = "kidsbiz2026";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [{ title: "Founder Dashboard — Kids in Business" }],
-  }),
   component: AdminPage,
 });
 
