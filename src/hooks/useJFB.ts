@@ -602,3 +602,59 @@ export async function createChildProfile(
     .single();
   return data;
 }
+
+
+// ── Allowances ────────────────────────────────────────────────────────────────
+export type JFBAllowance = Tables<"jfb_allowances">;
+
+export function useAllowances(
+  parentId: string | null | undefined,
+  childId: string | null | undefined
+) {
+  const [allowance, setAllowance] = useState<JFBAllowance | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAllowance = useCallback(async () => {
+    if (!parentId || !childId) { setLoading(false); return; }
+    const { data } = await supabase
+      .from("jfb_allowances")
+      .select("*")
+      .eq("parent_id", parentId)
+      .eq("child_id", childId)
+      .maybeSingle();
+    setAllowance(data ?? null);
+    setLoading(false);
+  }, [parentId, childId]);
+
+  useEffect(() => { fetchAllowance(); }, [fetchAllowance]);
+
+  return { allowance, loading, refetch: fetchAllowance };
+}
+
+export async function upsertAllowance(
+  parentId: string,
+  childId: string,
+  amountCoins: number,
+  dayOfWeek: number,
+  active: boolean,
+  existingId?: string
+): Promise<void> {
+  if (existingId) {
+    await supabase
+      .from("jfb_allowances")
+      .update({ amount_coins: amountCoins, day_of_week: dayOfWeek, active, updated_at: new Date().toISOString() })
+      .eq("id", existingId);
+  } else {
+    await supabase.from("jfb_allowances").insert({
+      parent_id: parentId,
+      child_id: childId,
+      amount_coins: amountCoins,
+      day_of_week: dayOfWeek,
+      active,
+    });
+  }
+}
+
+export async function deleteAllowance(id: string): Promise<void> {
+  await supabase.from("jfb_allowances").delete().eq("id", id);
+}
