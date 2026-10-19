@@ -149,7 +149,7 @@ function AdminPage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
-            <span className="text-2xl">📊</pan>
+            <span className="text-2xl">📊</span>
             <h1 className="text-2xl font-black text-gray-800">Founder Dashboard</h1>
           </div>
           <p className="text-gray-400 font-semibold text-sm ml-9">
