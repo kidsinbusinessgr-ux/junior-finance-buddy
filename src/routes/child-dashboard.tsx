@@ -26,19 +26,19 @@ import {
 export const Route = createFileRoute("/child-dashboard")({
   head: () => ({
     meta: [
-      { title: "ÃÂÃÂÃÂÃÂ¹ÃÂºÃÂ® Ã¢ÂÂ Kids in Business" },
-      { name: "description", content: "ÃÂ¤ÃÂ¿ dashboard ÃÂÃÂ¿ÃÂ ÃÂÃÂÃÂ¿ Kids in Business" },
+      { title: "Αρχική — Kids in Business" },
+      { name: "description", content: "Το dashboard σου στο Kids in Business" },
     ],
   }),
   component: ChildDashboard,
 });
 
 const bottomNav = [
-  { label: "ÃÂÃÂÃÂÃÂ¹ÃÂºÃÂ®", to: "/child-dashboard" as const, icon: Home },
-  { label: "ÃÂÃÂ¬ÃÂ¸ÃÂµ", to: "/learn" as const, icon: BookOpen },
-  { label: "ÃÂ ÃÂ¿ÃÂÃÂÃÂ¿ÃÂÃÂÃÂ»ÃÂ¹", to: "/wallet" as const, icon: Wallet },
-  { label: "ÃÂ£ÃÂÃÂÃÂÃÂ¿ÃÂ¹", to: "/goals" as const, icon: Target },
-  { label: "ÃÂÃÂÃÂµÃÂ½ÃÂ´ÃÂÃÂÃÂµÃÂ¹ÃÂ", to: "/investments" as const, icon: TrendingUp },
+  { label: "Αρχική", to: "/child-dashboard" as const, icon: Home },
+  { label: "Μάθε", to: "/learn" as const, icon: BookOpen },
+  { label: "Πορτοφόλι", to: "/wallet" as const, icon: Wallet },
+  { label: "Στόχοι", to: "/goals" as const, icon: Target },
+  { label: "Επενδύσεις", to: "/investments" as const, icon: TrendingUp },
 ];
 
 function ChildDashboard() {
@@ -74,8 +74,8 @@ function ChildDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "oklch(0.98 0.01 292)" }}>
         <div className="text-center">
-          <div className="text-4xl mb-3 animate-pulse">Ã°ÂÂªÂ</div>
-          <p className="font-bold text-gray-400">ÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ·Ã¢ÂÂ¦</p>
+          <div className="text-4xl mb-3 animate-pulse">🪙</div>
+          <p className="font-bold text-gray-400">Φόρτωση…</p>
         </div>
       </div>
     );
@@ -83,7 +83,7 @@ function ChildDashboard() {
 
   // XP progress
   const { next: xpNext, pct: xpPct } = xpForNextLevel(child.xp);
-  const levelName = LEVEL_NAMES[child.level - 1] ?? "ÃÂÃÂÃÂÃÂ¬ÃÂÃÂ¹ÃÂ¿ÃÂ";
+  const levelName = LEVEL_NAMES[child.level - 1] ?? "Αρχάριος";
 
   // First active savings goal
   const activeGoal = goals.find((g) => !g.completed);
@@ -111,12 +111,12 @@ function ChildDashboard() {
   const recentTx = transactions.slice(0, 3);
 
   const txIcon: Record<string, string> = {
-    lesson: "Ã°ÂÂÂ",
-    chore: "Ã¢ÂÂ",
-    investment: "Ã°ÂÂÂ",
-    reward: "Ã°ÂÂÂ",
-    deposit: "Ã°ÂÂÂ°",
-    withdrawal: "Ã°ÂÂÂ¯",
+    lesson: "📚",
+    chore: "✅",
+    investment: "📈",
+    reward: "🎁",
+    deposit: "💰",
+    withdrawal: "🎯",
   };
 
   return (
@@ -127,7 +127,7 @@ function ChildDashboard() {
           <div className="flex items-center justify-between">
             <span className="text-2xl font-black tracking-tight">
               <span className="inline-grid h-7 w-7 place-items-center rounded-full bg-[oklch(0.7_0.22_28)] text-base leading-none text-primary-foreground mr-1">
-                Ã¢ÂÂ
+                ∞
               </span>
               Kids in Business
             </span>
@@ -177,13 +177,13 @@ function ChildDashboard() {
 
           <div className="mt-8">
             <p className="text-sm font-black uppercase tracking-[0.15em] text-[oklch(0.86_0.1_292)]">
-              ÃÂÃÂ±ÃÂ»ÃÂ·ÃÂ¼ÃÂ­ÃÂÃÂ± Ã°ÂÂÂ
+              Καλημέρα 👋
             </p>
             <div className="flex items-center gap-2 mt-1">
             <h1 className="text-4xl font-black">{child.name}!</h1>
             {streak > 0 && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.88_0.12_60)] px-2.5 py-1 text-sm font-black text-[oklch(0.45_0.2_50)]">
-                ð¥ {streak}
+                🔥 {streak}
               </span>
             )}
           </div>
@@ -192,12 +192,12 @@ function ChildDashboard() {
             <div className="mt-6 flex items-end gap-5">
               <div className="rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
                 <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">KidsCoins</p>
-                <p className="mt-1 text-4xl font-black">Ã°ÂÂªÂ {child.coins}</p>
+                <p className="mt-1 text-4xl font-black">🪙 {child.coins}</p>
               </div>
               <div className="flex-1 rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">
-                    ÃÂÃÂÃÂ¯ÃÂÃÂµÃÂ´ÃÂ¿ {child.level}
+                    Επίπεδο {child.level}
                   </p>
                   <span className="flex items-center gap-1 text-xs font-black text-[oklch(0.86_0.1_292)]">
                     <Zap size={12} /> {child.xp}/{xpNext} XP
@@ -219,7 +219,7 @@ function ChildDashboard() {
             <div className="flex items-center gap-2">
               <Bell size={16} className="text-[oklch(0.55_0.18_37)]" />
               <p className="text-sm font-black text-[oklch(0.35_0.12_37)]">
-                {extraChores.length} ÃÂ´ÃÂ¹ÃÂ±ÃÂ¸ÃÂ­ÃÂÃÂ¹ÃÂ¼ÃÂµÃÂ ÃÂÃÂ»ÃÂ·ÃÂÃÂÃÂ¼ÃÂ­ÃÂ½ÃÂµÃÂ ÃÂ´ÃÂ¿ÃÂÃÂ»ÃÂµÃÂ¹ÃÂ­ÃÂ!
+                {extraChores.length} διαθέσιμες πληρωμένες δουλειές!
               </p>
             </div>
             <div className="mt-3 grid gap-2">
@@ -252,12 +252,12 @@ function ChildDashboard() {
                         {chore.name}
                       </span>
                       <span className="ml-2 rounded-full bg-[oklch(0.88_0.1_292)] px-2 py-0.5 text-[10px] font-black text-[oklch(0.36_0.18_292)]">
-                        ÃÂÃÂÃÂ¤ÃÂ¡ÃÂ
+                        ΕΞΤΡΑ
                       </span>
                     </div>
                   </span>
                   <span className="text-sm font-black text-[oklch(0.55_0.18_37)]">
-                    +{chore.coins} Ã°ÂÂªÂ
+                    +{chore.coins} 🪙
                   </span>
                 </button>
               ))}
@@ -268,7 +268,7 @@ function ChildDashboard() {
                 disabled={submitting}
                 className="mt-3 h-10 w-full rounded-full text-sm"
               >
-                {submitting ? "Ã¢ÂÂ¦" : `ÃÂ£ÃÂÃÂµÃÂ¯ÃÂ»ÃÂµ ÃÂ³ÃÂ¹ÃÂ± ÃÂ­ÃÂ³ÃÂºÃÂÃÂ¹ÃÂÃÂ· (${selectedChores.length})`}
+                {submitting ? "…" : `Στείλε για έγκριση (${selectedChores.length})`}
               </Button>
             )}
           </section>
@@ -278,7 +278,7 @@ function ChildDashboard() {
         {pendingSubmissionIds.length > 0 && (
           <section className="mt-4 rounded-2xl bg-[oklch(0.95_0.04_292)] p-4 ring-1 ring-[oklch(0.85_0.05_292)]">
             <p className="text-sm font-black text-gray-600">
-              Ã¢ÂÂ³ {pendingSubmissionIds.length} ÃÂ´ÃÂ¿ÃÂÃÂ»ÃÂµÃÂ¹ÃÂ­ÃÂ ÃÂ±ÃÂ½ÃÂ±ÃÂ¼ÃÂ­ÃÂ½ÃÂ¿ÃÂÃÂ½ ÃÂ­ÃÂ³ÃÂºÃÂÃÂ¹ÃÂÃÂ· ÃÂ³ÃÂ¿ÃÂ½ÃÂ­ÃÂ±Ã¢ÂÂ¦
+              ⏳ {pendingSubmissionIds.length} δουλειές αναμένουν έγκριση γονέα…
             </p>
           </section>
         )}
@@ -289,7 +289,7 @@ function ChildDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.35_0.12_175)]">
-                  ÃÂ£ÃÂÃÂÃÂÃÂ¿ÃÂ ÃÂ±ÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·ÃÂ
+                  Στόχος αποταμίευσης
                 </p>
                 <h2 className="mt-1 text-xl font-black">
                   {activeGoal.emoji} {activeGoal.name}
@@ -298,9 +298,9 @@ function ChildDashboard() {
               <PiggyBank size={24} className="text-[oklch(0.35_0.12_175)]" />
             </div>
             <div className="mt-4 flex items-end justify-between">
-              <p className="text-3xl font-black">Ã°ÂÂªÂ {activeGoal.saved_coins}</p>
+              <p className="text-3xl font-black">🪙 {activeGoal.saved_coins}</p>
               <p className="pb-1 font-bold text-[oklch(0.35_0.12_175)]">
-                ÃÂ±ÃÂÃÂ {activeGoal.target_coins}
+                από {activeGoal.target_coins}
               </p>
             </div>
             <Progress
@@ -308,8 +308,8 @@ function ChildDashboard() {
               className="mt-2 h-3 bg-[oklch(0.95_0.08_105)]"
             />
             <p className="mt-2 text-sm font-bold">
-              {Math.round((activeGoal.saved_coins / activeGoal.target_coins) * 100)}% ÃÂµÃÂºÃÂµÃÂ¯! ÃÂÃÂµÃÂ¯ÃÂÃÂ¿ÃÂÃÂ½{" "}
-              {activeGoal.target_coins - activeGoal.saved_coins} Ã°ÂÂªÂ
+              {Math.round((activeGoal.saved_coins / activeGoal.target_coins) * 100)}% εκεί! Λείπουν{" "}
+              {activeGoal.target_coins - activeGoal.saved_coins} 🪙
             </p>
           </section>
         )}
@@ -321,8 +321,8 @@ function ChildDashboard() {
           >
             <Target size={24} className="text-[oklch(0.45_0.15_142)]" />
             <div>
-              <p className="font-black text-gray-800">ÃÂÃÂ¬ÃÂ»ÃÂµ ÃÂÃÂÃÂÃÂÃÂ¿ ÃÂ±ÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·ÃÂ!</p>
-              <p className="text-sm text-gray-500">ÃÂÃÂ¬ÃÂÃÂ¹ ÃÂÃÂ¿ÃÂ ÃÂ¸ÃÂ­ÃÂ»ÃÂµÃÂ¹ÃÂ ÃÂ½ÃÂ± ÃÂ±ÃÂ³ÃÂ¿ÃÂÃÂ¬ÃÂÃÂµÃÂ¹ÃÂ Ã°ÂÂÂ¯</p>
+              <p className="font-black text-gray-800">Βάλε στόχο αποταμίευσης!</p>
+              <p className="text-sm text-gray-500">Κάτι που θέλεις να αγοράσεις 🎯</p>
             </div>
             <ChevronRight size={18} className="ml-auto text-gray-400" />
           </Link>
@@ -335,41 +335,41 @@ function ChildDashboard() {
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.88_0.1_292)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <BookOpen size={22} className="text-primary" />
-            <p className="font-black text-foreground">ÃÂÃÂ¬ÃÂ¸ÃÂµ</p>
-            <p className="text-xs text-muted-foreground">6 ÃÂ¼ÃÂ±ÃÂ¸ÃÂ®ÃÂ¼ÃÂ±ÃÂÃÂ± ÃÂ· +XP</p>
+            <p className="font-black text-foreground">Μάθε</p>
+            <p className="text-xs text-muted-foreground">6 μαθήματα · +XP</p>
           </Link>
           <Link
             to="/investments"
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.89_0.11_51)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <TrendingUp size={22} className="text-[oklch(0.55_0.18_37)]" />
-            <p className="font-black text-foreground">ÃÂÃÂÃÂ­ÃÂ½ÃÂ´ÃÂÃÂÃÂµ</p>
-            <p className="text-xs text-muted-foreground">ÃÂÃÂµÃÂÃÂ¿ÃÂÃÂ­ÃÂ ÃÂ· Startups</p>
+            <p className="font-black text-foreground">Επένδυσε</p>
+            <p className="text-xs text-muted-foreground">Μετοχές · Startups</p>
           </Link>
           <Link
             to="/wallet"
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.86_0.09_214)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <Wallet size={22} className="text-[oklch(0.4_0.14_214)]" />
-            <p className="font-black text-foreground">ÃÂ ÃÂ¿ÃÂÃÂÃÂ¿ÃÂÃÂÃÂ»ÃÂ¹</p>
-            <p className="text-xs text-muted-foreground">Coins ÃÂ· ÃÂÃÂ¿ÃÂÃÂ»ÃÂµÃÂ¹ÃÂ­ÃÂ</p>
+            <p className="font-black text-foreground">Πορτοφόλι</p>
+            <p className="text-xs text-muted-foreground">Coins · Δουλειές</p>
           </Link>
           <Link
             to="/goals"
             className="flex flex-col gap-2 rounded-2xl bg-[oklch(0.92_0.08_105)] p-5 transition-transform hover:-translate-y-0.5"
           >
             <Target size={22} className="text-[oklch(0.45_0.15_142)]" />
-            <p className="font-black text-foreground">ÃÂ£ÃÂÃÂÃÂÃÂ¿ÃÂ¹</p>
-            <p className="text-xs text-muted-foreground">ÃÂÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·</p>
+            <p className="font-black text-foreground">Στόχοι</p>
+            <p className="text-xs text-muted-foreground">Αποταμίευση</p>
           </Link>
         </section>
 
-        {/* Achievements Ã¢ÂÂ real data from DB */}
+        {/* Achievements — real data from DB */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">ÃÂÃÂÃÂ¹ÃÂÃÂµÃÂÃÂ³ÃÂ¼ÃÂ±ÃÂÃÂ± Ã°ÂÂÂ</h2>
+            <h2 className="font-black">Επιτεύγματα 🏆</h2>
             <span className="text-xs font-bold text-[oklch(0.7_0.2_60)]">
-              {earnedBadges.length}/{allBadges.length} ÃÂ¾ÃÂµÃÂºÃÂ»ÃÂµÃÂ¯ÃÂ´ÃÂÃÂÃÂ±
+              {earnedBadges.length}/{allBadges.length} ξεκλείδωτα
             </span>
           </div>
           <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
@@ -383,7 +383,7 @@ function ChildDashboard() {
                   }`}
                   title={badge.description_gr}
                 >
-                  <span className="text-2xl">{isDone ? badge.icon : "Ã°ÂÂÂ"}</span>
+                  <span className="text-2xl">{isDone ? badge.icon : "🔒"}</span>
                   <span className="text-[10px] font-black text-center leading-tight max-w-[64px]">
                     {badge.name_gr.replace("!", "")}
                   </span>
@@ -392,7 +392,7 @@ function ChildDashboard() {
               );
             })}
             {allBadges.length === 0 && (
-              <p className="text-sm text-muted-foreground py-2">ÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ·Ã¢ÂÂ¦</p>
+              <p className="text-sm text-muted-foreground py-2">Φόρτωση…</p>
             )}
           </div>
         </section>
@@ -400,24 +400,24 @@ function ChildDashboard() {
         {/* Recent Activity */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">ÃÂ ÃÂÃÂÃÂÃÂÃÂ±ÃÂÃÂ· ÃÂÃÂÃÂ±ÃÂÃÂÃÂ·ÃÂÃÂ¹ÃÂÃÂÃÂ·ÃÂÃÂ±</h2>
+            <h2 className="font-black">Πρόσφατη Δραστηριότητα</h2>
             <Link
               to="/wallet"
               className="flex items-center gap-1 text-xs font-bold text-muted-foreground"
             >
-              ÃÂÃÂ»ÃÂ± <ChevronRight size={14} />
+              Όλα <ChevronRight size={14} />
             </Link>
           </div>
           <div className="mt-4 divide-y divide-border">
             {recentTx.length === 0 && (
               <p className="text-sm text-muted-foreground py-3 text-center">
-                ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂ± ÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂ·ÃÂÃÂ¹ÃÂÃÂÃÂ·ÃÂÃÂ± ÃÂ±ÃÂºÃÂÃÂ¼ÃÂ±. ÃÂÃÂµÃÂºÃÂ¯ÃÂ½ÃÂ± ÃÂ¼ÃÂ±ÃÂ¸ÃÂ®ÃÂ¼ÃÂ±ÃÂÃÂ± ÃÂ® ÃÂ´ÃÂ¿ÃÂÃÂ»ÃÂµÃÂ¹ÃÂ­ÃÂ! Ã°ÂÂÂ
+                Καμία δραστηριότητα ακόμα. Ξεκίνα μαθήματα ή δουλειές! 🚀
               </p>
             )}
             {recentTx.map((tx) => (
               <div key={tx.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[oklch(0.93_0.03_292)] text-lg">
-                  {txIcon[tx.type] ?? "Ã°ÂÂªÂ"}
+                  {txIcon[tx.type] ?? "🪙"}
                 </span>
                 <p className="min-w-0 flex-1 text-sm font-bold leading-tight">{tx.description}</p>
                 <div className="text-right">
@@ -425,7 +425,7 @@ function ChildDashboard() {
                     className="text-sm font-black"
                     style={{ color: tx.amount >= 0 ? "oklch(0.55 0.18 37)" : "oklch(0.55 0.18 22)" }}
                   >
-                    {tx.amount >= 0 ? "+" : ""}{tx.amount} Ã°ÂÂªÂ
+                    {tx.amount >= 0 ? "+" : ""}{tx.amount} 🪙
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(tx.created_at).toLocaleDateString("el-GR", { day: "numeric", month: "short" })}
@@ -481,20 +481,20 @@ function ChildDashboard() {
         {/* Spending Analytics */}
         {spendingStats && (
           <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
-            <h2 className="font-black">ÃÂ£ÃÂÃÂ±ÃÂÃÂ¹ÃÂÃÂÃÂ¹ÃÂºÃÂ¬ {spendingStats.monthLabel} Ã°ÂÂÂ</h2>
+            <h2 className="font-black">Στατιστικά {spendingStats.monthLabel} 📊</h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[oklch(0.9_0.08_170)] p-3">
-                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">ÃÂÃÂÃÂ¿ÃÂ´ÃÂ±</p>
-                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">Ã¢ÂÂ¬{spendingStats.totalIn.toFixed(2)}</p>
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">Έσοδα</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">€{spendingStats.totalIn.toFixed(2)}</p>
               </div>
               <div className="rounded-xl bg-[oklch(0.9_0.08_22)] p-3">
-                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">ÃÂÃÂ¾ÃÂ¿ÃÂ´ÃÂ±</p>
-                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">Ã¢ÂÂ¬{spendingStats.totalOut.toFixed(2)}</p>
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">Έξοδα</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">€{spendingStats.totalOut.toFixed(2)}</p>
               </div>
             </div>
             <div className="mt-4">
               <div className="mb-1 flex justify-between text-[10px] font-bold">
-                <span>ÃÂÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·</span>
+                <span>Αποταμίευση</span>
                 <span className="text-[oklch(0.5_0.2_292)]">{spendingStats.savingsRate}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
@@ -509,7 +509,7 @@ function ChildDashboard() {
                 {spendingStats.bySource.map((src) => (
                   <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: src.color + '33', color: src.color }}>
                     <span className="h-2 w-2 rounded-full" style={{ background: src.color }} />
-                    {src.label} Ã¢ÂÂ¬{src.amount.toFixed(2)}
+                    {src.label} €{src.amount.toFixed(2)}
                   </div>
                 ))}
               </div>
