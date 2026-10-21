@@ -227,7 +227,7 @@ function SpendPage() {
             </div>
             <div className="relative mx-auto w-full max-w-[500px]">
               <div className="hero-orb absolute inset-[10%] rounded-full" />
-              <img src={spendHero} width={1000} height={1000} alt="Παιδί με κάρτα" className="relative z-10 h-full w-full rounded-full object-cover" />
+              <img src={spendHero} width={1000} height={1000} alt="Παιδί με κάρτα" className="relative z-10 h-full w-full rounded-full object-cover bg-white" />
             </div>
           </div>
         </div>
