@@ -44,7 +44,8 @@ function SavePage() {
               </Link>
             </div>
             <div className="relative mx-auto w-full max-w-[500px]">
-<img src={saveHero} width={1000} height={1000} alt="Παιδί αποταμιεύει" className="relative z-10 h-full w-full object-contain drop-shadow-xl" />
+<div className="hero-orb absolute inset-[10%] rounded-full" />
+              <img src={saveHero} width={1000} height={1000} alt="Παιδί αποταμιεύει" className="relative z-10 h-full w-full rounded-full object-cover" />
             </div>
           </div>
         </div>
