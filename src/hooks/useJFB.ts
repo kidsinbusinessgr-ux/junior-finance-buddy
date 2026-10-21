@@ -932,3 +932,28 @@ export function useChildNotifications(childId: string | null) {
 export async function markNotificationRead(id: string) {
   await supabase.from("jfb_notifications").update({ read: true }).eq("id", id);
 }
+
+
+// ── Subscription / paid tier ──────────────────────────────────────────────────────────────────────────────────
+// Checks the Supabase auth user's metadata for subscription_tier.
+// To mark a user as paid: UPDATE auth.users SET raw_user_meta_data =
+//   raw_user_meta_data || '{"subscription_tier":"paid"}' WHERE id = '<uid>';
+export function useSubscription() {
+  const [isPaid, setIsPaid] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const tier = data.user?.user_metadata?.subscription_tier as string | undefined;
+      setIsPaid(tier === "paid" || tier === "premium");
+      setLoading(false);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
+      const tier = session?.user?.user_metadata?.subscription_tier as string | undefined;
+      setIsPaid(tier === "paid" || tier === "premium");
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  return { isPaid, loading };
+}
