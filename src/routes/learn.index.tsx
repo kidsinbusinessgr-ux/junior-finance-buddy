@@ -2,13 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Award, BookOpenCheck, CircleHelp, Lock, Star } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { PaidGate } from "@/components/paid-gate";
+import { useSubscription } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/learn/")({
   head: () => ({
     meta: [
-      { title: "Μάθε — Kids in Business" },
+      { title: "Mάθε — Kids in Business" },
       { name: "description", content: "Διαδραστικά μαθήματα οικονομικής παιδείας για παιδιά 8–14. Κουίζ, badges και gamification." },
-      { property: "og:title", content: "Μάθε — Kids in Business" },
+      { property: "og:title", content: "Mάθε — Kids in Business" },
       { property: "og:type", content: "website" },
     ],
   }),
@@ -79,6 +81,7 @@ const lessons = [
 ];
 
 function LearnPage() {
+  const { isPaid, loading: subLoading } = useSubscription();
   const totalXP = lessons.filter((l) => l.completed).reduce((s, l) => s + l.xp, 0);
   const unlockedCount = lessons.filter((l) => l.unlocked).length;
 
@@ -110,8 +113,8 @@ function LearnPage() {
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {lessons.map((lesson) => (
+              <PaidGate key={lesson.id} isPaid={lesson.id <= 2 || isPaid} loading={subLoading}>
               <article
-                key={lesson.id}
                 className={`rounded-xl border p-6 transition-all ${lesson.unlocked ? "bg-card shadow-sm hover:-translate-y-1 hover:shadow-md" : "bg-muted opacity-60"}`}
               >
                 <div className="flex items-start justify-between">
@@ -143,6 +146,7 @@ function LearnPage() {
                   </div>
                 )}
               </article>
+              </PaidGate>
             ))}
           </div>
 
