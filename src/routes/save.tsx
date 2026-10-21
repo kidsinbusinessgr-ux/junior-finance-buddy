@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import saveHero from "@/assets/save-hero-kid.jpg";
+import saveHero from "@/assets/save-hero-cartoon.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
@@ -44,8 +44,7 @@ function SavePage() {
               </Link>
             </div>
             <div className="relative mx-auto w-full max-w-[500px]">
-              <div className="hero-orb absolute inset-[10%] rounded-full" />
-              <img src={saveHero} width={1000} height={1000} alt="Παιδί αποταμιεύει" className="relative z-10 h-full w-full rounded-full object-cover" />
+<img src={saveHero} width={1000} height={1000} alt="Παιδί αποταμιεύει" className="relative z-10 h-full w-full object-contain drop-shadow-xl" />
             </div>
           </div>
         </div>
