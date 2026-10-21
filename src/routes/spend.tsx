@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, BellOff, Lock, Unlock, Palette, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import spendHero from "@/assets/spend-hero-kid.jpg";
+import spendHero from "@/assets/spend-hero-cartoon.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
@@ -227,7 +227,7 @@ function SpendPage() {
             </div>
             <div className="relative mx-auto w-full max-w-[500px]">
               <div className="hero-orb absolute inset-[10%] rounded-full" />
-              <img src={spendHero} width={1000} height={1000} alt="Παιδί με κάρτα" className="relative z-10 h-full w-full rounded-full object-cover" />
+              <img src={spendHero} width={1000} height={1000} alt="Παιδί με κάρτα" className="relative z-10 h-full w-full rounded-full object-contain" />
             </div>
           </div>
         </div>
