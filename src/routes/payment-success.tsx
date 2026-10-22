@@ -31,6 +31,7 @@ function PaymentSuccessPage() {
 
     (async () => {
       try {
+        // 1. Verify with Stripe server-side
         const result = await verifyCheckoutSession({ data: { sessionId: session_id } });
 
         if (!result.paid) {
@@ -39,11 +40,13 @@ function PaymentSuccessPage() {
           return;
         }
 
+        // 2. Update user metadata client-side (user must be logged in)
         const { error } = await supabase.auth.updateUser({
           data: { subscription_tier: "paid", subscription_plan: result.plan },
         });
 
         if (error) {
+          // Not fatal — they paid, just metadata didn't update. Show success anyway.
           console.error("Metadata update failed:", error.message);
         }
 
@@ -78,10 +81,14 @@ function PaymentSuccessPage() {
         </div>
         <div className="flex gap-3">
           <Link to="/pricing">
-            <Button variant="outline" className="rounded-full px-8 font-black">← Επιστροφή στις τιμές</Button>
+            <Button variant="outline" className="rounded-full px-8 font-black">
+              ← Επιστροφή στις τιμές
+            </Button>
           </Link>
           <a href="mailto:kidsinbusinessgr@gmail.com">
-            <Button className="rounded-full px-8 font-black">Επικοινωνία</Button>
+            <Button className="rounded-full px-8 font-black">
+              Επικοινωνία
+            </Button>
           </a>
         </div>
       </main>
@@ -95,7 +102,9 @@ function PaymentSuccessPage() {
       </div>
 
       <div>
-        <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.57_0.23_292)]">Πληρωμή επιτυχής</p>
+        <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.57_0.23_292)]">
+          Πληρωμή επιτυχής
+        </p>
         <h1 className="mt-3 text-4xl font-black sm:text-5xl">Καλώς ήρθες στο Premium! 🎉</h1>
         <p className="mt-4 max-w-md text-lg text-muted-foreground">
           Η συνδρομή σου ενεργοποιήθηκε. Τώρα έχεις πρόσβαση σε όλα τα μαθήματα και εργαλεία.
@@ -109,7 +118,9 @@ function PaymentSuccessPage() {
           </Button>
         </Link>
         <Link to="/dashboard">
-          <Button variant="outline" className="h-12 rounded-full px-10 font-black">Dashboard γονέα</Button>
+          <Button variant="outline" className="h-12 rounded-full px-10 font-black">
+            Dashboard γονέα
+          </Button>
         </Link>
       </div>
 

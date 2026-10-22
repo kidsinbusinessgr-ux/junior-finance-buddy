@@ -8,9 +8,9 @@ import { useSubscription } from "@/hooks/useJFB";
 export const Route = createFileRoute("/learn/")({
   head: () => ({
     meta: [
-      { title: "Mάθε — Kids in Business" },
+      { title: "Μάθε — Kids in Business" },
       { name: "description", content: "Διαδραστικά μαθήματα οικονομικής παιδείας για παιδιά 8–14. Κουίζ, badges και gamification." },
-      { property: "og:title", content: "Mάθε — Kids in Business" },
+      { property: "og:title", content: "Μάθε — Kids in Business" },
       { property: "og:type", content: "website" },
     ],
   }),
@@ -150,7 +150,34 @@ function LearnPage() {
             ))}
           </div>
 
-          <div className="mt-12 rounded-xl bg-[oklch(0.57_0.23_292)] p-8 text-center text-primary-foreground">
+          {/* Investment Simulator Feature Card */}
+          <Link to="/stocks" className="mt-12 block">
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[oklch(0.22_0.05_240)] to-[oklch(0.15_0.08_260)] p-8 text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.4_0.2_280/0.3)] to-transparent" />
+              <div className="relative">
+                <div className="flex items-center gap-3">
+                  <span className="text-5xl">📈</span>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.17em] text-[oklch(0.75_0.15_280)]">Νέο — Διαδραστικό</p>
+                    <h2 className="text-2xl font-black sm:text-3xl">Επενδύσεις με Αληθινές Τιμές</h2>
+                  </div>
+                </div>
+                <p className="mt-4 max-w-xl text-[oklch(0.9_0.03_260)] leading-relaxed">
+                  Μάθε τι είναι μετοχές, δες <strong>πραγματικές τιμές</strong> από Apple, Netflix, Roblox και άλλες εταιρίες που ξέρεις — και χρησιμοποίησε τα εικονικά νομίσματά σου για να εξασκηθείς στο να επενδύεις!
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">📊 Γραφήματα 30 ημερών</span>
+                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">🎮 Εικονικό Portfolio</span>
+                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">💡 Μαθήματα Επενδύσεων</span>
+                </div>
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[oklch(0.6_0.22_280)] px-6 py-3 font-black text-white transition-all group-hover:bg-[oklch(0.65_0.22_280)]">
+                  Ξεκίνα τώρα →
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          <div className="mt-6 rounded-xl bg-[oklch(0.57_0.23_292)] p-8 text-center text-primary-foreground">
             <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Έρχεται σύντομα</p>
             <h2 className="mt-3 text-3xl font-black">+10 ακόμα μαθήματα</h2>
             <p className="mt-3 leading-relaxed text-[oklch(0.96_0.02_292)]">Επιχειρηματικότητα, επενδύσεις, φόροι, δάνεια και πολλά άλλα — εβδομαδιαίες ενημερώσεις!</p>

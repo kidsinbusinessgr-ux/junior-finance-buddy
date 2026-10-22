@@ -30,7 +30,9 @@ function PaymentCancelPage() {
           </Button>
         </Link>
         <Link to="/learn">
-          <Button variant="outline" className="h-12 rounded-full px-10 font-black">Συνέχισε δωρεάν</Button>
+          <Button variant="outline" className="h-12 rounded-full px-10 font-black">
+            Συνέχισε δωρεάν
+          </Button>
         </Link>
       </div>
 
