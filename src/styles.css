@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 
 @theme inline {
-  --font-sans: "Nunito", Arial, "Helvetica Neue", sans-serif;
+  --font-sans: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif;
   --radius: 0.8rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

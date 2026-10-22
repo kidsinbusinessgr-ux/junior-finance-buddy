@@ -1,81 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Sprout, TrendingUp, Compass } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { ChartNoAxesCombined, Compass, Sprout } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/invest")({
-  head: () => ({
-    meta: [
-      { title: "Επένδυσε — Kids in Business" },
-      { name: "description", content: "Μάθε στα παιδιά τα βασικά της επένδυσης και της ανάπτυξης χρημάτων με χρόνο." },
-      { property: "og:title", content: "Επένδυσε — Kids in Business" },
-      { property: "og:description", content: "Μάθε στα παιδιά τα βασικά της επένδυσης και της ανάπτυξης χρημάτων με χρόνο." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => ({ meta: [{ title: "Invest with Brightly — A future-focused money pot" }, { name: "description", content: "Brightly makes it simple to start a future money pot alongside your child’s everyday savings." }, { property: "og:title", content: "Invest with Brightly — A future-focused money pot" }, { property: "og:description", content: "Brightly makes it simple to start a future money pot alongside your child’s everyday savings." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: InvestPage,
 });
 
 function InvestPage() {
-  return (
-    <main className="min-h-screen overflow-hidden bg-background">
-      {/* Hero */}
-      <section className="bg-[oklch(0.57_0.23_292)] px-6 pb-24 pt-5 text-primary-foreground lg:px-16">
-        <div className="mx-auto max-w-[1440px]">
-          <BrightlyNav active="invest" />
-          <div className="mx-auto max-w-3xl pb-3 pt-20 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Επενδύσεις για νέους</p>
-            <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Τα χρήματα που δουλεύουν για σένα.</h1>
-            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Μάθε πώς οι έξυπνοι επενδυτές αφήνουν τον χρόνο να κάνει τη δουλειά τους — ακόμα και από τα 12.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature cards */}
-      <section className="px-6 py-20 lg:px-16">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid gap-6 sm:grid-cols-3">
-            {[
-              {
-                Icon: Sprout,
-                title: "Ανατοκισμός",
-                copy: "Μάθε πώς τα χρήματα αυξάνονται με τον χρόνο χάρη στον ανατοκισμό — το μεγαλύτερο μυστικό της επένδυσης.",
-              },
-              {
-                Icon: TrendingUp,
-                title: "Αγορές & μετοχές",
-                copy: "Κατανόησε τι σημαίνει να κατέχεις ένα κομμάτι μιας εταιρείας και πώς λειτουργούν οι αγορές.",
-              },
-              {
-                Icon: Compass,
-                title: "Διαφοροποίηση",
-                copy: "Μάθε γιατί οι έξυπνοι επενδυτές δεν βάζουν ποτέ όλα τα αυγά στο ίδιο καλάθι.",
-              },
-            ].map(({ Icon, title, copy }) => (
-              <div key={title} className="rounded-xl border bg-card p-8 shadow-sm">
-                <div className="mb-5 grid h-12 w-12 place-items-center rounded-full bg-[oklch(0.57_0.23_292)]">
-                  <Icon className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <h2 className="text-2xl font-black">{title}</h2>
-                <p className="mt-3 leading-relaxed text-muted-foreground">{copy}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Disclaimer + CTA */}
-      <section className="bg-[oklch(0.985_0.015_91)] px-6 py-20 lg:px-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-black sm:text-5xl">Η μάθηση ξεκινά εδώ.</h2>
-          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">Το Kids in Business δεν παρέχει επενδυτικές υπηρεσίες ή συμβουλές. Το περιεχόμενο αυτό είναι εκπαιδευτικό και αποσκοπεί στο να βοηθήσει τα παιδιά να κατανοήσουν βασικές έννοιες επένδυσης. Για πραγματικές επενδύσεις απαιτείται η καθοδήγηση ενήλικα.</p>
-          <Link to="/signup">
-            <Button className="mt-8 h-14 rounded-full px-10 text-base">Εγγραφή δωρεάν</Button>
-          </Link>
-        </div>
-      </section>
-    </main>
-  );
+  return <main className="min-h-screen overflow-hidden bg-background"><section className="relative bg-[oklch(0.79_0.13_112)] px-6 pb-24 pt-5 text-[oklch(0.2_0.08_133)] lg:px-16"><div className="absolute right-[10%] top-36 h-40 w-40 rounded-full border-[22px] border-[oklch(0.94_0.08_105)]" /><div className="relative mx-auto max-w-[1440px]"><BrightlyNav active="invest" tone="light" /><div className="max-w-3xl pt-20"><p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.37_0.12_132)]">For the future</p><h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Plant small seeds for big tomorrows.</h1><p className="mt-7 max-w-2xl text-xl leading-relaxed">Open a simple future pot alongside their everyday money habits, and help them see how time can do some of the growing.</p><Button className="mt-9 h-14 rounded-full bg-primary px-9 text-primary-foreground">Get started</Button></div></div></section><section className="px-6 py-20 lg:px-16"><div className="mx-auto max-w-6xl"><h2 className="max-w-2xl text-4xl font-black leading-tight sm:text-5xl">A calm place to look ahead.</h2><div className="mt-12 grid gap-5 md:grid-cols-3">{[[Sprout, "Start simply", "Set up a future pot with an amount that works for you."], [ChartNoAxesCombined, "See the picture", "Track contributions and learn why long-term choices can matter."], [Compass, "Keep perspective", "Use plain language to talk about ups, downs and time."]].map(([Icon, title, copy]) => { const FeatureIcon = Icon as typeof Sprout; return <article key={title as string} className="rounded-lg bg-card p-7 shadow-sm"><FeatureIcon className="h-9 w-9 text-[oklch(0.52_0.15_132)]" /><h3 className="mt-6 text-2xl font-black">{title as string}</h3><p className="mt-3 leading-relaxed text-muted-foreground">{copy as string}</p></article>})}</div><p className="mt-12 text-sm text-muted-foreground">The value of a future pot can go down as well as up. Brightly’s tools are for learning and planning, not personal financial advice.</p></div></section></main>;
 }
-

@@ -10,27 +10,38 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ChildDashboardRouteImport } from './routes/child-dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EarnRouteImport } from './routes/earn'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password.'
 import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as InvestRouteImport } from './routes/invest'
 import { Route as InvestmentsRouteImport } from './routes/investments'
 import { Route as LearnRouteImport } from './routes/learn'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ParentDashboardRouteImport } from './routes/parent-dashboard'
+import { Route as PaymentCancelRouteImport } from './routes/payment-cancel'
+import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SaveRouteImport } from './routes/save'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SpendRouteImport } from './routes/spend'
+import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as WalletRouteImport } from './routes/wallet'
-import { Route as LearnIndexRouteImport } from './routes/learn.index'
-import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChildDashboardRoute = ChildDashboardRouteImport.update({
@@ -46,6 +57,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const EarnRoute = EarnRouteImport.update({
   id: '/earn',
   path: '/earn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoalsRoute = GoalsRouteImport.update({
@@ -68,6 +84,16 @@ const LearnRoute = LearnRouteImport.update({
   path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/learn/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
+  id: '/learn/$lessonId',
+  path: '$lessonId',
+  getParentRoute: () => LearnRoute,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -83,9 +109,24 @@ const ParentDashboardRoute = ParentDashboardRouteImport.update({
   path: '/parent-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaymentCancelRoute = PaymentCancelRouteImport.update({
+  id: '/payment-cancel',
+  path: '/payment-cancel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment-success',
+  path: '/payment-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SaveRoute = SaveRouteImport.update({
@@ -103,160 +144,203 @@ const SpendRoute = SpendRouteImport.update({
   path: '/spend',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StocksRoute = StocksRouteImport.update({
+  id: '/stocks',
+  path: '/stocks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LearnIndexRoute = LearnIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LearnRoute,
-} as any)
-const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
-  id: '/$lessonId',
-  path: '/$lessonId',
-  getParentRoute: () => LearnRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
   '/investments': typeof InvestmentsRoute
-  '/learn': typeof LearnRouteWithChildren
+  '/learn': typeof LearnRoute
+  '/learn/': typeof LearnIndexRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/parent-dashboard': typeof ParentDashboardRoute
+  '/payment-cancel': typeof PaymentCancelRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/stocks': typeof StocksRoute
   '/wallet': typeof WalletRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
-  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
   '/investments': typeof InvestmentsRoute
+  '/learn': typeof LearnRoute
+  '/learn/': typeof LearnIndexRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/parent-dashboard': typeof ParentDashboardRoute
+  '/payment-cancel': typeof PaymentCancelRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/stocks': typeof StocksRoute
   '/wallet': typeof WalletRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
-  '/learn': typeof LearnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
   '/investments': typeof InvestmentsRoute
-  '/learn': typeof LearnRouteWithChildren
+  '/learn': typeof LearnRoute
+  '/learn/': typeof LearnIndexRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/parent-dashboard': typeof ParentDashboardRoute
+  '/payment-cancel': typeof PaymentCancelRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/stocks': typeof StocksRoute
   '/wallet': typeof WalletRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
-  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/child-dashboard'
     | '/dashboard'
     | '/earn'
+    | '/forgot-password'
     | '/goals'
     | '/invest'
     | '/investments'
     | '/learn'
+    | '/learn/'
+    | '/learn/$lessonId'
     | '/login'
     | '/onboarding'
     | '/parent-dashboard'
+    | '/payment-cancel'
+    | '/payment-success'
     | '/pricing'
+    | '/reset-password'
     | '/save'
     | '/signup'
     | '/spend'
+    | '/stocks'
     | '/wallet'
-    | '/learn/$lessonId'
-    | '/learn/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/child-dashboard'
     | '/dashboard'
     | '/earn'
+    | '/forgot-password'
     | '/goals'
     | '/invest'
     | '/investments'
+    | '/learn'
+    | '/learn/'
+    | '/learn/$lessonId'
     | '/login'
     | '/onboarding'
     | '/parent-dashboard'
+    | '/payment-cancel'
+    | '/payment-success'
     | '/pricing'
+    | '/reset-password'
     | '/save'
     | '/signup'
     | '/spend'
+    | '/stocks'
     | '/wallet'
-    | '/learn/$lessonId'
-    | '/learn'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/child-dashboard'
     | '/dashboard'
     | '/earn'
+    | '/forgot-password'
     | '/goals'
     | '/invest'
     | '/investments'
     | '/learn'
+    | '/learn/'
+    | '/learn/$lessonId'
     | '/login'
     | '/onboarding'
     | '/parent-dashboard'
+    | '/payment-cancel'
+    | '/payment-success'
     | '/pricing'
+    | '/reset-password'
     | '/save'
     | '/signup'
     | '/spend'
+    | '/stocks'
     | '/wallet'
-    | '/learn/$lessonId'
-    | '/learn/'
   fileRoutesById: FileRoutesById
+}
+export interface LearnRouteChildren {
+  LearnIndexRoute: typeof LearnIndexRoute
+  LearnLessonIdRoute: typeof LearnLessonIdRoute
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ChildDashboardRoute: typeof ChildDashboardRoute
   DashboardRoute: typeof DashboardRoute
   EarnRoute: typeof EarnRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GoalsRoute: typeof GoalsRoute
   InvestRoute: typeof InvestRoute
   InvestmentsRoute: typeof InvestmentsRoute
-  LearnRoute: typeof LearnRouteWithChildren
+  LearnRoute: typeof LearnRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   ParentDashboardRoute: typeof ParentDashboardRoute
+  PaymentCancelRoute: typeof PaymentCancelRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SaveRoute: typeof SaveRoute
   SignupRoute: typeof SignupRoute
   SpendRoute: typeof SpendRoute
+  StocksRoute: typeof StocksRoute
   WalletRoute: typeof WalletRoute
 }
 
@@ -267,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/child-dashboard': {
@@ -288,6 +379,13 @@ declare module '@tanstack/react-router' {
       path: '/earn'
       fullPath: '/earn'
       preLoaderRoute: typeof EarnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/goals': {
@@ -318,6 +416,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/$lessonId': {
+      id: '/learn/$lessonId'
+      path: '$lessonId'
+      fullPath: '/learn/$lessonId'
+      preLoaderRoute: typeof LearnLessonIdRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -339,11 +451,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payment-cancel': {
+      id: '/payment-cancel'
+      path: '/payment-cancel'
+      fullPath: '/payment-cancel'
+      preLoaderRoute: typeof PaymentCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-success': {
+      id: '/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/save': {
@@ -367,6 +500,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stocks': {
+      id: '/stocks'
+      path: '/stocks'
+      fullPath: '/stocks'
+      preLoaderRoute: typeof StocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wallet': {
       id: '/wallet'
       path: '/wallet'
@@ -374,51 +514,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/learn/': {
-      id: '/learn/'
-      path: '/'
-      fullPath: '/learn/'
-      preLoaderRoute: typeof LearnIndexRouteImport
-      parentRoute: typeof LearnRoute
-    }
-    '/learn/$lessonId': {
-      id: '/learn/$lessonId'
-      path: '/$lessonId'
-      fullPath: '/learn/$lessonId'
-      preLoaderRoute: typeof LearnLessonIdRouteImport
-      parentRoute: typeof LearnRoute
-    }
   }
 }
 
-interface LearnRouteChildren {
-  LearnLessonIdRoute: typeof LearnLessonIdRoute
-  LearnIndexRoute: typeof LearnIndexRoute
-}
-
-const LearnRouteChildren: LearnRouteChildren = {
-  LearnLessonIdRoute: LearnLessonIdRoute,
+const learnRouteChildren: LearnRouteChildren = {
   LearnIndexRoute: LearnIndexRoute,
+  LearnLessonIdRoute: LearnLessonIdRoute,
 }
-
-const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ChildDashboardRoute: ChildDashboardRoute,
   DashboardRoute: DashboardRoute,
   EarnRoute: EarnRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   GoalsRoute: GoalsRoute,
   InvestRoute: InvestRoute,
   InvestmentsRoute: InvestmentsRoute,
-  LearnRoute: LearnRouteWithChildren,
+  LearnRoute: LearnRoute._addFileChildren(learnRouteChildren),
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   ParentDashboardRoute: ParentDashboardRoute,
+  PaymentCancelRoute: PaymentCancelRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SaveRoute: SaveRoute,
   SignupRoute: SignupRoute,
   SpendRoute: SpendRoute,
+  StocksRoute: StocksRoute,
   WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport

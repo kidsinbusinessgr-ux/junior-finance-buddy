@@ -1,16 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/logo-kidsinbusiness_1.png";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({
-    meta: [
-      { title: "Σύνδεση — Kids in Business" },
-      { name: "description", content: "Συνδέσου στον λογαριασμό σου στο Kids in Business." },
-    ],
-  }),
   component: LoginPage,
 });
 
@@ -69,20 +61,14 @@ function LoginPage() {
       style={{ background: "oklch(0.98 0.01 292)" }}
     >
       <div className="w-full max-w-sm">
-        {/* Back to home */}
-        <div className="mb-4">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400 hover:text-gray-700 transition-colors">
-            <ArrowLeft size={15} /> Αρχική
-          </Link>
-        </div>
-
         {/* Logo */}
         <div className="text-center mb-8">
-          <img
-            src={logo}
-            alt="Kids in Business"
-            className="mx-auto mb-3 h-16 w-auto"
-          />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg"
+            style={{ background: "oklch(0.57 0.23 292)" }}
+          >
+            🪙
+          </div>
           <h1 className="text-2xl font-black text-gray-800">Kids in Business</h1>
           <p className="text-gray-400 text-sm font-semibold">Χρηματοοικονομική παιδεία για παιδιά</p>
         </div>
@@ -107,6 +93,7 @@ function LoginPage() {
                 placeholder="you@example.com"
                 required
                 className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none focus:ring-2"
+                style={{ focusRingColor: "oklch(0.57 0.23 292)" }}
               />
             </div>
             <div>
@@ -130,21 +117,14 @@ function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm mt-4">
-            <Link to="/forgot-password" className="text-gray-400 font-semibold hover:underline">
-              Ξέχασες τον κωδικό;
-            </Link>
-          </p>
-
-          <p className="text-center text-sm text-gray-400 font-semibold mt-3">
+          <p className="text-center text-sm text-gray-400 font-semibold mt-5">
             Δεν έχεις λογαριασμό;{" "}
-            <Link to="/signup" className="font-black" style={{ color: "oklch(0.57 0.23 292)" }}>
+            <a href="/signup" className="font-black" style={{ color: "oklch(0.57 0.23 292)" }}>
               Εγγραφή
-            </Link>
+            </a>
           </p>
         </div>
       </div>
     </div>
   );
 }
-
