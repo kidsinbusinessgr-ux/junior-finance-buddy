@@ -103,6 +103,7 @@ function StocksPage() {
     fetchQuotes();
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchHistory(selectedTicker);
   }, [selectedTicker]);
