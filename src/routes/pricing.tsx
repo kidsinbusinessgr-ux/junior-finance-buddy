@@ -1,61 +1,72 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Check, Zap } from "lucide-react";
+import { useState } from "react";
 import { BrightlyNav } from "@/components/brightly-nav";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { createCheckoutSession } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Τιμές & πακέτα — Kids in Business" },
-      { name: "description", content: "Επέλεξε το πακέτο που ταιριάζει στην οικογένειά σου και ξεκίνα με 14 μέρες δωρεάν δοκιμή." },
+      { name: "description", content: "Ξεκλείδωσε όλα τα μαθήματα, το virtual wallet και το investment simulator. €4,99/μήνα ή €39/χρόνο." },
       { property: "og:title", content: "Τιμές & πακέτα — Kids in Business" },
-      { property: "og:description", content: "Επέλεξε το πακέτο που ταιριάζει στην οικογένειά σου και ξεκίνα με 14 μέρες δωρεάν δοκιμή." },
+      { property: "og:description", content: "Ξεκλείδωσε όλα τα μαθήματα, το virtual wallet και το investment simulator. €4,99/μήνα ή €39/χρόνο." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: PricingPage,
 });
 
-const PLANS = [
-  {
-    key: "individual",
-    badge: null,
-    name: "Ατομικό",
-    price: "3,99",
-    description: "Για ένα παιδί που θέλει να ξεκινήσει τη χρηματοοικονομική του παιδεία.",
-    features: [
-      "1 παιδί",
-      "Όλα τα μαθήματα (6+)",
-      "Virtual wallet & κέρδη από tasks",
-      "Αποταμιευτικοί στόχοι",
-      "Investment simulation",
-      "Εποπτεία & dashboard γονέα",
-      "Πιστοποιητικό ολοκλήρωσης",
-    ],
-    cta: "Ξεκίνα δωρεάν",
-    href: "https://buy.stripe.com/5kQ9ATeVI0yKfTog9x8AE00",
-    highlight: false,
-  },
-  {
-    key: "family",
-    badge: "Πιο δημοφιλές",
-    name: "Οικογένεια",
-    price: "5,99",
-    description: "Για οικογένειες με περισσότερα παιδιά — ένα πακέτο για όλους.",
-    features: [
-      "Μέχρι 4 παιδιά",
-      "Όλα του Ατομικού",
-      "Αναφορές προόδου ανά παιδί",
-      "Σύγκριση επιδόσεων μεταξύ παιδιών",
-      "Προτεραιότητα στην υποστήριξη",
-    ],
-    cta: "Ξεκίνα δωρεάν",
-    href: "https://buy.stripe.com/3cI7sL6pc5T422yaPd8AE01",
-    highlight: true,
-  },
+const FEATURES = [
+  "Όλα τα μαθήματα οικονομικής παιδείας (6+)",
+  "Virtual wallet & κέρδη από tasks",
+  "Αποταμιευτικοί στόχοι με progress tracker",
+  "Investment simulation — χωρίς πραγματικά χρήματα",
+  "Dashboard γονέα & εποπτεία",
+  "Badges & XP gamification",
+  "Πιστοποιητικό ολοκλήρωσης",
+  "Νέα μαθήματα κάθε εβδομάδα",
 ];
 
 function PricingPage() {
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  async function handleCheckout() {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        await navigate({ to: "/signup" });
+        return;
+      }
+
+      const origin = window.location.origin;
+      const result = await createCheckoutSession({
+        data: {
+          plan: selectedPlan,
+          successUrl: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${origin}/pricing`,
+          userId: user.id,
+          userEmail: user.email ?? undefined,
+        },
+      });
+
+      if (result.url) {
+        window.location.href = result.url;
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setLoading(false);
+    }
+  }
+
+  const savingsPercent = Math.round((1 - 3900 / (499 * 12)) * 100);
+
   return (
     <main className="min-h-screen overflow-hidden bg-background">
       {/* Hero */}
@@ -63,123 +74,163 @@ function PricingPage() {
         <div className="mx-auto max-w-[1440px]">
           <BrightlyNav active="pricing" />
           <div className="mx-auto max-w-2xl pb-3 pt-20 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Πακέτα & τιμές</p>
-            <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Μια πιο έξυπνη αρχή.</h1>
+            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Premium</p>
+            <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Ξεκλείδωσε τα πάντα.</h1>
             <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">
-              14 μέρες δωρεάν δοκιμή — χωρίς χρεωστική κάρτα. Ακύρωση οποιαδήποτε στιγμή.
+              Μια συνδρομή. Όλα τα εργαλεία. Ακύρωση οποιαδήποτε στιγμή.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Pricing cards */}
+      {/* Pricing card */}
       <section className="px-6 py-20 lg:px-16">
-        <div className="mx-auto max-w-4xl">
-          <div className="grid gap-6 sm:grid-cols-2">
-            {PLANS.map((plan) => (
-              <article
-                key={plan.key}
-                className={`relative flex flex-col rounded-2xl p-8 shadow-sm ${
-                  plan.highlight
-                    ? "bg-[oklch(0.57_0.23_292)] text-primary-foreground ring-2 ring-[oklch(0.57_0.23_292)]"
-                    : "bg-card ring-1 ring-border"
-                }`}
-              >
-                {plan.badge && (
-                  <span className="mb-4 inline-block w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-wide">
-                    {plan.badge}
-                  </span>
-                )}
-
-                <p className={`text-sm font-black uppercase tracking-widest ${plan.highlight ? "text-[oklch(0.86_0.1_292)]" : "text-muted-foreground"}`}>
-                  {plan.name}
-                </p>
-
-                <div className="mt-3 flex items-end gap-1">
-                  <span className="text-5xl font-black">€{plan.price}</span>
-                  <span className={`mb-1.5 text-sm font-semibold ${plan.highlight ? "text-[oklch(0.86_0.1_292)]" : "text-muted-foreground"}`}>/μήνα</span>
-                </div>
-
-                <p className={`mt-3 text-sm leading-relaxed ${plan.highlight ? "text-[oklch(0.93_0.04_292)]" : "text-muted-foreground"}`}>
-                  {plan.description}
-                </p>
-
-                <ul className="mt-6 flex flex-col gap-3">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm font-semibold">
-                      <Check
-                        size={16}
-                        className={`mt-0.5 shrink-0 ${plan.highlight ? "text-white" : "text-[oklch(0.57_0.23_292)]"}`}
-                      />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <a
-                  href={plan.href}
-                  className={`mt-8 block rounded-xl py-3.5 text-center text-sm font-black transition-all hover:-translate-y-0.5 active:scale-95 ${
-                    plan.highlight
-                      ? "bg-white text-[oklch(0.57_0.23_292)]"
-                      : "bg-[oklch(0.57_0.23_292)] text-white"
-                  }`}
-                >
-                  {plan.cta} →
-                </a>
-
-                <p className={`mt-3 text-center text-xs font-semibold ${plan.highlight ? "text-[oklch(0.86_0.1_292)]" : "text-muted-foreground"}`}>
-                  14 μέρες δωρεάν · Ακύρωση οποιαδήποτε στιγμή
-                </p>
-              </article>
-            ))}
+        <div className="mx-auto max-w-lg">
+          {/* Plan toggle */}
+          <div className="flex items-center justify-center gap-3 rounded-2xl bg-muted p-1.5">
+            <button
+              onClick={() => setSelectedPlan("monthly")}
+              className={`flex-1 rounded-xl py-3 text-sm font-black transition-all ${
+                selectedPlan === "monthly"
+                  ? "bg-white text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Μηνιαία
+            </button>
+            <button
+              onClick={() => setSelectedPlan("yearly")}
+              className={`relative flex-1 rounded-xl py-3 text-sm font-black transition-all ${
+                selectedPlan === "yearly"
+                  ? "bg-white text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Ετήσια
+              <span className="absolute -right-1 -top-3 rounded-full bg-[oklch(0.57_0.23_292)] px-2 py-0.5 text-[10px] font-black text-white">
+                -{savingsPercent}%
+              </span>
+            </button>
           </div>
 
-          {/* What's included in both */}
-          <div className="mt-16 rounded-2xl bg-card p-8 ring-1 ring-border">
-            <h2 className="text-center text-2xl font-black">Συμπεριλαμβάνεται σε κάθε πακέτο</h2>
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              {[
-                { icon: "📚", title: "6+ Μαθήματα", desc: "Βίντεο, quiz και δραστηριότητες για κάθε επίπεδο." },
-                { icon: "🪙", title: "Virtual Wallet", desc: "Τα παιδιά κερδίζουν, ξοδεύουν και αποταμιεύουν σε ασφαλές περιβάλλον." },
-                { icon: "📈", title: "Investment Sim", desc: "Προσομοίωση επενδύσεων χωρίς πραγματικά χρήματα." },
-                { icon: "👨‍👩‍👧", title: "Dashboard Γονέα", desc: "Παρακολούθηση προόδου και εποπτεία δραστηριοτήτων." },
-                { icon: "🏆", title: "Πιστοποιητικό", desc: "Ψηφιακό πιστοποιητικό ολοκλήρωσης κάθε μαθήματος." },
-                { icon: "🔒", title: "Ασφαλές", desc: "Χωρίς πραγματικές συναλλαγές ή τραπεζικά δεδομένα." },
-              ].map((item) => (
-                <div key={item.title} className="flex gap-3">
-                  <span className="text-2xl">{item.icon}</span>
-                  <div>
-                    <p className="font-black text-sm">{item.title}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
+          {/* Price display */}
+          <div className="mt-8 rounded-2xl bg-[oklch(0.57_0.23_292)] p-8 text-primary-foreground ring-2 ring-[oklch(0.57_0.23_292)]">
+            <div className="flex items-end gap-2">
+              {selectedPlan === "monthly" ? (
+                <>
+                  <span className="text-6xl font-black">€4,99</span>
+                  <span className="mb-2 text-lg font-semibold text-[oklch(0.86_0.1_292)]">/μήνα</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-6xl font-black">€39</span>
+                  <span className="mb-2 text-lg font-semibold text-[oklch(0.86_0.1_292)]">/χρόνο</span>
+                </>
+              )}
             </div>
+            {selectedPlan === "yearly" && (
+              <p className="mt-1 text-sm font-semibold text-[oklch(0.86_0.1_292)]">
+                Ισοδυναμεί με €3,25/μήνα · Εξοικονομείς €20,88
+              </p>
+            )}
+
+            <ul className="mt-6 flex flex-col gap-3">
+              {FEATURES.map((f) => (
+                <li key={f} className="flex items-start gap-2.5 text-sm font-semibold">
+                  <Check size={16} className="mt-0.5 shrink-0 text-white" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Button
+              onClick={handleCheckout}
+              disabled={loading}
+              className="mt-8 h-14 w-full rounded-xl bg-white text-[oklch(0.57_0.23_292)] text-base font-black hover:bg-white/90 hover:-translate-y-0.5 active:scale-95 transition-all"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Φόρτωση…
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Zap size={18} />
+                  {selectedPlan === "monthly" ? "Συνδρομή €4,99/μήνα →" : "Συνδρομή €39/χρόνο →"}
+                </span>
+              )}
+            </Button>
+
+            <p className="mt-3 text-center text-xs font-semibold text-[oklch(0.86_0.1_292)]">
+              Ασφαλής πληρωμή μέσω Stripe · Ακύρωση οποιαδήποτε στιγμή
+            </p>
+          </div>
+
+          {/* Free plan note */}
+          <div className="mt-6 rounded-2xl bg-card p-6 ring-1 ring-border">
+            <p className="text-sm font-black text-muted-foreground uppercase tracking-widest">Δωρεάν πλάνο</p>
+            <ul className="mt-3 flex flex-col gap-2">
+              {[
+                "2 μαθήματα εισαγωγής",
+                "Preview του virtual wallet",
+                "Περιορισμένο dashboard γονέα",
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Check size={14} className="mt-0.5 shrink-0 text-muted-foreground/60" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* What's included */}
+      <section className="bg-[oklch(0.985_0.015_91)] px-6 py-20 lg:px-16">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-center text-3xl font-black">Τι περιλαμβάνει το Premium</h2>
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {[
+              { icon: "📚", title: "6+ Μαθήματα", desc: "Βίντεο, quiz και δραστηριότητες για κάθε επίπεδο." },
+              { icon: "🪙", title: "Virtual Wallet", desc: "Τα παιδιά κερδίζουν, ξοδεύουν και αποταμιεύουν σε ασφαλές περιβάλλον." },
+              { icon: "📈", title: "Investment Sim", desc: "Προσομοίωση επενδύσεων χωρίς πραγματικά χρήματα." },
+              { icon: "👨‍👩‍👧", title: "Dashboard Γονέα", desc: "Παρακολούθηση προόδου και εποπτεία δραστηριοτήτων." },
+              { icon: "🏆", title: "Πιστοποιητικό", desc: "Ψηφιακό πιστοποιητικό ολοκλήρωσης κάθε μαθήματος." },
+              { icon: "🔒", title: "Ασφαλές", desc: "Χωρίς πραγματικές συναλλαγές ή τραπεζικά δεδομένα." },
+            ].map((item) => (
+              <div key={item.title} className="flex gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <div>
+                  <p className="text-sm font-black">{item.title}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="bg-[oklch(0.985_0.015_91)] px-6 py-20 lg:px-16">
+      <section className="px-6 py-20 lg:px-16">
         <div className="mx-auto max-w-2xl">
           <h2 className="text-center text-3xl font-black">Συχνές ερωτήσεις</h2>
           <div className="mt-10 flex flex-col gap-6">
             {[
               {
-                q: "Χρειάζομαι πιστωτική κάρτα για τη δωρεάν δοκιμή;",
-                a: "Ναι, χρειάζεται κάρτα για να ξεκινήσεις — αλλά δεν χρεωνόμαστε τίποτα τις πρώτες 14 μέρες. Μπορείς να ακυρώσεις πριν τη λήξη χωρίς κόστος.",
+                q: "Πώς πληρώνω;",
+                a: "Μέσω Stripe — αποδεχόμαστε Visa, Mastercard και όλες τις κύριες χρεωστικές κάρτες. Η σύνδεση είναι κρυπτογραφημένη και ασφαλής.",
               },
               {
-                q: "Μπορώ να αλλάξω πακέτο μετά την εγγραφή;",
-                a: "Φυσικά. Μπορείς να αναβαθμίσεις ή υποβαθμίσεις πακέτο οποιαδήποτε στιγμή από τις ρυθμίσεις του λογαριασμού σου.",
+                q: "Μπορώ να ακυρώσω;",
+                a: "Ναι, οποιαδήποτε στιγμή. Δεν υπάρχει περίοδος δέσμευσης. Αφού ακυρώσεις, η πρόσβαση συνεχίζεται μέχρι το τέλος της χρεωμένης περιόδου.",
               },
               {
-                q: "Πόσα παιδιά μπορώ να προσθέσω;",
-                a: "Με το Ατομικό, 1 παιδί. Με το Οικογένεια, μέχρι 4 παιδιά με ξεχωριστό προφίλ και dashboard για καθένα.",
+                q: "Ετήσιο vs Μηνιαίο — τι να επιλέξω;",
+                a: `Το ετήσιο σε εξοικονομεί ~${savingsPercent}% σε σύγκριση με το μηνιαίο. Αν θέλεις να δοκιμάσεις πρώτα, ξεκίνα μηνιαία.`,
               },
               {
                 q: "Υπάρχουν πραγματικά χρήματα στην εφαρμογή;",
-                a: "Όχι. Το Kids in Business χρησιμοποιεί εικονικό νόμισμα για εκπαιδευτικούς σκοπούς. Δεν απαιτείται τραπεζικός λογαριασμός παιδιού.",
+                a: "Όχι. Το Kids in Business χρησιμοποιεί εικονικό νόμισμα. Δεν απαιτείται τραπεζικός λογαριασμός παιδιού.",
               },
             ].map(({ q, a }) => (
               <div key={q} className="rounded-xl bg-card p-6 ring-1 ring-border">
@@ -190,22 +241,6 @@ function PricingPage() {
           </div>
         </div>
       </section>
-
-      {/* Final CTA */}
-      <section className="px-6 py-20 text-center">
-        <div className="mx-auto max-w-xl">
-          <h2 className="text-4xl font-black sm:text-5xl">Έτοιμος να ξεκινήσεις;</h2>
-          <p className="mt-4 text-lg text-muted-foreground">14 μέρες δωρεάν, χωρίς δέσμευση.</p>
-          <Link
-            to="/signup"
-            className="mt-8 inline-flex h-14 items-center justify-center rounded-full px-10 text-base font-black text-white transition-all hover:-translate-y-0.5 active:scale-95"
-            style={{ background: "oklch(0.57 0.23 292)" }}
-          >
-            Δημιούργησε λογαριασμό →
-          </Link>
-        </div>
-      </section>
     </main>
   );
 }
-
