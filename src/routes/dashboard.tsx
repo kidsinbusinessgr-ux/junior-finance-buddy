@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowUpRight, ChevronRight, CircleDollarSign, Gift, LoaderCircle, MessageCircleHeart, Plus, ReceiptText, ShieldCheck, Target, TrendingUp, WalletCards } from "lucide-react";
+import { ArrowUpRight, CalendarClock, ChevronRight, CircleDollarSign, Gift, LoaderCircle, MessageCircleHeart, Plus, ReceiptText, ShieldCheck, Target, TrendingUp, WalletCards } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,13 +30,21 @@ const spending = [
 function ParentDashboard() {
   const [allowance, setAllowance] = useState(8);
   const [addedAllowance, setAddedAllowance] = useState(0);
+  const [scheduleEnabled, setScheduleEnabled] = useState(true);
+  const [scheduleFrequency, setScheduleFrequency] = useState<"weekly" | "monthly">("weekly");
+  const [weeklyDay, setWeeklyDay] = useState("Friday");
+  const [monthlyDay, setMonthlyDay] = useState("1");
   const [goalBoost, setGoalBoost] = useState(0);
   const balance = 16.42 + addedAllowance;
   const saved = 21 + goalBoost;
   const goal = 48;
   const goalProgress = Math.min(Math.round((saved / goal) * 100), 100);
   const remaining = Math.max(goal - saved, 0);
-  const weeklySummary = useMemo(() => `£${allowance}.00 every Friday`, [allowance]);
+  const allowanceSummary = useMemo(() => {
+    if (!scheduleEnabled) return "Schedule paused";
+    if (scheduleFrequency === "monthly") return `£${allowance}.00 on the ${monthlyDay}${monthlyDay === "1" ? "st" : "th"} of each month`;
+    return `£${allowance}.00 every ${weeklyDay}`;
+  }, [allowance, monthlyDay, scheduleEnabled, scheduleFrequency, weeklyDay]);
   const getCoaching = useServerFn(getMoneyCoaching);
   const [spendingActivity, setSpendingActivity] = useState("Corner Shop £2.35 for snacks; Game Planet £4.99 for a game; Bus fare £1.80.");
   const [savingsGoals, setSavingsGoals] = useState("Roller skates: £21 saved of a £48 goal. Maya hopes to buy them in the next two months.");
@@ -100,7 +108,14 @@ function ParentDashboard() {
             <div className="space-y-8">
               <section aria-labelledby="allowance-heading" className="rounded-lg bg-card p-6 shadow-sm ring-1 ring-border sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-sm font-black uppercase tracking-[0.13em] text-muted-foreground">Allowance</p><h2 id="allowance-heading" className="mt-2 text-2xl font-black">A little independence, every week.</h2></div><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary"><Gift /></span></div>
-                <div className="mt-7 rounded-lg bg-secondary p-5"><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-sm font-bold text-muted-foreground">Weekly allowance</p><p className="mt-1 text-3xl font-black">£{allowance}.00</p><p className="mt-1 text-sm text-muted-foreground">Sent every Friday</p></div><Button onClick={() => setAddedAllowance((amount) => amount + allowance)} className="h-11 rounded-full px-5"><Plus /> Send now</Button></div><label htmlFor="allowance" className="mt-6 flex justify-between text-sm font-bold"><span>Weekly amount</span><span>{weeklySummary}</span></label><input id="allowance" aria-label="Weekly allowance amount" type="range" min="2" max="15" step="1" value={allowance} onChange={(event) => setAllowance(Number(event.target.value))} className="mt-3 w-full accent-primary" /></div>
+                <div className="mt-7 rounded-lg bg-secondary p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-sm font-bold text-muted-foreground">Allowance amount</p><p className="mt-1 text-3xl font-black">£{allowance}.00</p><p className="mt-1 text-sm text-muted-foreground">{allowanceSummary}</p></div><Button onClick={() => setAddedAllowance((amount) => amount + allowance)} className="h-11 rounded-full px-5"><Plus /> Send now</Button></div>
+                  <label htmlFor="allowance" className="mt-6 flex justify-between text-sm font-bold"><span>Allowance amount</span><span>£{allowance}.00</span></label><input id="allowance" aria-label="Allowance amount" type="range" min="2" max="15" step="1" value={allowance} onChange={(event) => setAllowance(Number(event.target.value))} className="mt-3 w-full accent-primary" />
+                  <div className="mt-6 border-t border-border pt-5">
+                    <div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full bg-background"><CalendarClock size={19} /></span><div><p className="font-black">Automatic allowance</p><p className="text-sm text-muted-foreground">{scheduleEnabled ? "Scheduled payments are on" : "No payment will be sent automatically"}</p></div></div><Button type="button" variant={scheduleEnabled ? "default" : "outline"} size="sm" aria-pressed={scheduleEnabled} onClick={() => setScheduleEnabled((enabled) => !enabled)}>{scheduleEnabled ? "On" : "Off"}</Button></div>
+                    {scheduleEnabled ? <div className="mt-5 grid gap-4 sm:grid-cols-2"><div><p className="text-sm font-bold">How often</p><div className="mt-2 grid grid-cols-2 gap-2"><Button type="button" variant={scheduleFrequency === "weekly" ? "default" : "outline"} aria-pressed={scheduleFrequency === "weekly"} onClick={() => setScheduleFrequency("weekly")}>Weekly</Button><Button type="button" variant={scheduleFrequency === "monthly" ? "default" : "outline"} aria-pressed={scheduleFrequency === "monthly"} onClick={() => setScheduleFrequency("monthly")}>Monthly</Button></div></div><label className="grid gap-2 text-sm font-bold" htmlFor="schedule-day"><span>{scheduleFrequency === "weekly" ? "Payment day" : "Payment date"}</span><select id="schedule-day" value={scheduleFrequency === "weekly" ? weeklyDay : monthlyDay} onChange={(event) => scheduleFrequency === "weekly" ? setWeeklyDay(event.target.value) : setMonthlyDay(event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm font-medium text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">{scheduleFrequency === "weekly" ? ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => <option key={day} value={day}>{day}</option>) : ["1", "5", "10", "15", "20", "25"].map((day) => <option key={day} value={day}>{day}{day === "1" ? "st" : "th"}</option>)}</select></label></div> : null}
+                  </div>
+                </div>
               </section>
 
               <section aria-labelledby="spending-heading" className="rounded-lg bg-card p-6 shadow-sm ring-1 ring-border sm:p-7">

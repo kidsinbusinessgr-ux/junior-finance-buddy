@@ -13,9 +13,14 @@ import {
   useSavingsGoals,
   useChores,
   useChoreSubmissions,
+  useAchievements,
+  useSpendingAnalytics,
+  useStreak,
   submitChore,
   xpForNextLevel,
   LEVEL_NAMES,
+  useChildNotifications,
+  markNotificationRead,
 } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/child-dashboard")({
@@ -43,9 +48,15 @@ function ChildDashboard() {
   const { goals } = useSavingsGoals(child?.id);
   const { chores } = useChores(child?.parent_id);
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id);
+  const { earned: earnedBadges, all: allBadges } = useAchievements(child?.id);
+  const { notifications, unreadCount } = useChildNotifications(child?.id ?? null);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const { streak } = useStreak(child?.id ?? null);
+  const { spendingStats } = useSpendingAnalytics(child?.id);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
 
   // Auth guard
   useEffect(() => {
@@ -128,13 +139,54 @@ function ChildDashboard() {
                 </span>
               )}
             </button>
+            {/* Ειδοποιήσεις */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 rounded-full hover:bg-black/10 transition-colors"
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <div className="absolute right-0 top-10 z-50 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm text-gray-700">Ειδοποιήσεις</div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-gray-50">
+                    {notifications.length === 0 ? (
+                      <p className="p-4 text-sm text-gray-400 text-center">Καμία ειδοποίηση</p>
+                    ) : (
+                      notifications.map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={async () => { await markNotificationRead(n.id); setShowNotifications(false); }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50 font-medium" : "text-gray-600"}`}
+                        >
+                          {n.message}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="mt-8">
             <p className="text-sm font-black uppercase tracking-[0.15em] text-[oklch(0.86_0.1_292)]">
               Καλημέρα 👋
             </p>
-            <h1 className="mt-1 text-4xl font-black">{child.name}!</h1>
+            <div className="flex items-center gap-2 mt-1">
+            <h1 className="text-4xl font-black">{child.name}!</h1>
+            {streak > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.88_0.12_60)] px-2.5 py-1 text-sm font-black text-[oklch(0.45_0.2_50)]">
+                🔥 {streak}
+              </span>
+            )}
+          </div>
 
             {/* Coins + Level */}
             <div className="mt-6 flex items-end gap-5">
@@ -312,31 +364,36 @@ function ChildDashboard() {
           </Link>
         </section>
 
-        {/* Achievements */}
+        {/* Achievements — real data from DB */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">Επιτεύγματα</h2>
-            <Trophy size={18} className="text-[oklch(0.7_0.2_60)]" />
+            <h2 className="font-black">Επιτεύγματα 🏆</h2>
+            <span className="text-xs font-bold text-[oklch(0.7_0.2_60)]">
+              {earnedBadges.length}/{allBadges.length} ξεκλείδωτα
+            </span>
           </div>
           <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
-            {[
-              { emoji: "🥇", label: "1ο Μάθημα", done: transactions.some((t) => t.type === "lesson") },
-              { emoji: "💰", label: "100 Coins", done: child.coins >= 100 },
-              { emoji: "📈", label: "1η Επένδυση", done: transactions.some((t) => t.type === "investment" && t.amount < 0) },
-              { emoji: "🎯", label: "1ος Στόχος", done: goals.length > 0 },
-              { emoji: "🌟", label: "Lvl 5", done: child.level >= 5 },
-            ].map((badge) => (
-              <div
-                key={badge.label}
-                className={`flex shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-3 ${
-                  badge.done ? "bg-[oklch(0.88_0.1_292)]" : "bg-secondary opacity-50"
-                }`}
-              >
-                <span className="text-2xl">{badge.emoji}</span>
-                <span className="text-[10px] font-black">{badge.label}</span>
-                {badge.done && <Star size={10} className="text-[oklch(0.6_0.2_60)]" fill="oklch(0.6 0.2 60)" />}
-              </div>
-            ))}
+            {allBadges.map((badge) => {
+              const isDone = earnedBadges.some((e) => e.badge_key === badge.key);
+              return (
+                <div
+                  key={badge.key}
+                  className={`flex shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-3 ${
+                    isDone ? "bg-[oklch(0.88_0.1_292)]" : "bg-secondary opacity-40"
+                  }`}
+                  title={badge.description_gr}
+                >
+                  <span className="text-2xl">{isDone ? badge.icon : "🔒"}</span>
+                  <span className="text-[10px] font-black text-center leading-tight max-w-[64px]">
+                    {badge.name_gr.replace("!", "")}
+                  </span>
+                  {isDone && <Star size={10} className="text-[oklch(0.6_0.2_60)]" fill="oklch(0.6 0.2 60)" />}
+                </div>
+              );
+            })}
+            {allBadges.length === 0 && (
+              <p className="text-sm text-muted-foreground py-2">Φόρτωση…</p>
+            )}
           </div>
         </section>
 
@@ -379,6 +436,86 @@ function ChildDashboard() {
           </div>
         </section>
       </div>
+
+
+        {/* Goal Progress Alerts */}
+        {goals
+          .filter((g) => {
+            const pct = g.target_coins > 0 ? (g.saved_coins / g.target_coins) * 100 : 0;
+            return (pct >= 80 || g.completed) && !dismissedAlerts.includes(g.id);
+          })
+          .map((g) => {
+            const pct = g.target_coins > 0 ? Math.round((g.saved_coins / g.target_coins) * 100) : 0;
+            const done = g.completed || pct >= 100;
+            return (
+              <div
+                key={g.id}
+                className={`mt-4 flex items-start justify-between gap-3 rounded-2xl p-4 ${
+                  done
+                    ? "bg-[oklch(0.88_0.12_142)] ring-1 ring-[oklch(0.7_0.15_142)]"
+                    : "bg-[oklch(0.88_0.1_60)] ring-1 ring-[oklch(0.7_0.15_60)]"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{done ? "🎉" : "🎯"}</span>
+                  <div>
+                    <p className={`text-sm font-black ${done ? "text-[oklch(0.35_0.15_142)]" : "text-[oklch(0.45_0.2_50)]"}`}>
+                      {done ? "Στόχος επιτεύχθηκε!" : `Σχεδόν εκεί! ${pct}%`}
+                    </p>
+                    <p className="text-xs font-semibold opacity-80">
+                      {g.emoji} {g.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDismissedAlerts((d) => [...d, g.id])}
+                  className="shrink-0 rounded-full p-1 opacity-60 hover:opacity-100"
+                  aria-label="Dismiss"
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })}
+
+        {/* Spending Analytics */}
+        {spendingStats && (
+          <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
+            <h2 className="font-black">Στατιστικά {spendingStats.monthLabel} 📊</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-[oklch(0.9_0.08_170)] p-3">
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">Έσοδα</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">€{spendingStats.totalIn.toFixed(2)}</p>
+              </div>
+              <div className="rounded-xl bg-[oklch(0.9_0.08_22)] p-3">
+                <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">Έξοδα</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">€{spendingStats.totalOut.toFixed(2)}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="mb-1 flex justify-between text-[10px] font-bold">
+                <span>Αποταμίευση</span>
+                <span className="text-[oklch(0.5_0.2_292)]">{spendingStats.savingsRate}%</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                <div
+                  className="h-full rounded-full bg-[oklch(0.65_0.2_292)] transition-all"
+                  style={{ width: `${Math.max(0, spendingStats.savingsRate)}%` }}
+                />
+              </div>
+            </div>
+            {spendingStats.bySource.length > 0 && (
+              <div className="mt-4 flex gap-2 flex-wrap">
+                {spendingStats.bySource.map((src) => (
+                  <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: src.color + '33', color: src.color }}>
+                    <span className="h-2 w-2 rounded-full" style={{ background: src.color }} />
+                    {src.label} €{src.amount.toFixed(2)}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-border bg-card px-2 py-3 shadow-lg">
