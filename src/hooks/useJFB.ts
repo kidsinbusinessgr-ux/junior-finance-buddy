@@ -1,12 +1,12 @@
 /**
- * Junior Finance Buddy — Supabase data hooks
+ * Junior Finance Buddy Ã¢ÂÂ Supabase data hooks
  * Import from "@/hooks/useJFB"
  */
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Types Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export type JFBChild = Tables<"jfb_children">;
 export type JFBParent = Tables<"jfb_parents">;
 export type JFBTransaction = Tables<"jfb_transactions">;
@@ -19,15 +19,15 @@ export type JFBLessonProgress = Tables<"jfb_lesson_progress">;
 export type JFBStockHolding = Tables<"jfb_stock_holdings">;
 export type JFBStartupInvestment = Tables<"jfb_startup_investments">;
 
-// ── Level helpers ────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Level helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export const XP_LEVELS = [0, 400, 1000, 1800, 3000, 5000] as const;
 export const LEVEL_NAMES = [
-  "Αρχάριος",
-  "Μαθητής",
-  "Μικρός Επιχειρηματίας",
-  "Επενδυτής",
-  "Οικονομολόγος",
-  "Χρηματοδότης",
+  "ÃÂÃÂÃÂÃÂ¬ÃÂÃÂ¹ÃÂ¿ÃÂ",
+  "ÃÂÃÂ±ÃÂ¸ÃÂ·ÃÂÃÂ®ÃÂ",
+  "ÃÂÃÂ¹ÃÂºÃÂÃÂÃÂ ÃÂÃÂÃÂ¹ÃÂÃÂµÃÂ¹ÃÂÃÂ·ÃÂ¼ÃÂ±ÃÂÃÂ¯ÃÂ±ÃÂ",
+  "ÃÂÃÂÃÂµÃÂ½ÃÂ´ÃÂÃÂÃÂ®ÃÂ",
+  "ÃÂÃÂ¹ÃÂºÃÂ¿ÃÂ½ÃÂ¿ÃÂ¼ÃÂ¿ÃÂ»ÃÂÃÂ³ÃÂ¿ÃÂ",
+  "ÃÂ§ÃÂÃÂ·ÃÂ¼ÃÂ±ÃÂÃÂ¿ÃÂ´ÃÂÃÂÃÂ·ÃÂ",
 ] as const;
 
 export function xpToLevel(xp: number): number {
@@ -46,7 +46,7 @@ export function xpForNextLevel(xp: number): { current: number; next: number; pct
   return { current, next, pct };
 }
 
-// ── Auth helpers ─────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Auth helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useCurrentUser() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export function useCurrentUser() {
   return { userId, loading };
 }
 
-// ── Child profile ────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Child profile Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChild() {
   const { userId } = useCurrentUser();
   const [child, setChild] = useState<JFBChild | null>(null);
@@ -102,29 +102,7 @@ export function useChild() {
   return { child, loading, refetch: fetch };
 }
 
-// ── Parent profile ───────────────────────────────────────────────────────────
-export function useParent() {
-  const { userId } = useCurrentUser();
-  const [parent, setParent] = useState<JFBParent | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) return;
-    supabase
-      .from("jfb_parents")
-      .select("*")
-      .eq("user_id", userId)
-      .single()
-      .then(({ data }) => {
-        setParent(data);
-        setLoading(false);
-      });
-  }, [userId]);
-
-  return { parent, loading };
-}
-
-// ── Children list (for parent) ───────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Children list (for parent) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChildren(parentId: string | null | undefined) {
   const [children, setChildren] = useState<JFBChild[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +122,7 @@ export function useChildren(parentId: string | null | undefined) {
   return { children, loading };
 }
 
-// ── Transactions ─────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Transactions Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useTransactions(childId: string | null | undefined) {
   const [transactions, setTransactions] = useState<JFBTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +156,7 @@ export async function addTransaction(
   });
 }
 
-// ── Chores ───────────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Chores Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChores(parentId: string | null | undefined) {
   const [chores, setChores] = useState<JFBChore[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,7 +178,7 @@ export function useChores(parentId: string | null | undefined) {
   return { chores, loading, refetch: fetch };
 }
 
-// ── Chore submissions ─────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Chore submissions Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useChoreSubmissions(childId: string | null | undefined) {
   const [submissions, setSubmissions] = useState<JFBChoreSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -247,12 +225,12 @@ export async function reviewChore(
       type: "chore",
       amount: coins,
       description: choreName,
-      icon: "✅",
+      icon: "Ã¢ÂÂ",
     });
   }
 }
 
-// ── Savings goals ─────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Savings goals Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useSavingsGoals(childId: string | null | undefined) {
   const [goals, setGoals] = useState<JFBSavingsGoal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -307,12 +285,12 @@ export async function depositToGoal(
     child_id: childId,
     type: "withdrawal",
     amount: -amount,
-    description: `Αποταμίευση: ${goalName}`,
-    icon: "🎯",
+    description: `ÃÂÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·: ${goalName}`,
+    icon: "Ã°ÂÂÂ¯",
   });
 }
 
-// ── Rewards ───────────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Rewards Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useRewards(parentId: string | null | undefined) {
   const [rewards, setRewards] = useState<JFBReward[]>([]);
   const [loading, setLoading] = useState(true);
@@ -376,12 +354,12 @@ export async function approveRewardRequest(
     child_id: childId,
     type: "reward",
     amount: -cost,
-    description: `Βραβείο: ${rewardName}`,
-    icon: "🎁",
+    description: `ÃÂÃÂÃÂ±ÃÂ²ÃÂµÃÂ¯ÃÂ¿: ${rewardName}`,
+    icon: "Ã°ÂÂÂ",
   });
 }
 
-// ── Lesson progress ───────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Lesson progress Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useLessonProgress(childId: string | null | undefined) {
   const [progress, setProgress] = useState<JFBLessonProgress[]>([]);
   const [loading, setLoading] = useState(true);
@@ -408,7 +386,7 @@ export async function completeLesson(
   xpEarned: number,
   coinsEarned: number
 ): Promise<void> {
-  // Upsert — if lesson already completed, skip
+  // Upsert Ã¢ÂÂ if lesson already completed, skip
   const { error } = await supabase.from("jfb_lesson_progress").upsert(
     { child_id: childId, lesson_id: lessonId, lesson_title: lessonTitle, xp_earned: xpEarned, coins_earned: coinsEarned },
     { onConflict: "child_id,lesson_id", ignoreDuplicates: true }
@@ -418,11 +396,11 @@ export async function completeLesson(
       child_id: childId,
       type: "lesson",
       amount: coinsEarned,
-      description: `Μάθημα: ${lessonTitle}`,
-      icon: "📚",
+      description: `ÃÂÃÂ¬ÃÂ¸ÃÂ·ÃÂ¼ÃÂ±: ${lessonTitle}`,
+      icon: "Ã°ÂÂÂ",
     });
     // XP is added inside addTransaction via jfb_add_coins (xp = amount for lessons)
-    // But we want xpEarned, not coinsEarned, for XP — call directly
+    // But we want xpEarned, not coinsEarned, for XP Ã¢ÂÂ call directly
     await supabase.rpc("jfb_add_coins", {
       p_child_id: childId,
       p_amount: 0,
@@ -431,7 +409,7 @@ export async function completeLesson(
   }
 }
 
-// ── Stock holdings ────────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Stock holdings Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useStockHoldings(childId: string | null | undefined) {
   const [holdings, setHoldings] = useState<JFBStockHolding[]>([]);
   const [loading, setLoading] = useState(true);
@@ -481,7 +459,7 @@ export async function buyStock(
     child_id: childId,
     type: "investment",
     amount: -totalCost,
-    description: `Αγορά ${quantity} μετοχών ${companyName}`,
+    description: `ÃÂÃÂ³ÃÂ¿ÃÂÃÂ¬ ${quantity} ÃÂ¼ÃÂµÃÂÃÂ¿ÃÂÃÂÃÂ½ ${companyName}`,
     icon: emoji,
   });
 }
@@ -512,12 +490,12 @@ export async function sellStock(
     child_id: childId,
     type: "investment",
     amount: totalValue,
-    description: `Πώληση ${quantity} μετοχών ${companyName}`,
+    description: `ÃÂ ÃÂÃÂ»ÃÂ·ÃÂÃÂ· ${quantity} ÃÂ¼ÃÂµÃÂÃÂ¿ÃÂÃÂÃÂ½ ${companyName}`,
     icon: emoji,
   });
 }
 
-// ── Startup investments ───────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Startup investments Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export function useStartupInvestments(childId: string | null | undefined) {
   const [investments, setInvestments] = useState<JFBStartupInvestment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -560,23 +538,23 @@ export async function investInStartup(
     child_id: childId,
     type: "investment",
     amount: -totalCost,
-    description: `Επένδυση σε ${startupName} (${quantity} μερίδια)`,
+    description: `ÃÂÃÂÃÂ­ÃÂ½ÃÂ´ÃÂÃÂÃÂ· ÃÂÃÂµ ${startupName} (${quantity} ÃÂ¼ÃÂµÃÂÃÂ¯ÃÂ´ÃÂ¹ÃÂ±)`,
     icon: emoji,
   });
 }
 
-// ── Parent: load coins manually ───────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Parent: load coins manually Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export async function parentLoadCoins(childId: string, amount: number): Promise<void> {
   await addTransaction({
     child_id: childId,
     type: "deposit",
     amount,
-    description: "Φόρτωση από γονέα",
-    icon: "💰",
+    description: "ÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ· ÃÂ±ÃÂÃÂ ÃÂ³ÃÂ¿ÃÂ½ÃÂ­ÃÂ±",
+    icon: "Ã°ÂÂÂ°",
   });
 }
 
-// ── Onboarding helpers ────────────────────────────────────────────────────────
+// Ã¢ÂÂÃ¢ÂÂ Onboarding helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export async function createParentProfile(userId: string, name: string): Promise<JFBParent | null> {
   const { data, error } = await supabase
     .from("jfb_parents")
@@ -603,7 +581,360 @@ export async function createChildProfile(
   return data;
 }
 
-// ── Subscription / paid tier ──────────────────────────────────────────────────
+
+
+function generateInviteCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+export async function addFirstChild(
+  parentId: string, name: string, avatar: string
+): Promise<JFBChild> {
+  const invite_code = generateInviteCode();
+  const { data, error } = await supabase
+    .from("jfb_children")
+    .insert({ parent_id: parentId, name, avatar, coins: 0, level: 1, xp: 0, invite_code })
+    .select()
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create child");
+  return data;
+}
+
+// Ã¢ÂÂÃ¢ÂÂ Allowances Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+export type JFBAllowance = Tables<"jfb_allowances">;
+
+export function useAllowances(
+  parentId: string | null | undefined,
+  childId: string | null | undefined
+) {
+  const [allowance, setAllowance] = useState<JFBAllowance | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAllowance = useCallback(async () => {
+    if (!parentId || !childId) { setLoading(false); return; }
+    const { data } = await supabase
+      .from("jfb_allowances")
+      .select("*")
+      .eq("parent_id", parentId)
+      .eq("child_id", childId)
+      .maybeSingle();
+    setAllowance(data ?? null);
+    setLoading(false);
+  }, [parentId, childId]);
+
+  useEffect(() => { fetchAllowance(); }, [fetchAllowance]);
+
+  return { allowance, loading, refetch: fetchAllowance };
+}
+
+export async function upsertAllowance(
+  parentId: string,
+  childId: string,
+  amountCoins: number,
+  dayOfWeek: number,
+  active: boolean,
+  existingId?: string
+): Promise<void> {
+  if (existingId) {
+    await supabase
+      .from("jfb_allowances")
+      .update({ amount_coins: amountCoins, day_of_week: dayOfWeek, active, updated_at: new Date().toISOString() })
+      .eq("id", existingId);
+  } else {
+    await supabase.from("jfb_allowances").insert({
+      parent_id: parentId,
+      child_id: childId,
+      amount_coins: amountCoins,
+      day_of_week: dayOfWeek,
+      active,
+    });
+  }
+}
+
+export async function deleteAllowance(id: string): Promise<void> {
+  await supabase.from("jfb_allowances").delete().eq("id", id);
+}
+
+
+// Ã¢ÂÂÃ¢ÂÂ Achievements Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+export type JFBAchievement = {
+  key: string;
+  name_gr: string;
+  description_gr: string;
+  icon: string;
+  sort_order: number;
+};
+
+export function useAchievements(childId: string | null | undefined) {
+  const [earned, setEarned] = useState<{ badge_key: string; earned_at: string }[]>([]);
+  const [all, setAll] = useState<JFBAchievement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAchievements = useCallback(async () => {
+    if (!childId) { setLoading(false); return; }
+    const [{ data: allBadges }, { data: earnedBadges }] = await Promise.all([
+      supabase.from("jfb_achievements").select("*").order("sort_order"),
+      supabase
+        .from("jfb_child_achievements")
+        .select("badge_key, earned_at")
+        .eq("child_id", childId),
+    ]);
+    setAll((allBadges ?? []) as JFBAchievement[]);
+    setEarned((earnedBadges ?? []) as { badge_key: string; earned_at: string }[]);
+    setLoading(false);
+  }, [childId]);
+
+  useEffect(() => { fetchAchievements(); }, [fetchAchievements]);
+
+  return { earned, all, loading, refetch: fetchAchievements };
+}
+
+
+// Ã¢ÂÂÃ¢ÂÂ Spending Analytics Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+export type SpendingSource = {
+  label: string;
+  amount: number;
+  color: string;
+};
+
+export type SpendingStats = {
+  totalIn: number;
+  totalOut: number;
+  savingsRate: number;
+  bySource: SpendingSource[];
+  monthLabel: string;
+};
+
+export function useSpendingAnalytics(childId: string | null | undefined) {
+  const [stats, setStats] = useState<SpendingStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = useCallback(async () => {
+    if (!childId) { setLoading(false); return; }
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const monthLabel = now.toLocaleDateString("el-GR", { month: "long", year: "numeric" });
+
+    const { data } = await supabase
+      .from("jfb_transactions")
+      .select("amount, type, description")
+      .eq("child_id", childId)
+      .gte("created_at", startOfMonth);
+
+    if (!data) { setLoading(false); return; }
+
+    let totalIn = 0;
+    let totalOut = 0;
+    const sources: Record<string, number> = { allowance: 0, chore: 0, other_in: 0 };
+
+    for (const t of data) {
+      if (t.amount > 0) {
+        totalIn += t.amount;
+        const desc = (t.description ?? "").toLowerCase();
+        if (t.type === "allowance" || desc.includes("ÃÂÃÂ±ÃÂÃÂÃÂ¶ÃÂ¹ÃÂ»ÃÂ¯ÃÂºÃÂ¹") || desc.includes("allowance")) {
+          sources.allowance += t.amount;
+        } else if (t.type === "chore_payment") {
+          sources.chore += t.amount;
+        } else {
+          sources.other_in += t.amount;
+        }
+      } else {
+        totalOut += Math.abs(t.amount);
+      }
+    }
+
+    const savingsRate = totalIn > 0 ? Math.round(((totalIn - totalOut) / totalIn) * 100) : 0;
+
+    setStats({
+      totalIn,
+      totalOut,
+      savingsRate,
+      monthLabel,
+      bySource: [
+        { label: "ÃÂ§ÃÂ±ÃÂÃÂÃÂ¶ÃÂ¹ÃÂ»ÃÂ¯ÃÂºÃÂ¹", amount: sources.allowance, color: "oklch(0.65 0.2 292)" },
+        { label: "ÃÂÃÂ¿ÃÂÃÂ»ÃÂµÃÂ¹ÃÂ­ÃÂ", amount: sources.chore, color: "oklch(0.65 0.18 170)" },
+        { label: "ÃÂÃÂ»ÃÂ»ÃÂ¿", amount: sources.other_in, color: "oklch(0.65 0.18 60)" },
+      ].filter((s) => s.amount > 0),
+    });
+    setLoading(false);
+  }, [childId]);
+
+  useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  return { stats, loading, refetch: fetchStats };
+}
+
+// ââ Streak ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+export function useStreak(childId: string | null | undefined) {
+  const [streak, setStreak] = useState<number>(0);
+
+  useEffect(() => {
+    if (!childId) return;
+    (async () => {
+      const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+      // Read current values
+      const { data: child } = await supabase
+        .from("jfb_children")
+        .select("current_streak, last_login_date")
+        .eq("id", childId)
+        .single();
+
+      if (!child) return;
+
+      const last = child.last_login_date as string | null;
+
+      let newStreak = child.current_streak as number;
+
+      if (last === today) {
+        // already visited today â no change
+      } else if (last === new Date(Date.now() - 86400000).toISOString().slice(0, 10)) {
+        // visited yesterday â increment
+        newStreak = newStreak + 1;
+        await supabase
+          .from("jfb_children")
+          .update({ current_streak: newStreak, last_login_date: today })
+          .eq("id", childId);
+      } else {
+        // gap â reset to 1
+        newStreak = 1;
+        await supabase
+          .from("jfb_children")
+          .update({ current_streak: 1, last_login_date: today })
+          .eq("id", childId);
+      }
+
+      setStreak(newStreak);
+    })();
+  }, [childId]);
+
+  return streak;
+}
+
+// ─── Parent hooks ─────────────────────────────────────────────────────────────
+
+export function useParent() {
+  const [parent, setParent] = useState<{ id: string; name: string } | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("jfb_parents").select("id, name").eq("user_id", user.id).single().then(({ data }) => setParent(data));
+    });
+  }, []);
+  return parent;
+}
+
+export interface ParentChild { id: string; name: string; avatar: string; coins: number; xp: number; level: number; current_streak: number; }
+
+export function useParentChildren(parentId: string | null | undefined) {
+  const [children, setChildren] = useState<ParentChild[]>([]);
+  const refresh = useCallback(async () => {
+    if (!parentId) return;
+    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak").eq("parent_id", parentId).order("name");
+    setChildren(data ?? []);
+  }, [parentId]);
+  useEffect(() => { refresh(); }, [refresh]);
+  return { children, refresh };
+}
+
+export interface PendingSubmission { id: string; child_id: string; chore_id: string; submitted_at: string; jfb_chores: { name: string; emoji: string; coins: number } | null; jfb_children: { name: string; avatar: string } | null; }
+
+export function usePendingSubmissions(parentId: string | null | undefined) {
+  const [submissions, setSubmissions] = useState<PendingSubmission[]>([]);
+  const refresh = useCallback(async () => {
+    if (!parentId) return;
+    const { data: cr } = await supabase.from("jfb_children").select("id").eq("parent_id", parentId);
+    const ids = (cr ?? []).map((c: { id: string }) => c.id);
+    if (!ids.length) { setSubmissions([]); return; }
+    const { data } = await supabase.from("jfb_chore_submissions").select("id, child_id, chore_id, submitted_at, jfb_chores(name, emoji, coins), jfb_children(name, avatar)").in("child_id", ids).eq("status", "pending").order("submitted_at", { ascending: false });
+    setSubmissions((data as PendingSubmission[]) ?? []);
+  }, [parentId]);
+  useEffect(() => { refresh(); }, [refresh]);
+  return { submissions, refresh };
+}
+
+export async function approveChoreSubmission(subId: string, childId: string, choreName: string, choreEmoji: string, coins: number) {
+  await supabase.from("jfb_chore_submissions").update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", subId);
+  const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
+  await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
+  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "chore", amount: coins, description: choreEmoji + " " + choreName, icon: choreEmoji });
+  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "chore_approved", message: choreEmoji + " " + choreName + " εγκρίθηκε! Κέρδισες " + coins + " 🪙" });
+}
+
+export async function rejectChoreSubmission(subId: string, childId: string, choreName: string) {
+  await supabase.from("jfb_chore_submissions").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", subId);
+  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "chore_rejected", message: "❌ " + choreName + " δεν εγκρίθηκε. Προσπάθησε ξανά!" });
+}
+
+export async function sendAllowanceCoins(childId: string, coins: number, note: string) {
+  const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
+  await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
+  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "deposit", amount: coins, description: note || "Χαρτζιλίκι", icon: "💰" });
+  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "allowance_received", message: "💰 έλαβες " + coins + " 🪙 χαρτζιλίκι!" });
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────────────────────────
+
+export interface JFBNotification {
+  id: string;
+  child_id: string;
+  type: "chore_approved" | "chore_rejected" | "allowance_received";
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
+export function useChildNotifications(childId: string | null) {
+  const [notifications, setNotifications] = useState<JFBNotification[]>([]);
+
+  useEffect(() => {
+    if (!childId) return;
+
+    supabase
+      .from("jfb_notifications")
+      .select("*")
+      .eq("child_id", childId)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setNotifications(data as JFBNotification[]);
+      });
+
+    const channel = supabase
+      .channel("notifications:" + childId)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "jfb_notifications",
+          filter: "child_id=eq." + childId,
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new as JFBNotification, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [childId]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  return { notifications, unreadCount };
+}
+
+export async function markNotificationRead(id: string) {
+  await supabase.from("jfb_notifications").update({ read: true }).eq("id", id);
+}
+
+
+// ── Subscription / paid tier ──────────────────────────────────────────────────────────────────────────────────
 // Checks the Supabase auth user's metadata for subscription_tier.
 // To mark a user as paid: UPDATE auth.users SET raw_user_meta_data =
 //   raw_user_meta_data || '{"subscription_tier":"paid"}' WHERE id = '<uid>';
