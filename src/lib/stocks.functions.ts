@@ -13,6 +13,21 @@ export const KID_STOCKS = [
   { ticker: "SBUX", name: "Starbucks", emoji: "☕", color: "#00704A" },
   { ticker: "SNAP", name: "Snapchat", emoji: "👻", color: "#FFFC00" },
   { ticker: "TSLA", name: "Tesla", emoji: "⚡", color: "#CC0000" },
+  { ticker: "AMZN", name: "Amazon", emoji: "📦", color: "#FF9900" },
+  { ticker: "GOOGL", name: "Google", emoji: "🔍", color: "#4285F4" },
+  { ticker: "META", name: "Instagram/Meta", emoji: "📱", color: "#0866FF" },
+  { ticker: "MSFT", name: "Microsoft/Xbox", emoji: "🎯", color: "#00A4EF" },
+  { ticker: "V", name: "Visa", emoji: "💳", color: "#1A1F71" },
+  { ticker: "PYPL", name: "PayPal", emoji: "💸", color: "#003087" },
+  { ticker: "EA", name: "EA Games", emoji: "🕹️", color: "#FF4747" },
+  { ticker: "YUM", name: "Pizza Hut/KFC", emoji: "🍕", color: "#EE3224" },
+  { ticker: "CMG", name: "Chipotle", emoji: "🌯", color: "#491F15" },
+  { ticker: "UBER", name: "Uber", emoji: "🚕", color: "#000000" },
+  { ticker: "ABNB", name: "Airbnb", emoji: "🏠", color: "#FF5A5F" },
+  { ticker: "LULU", name: "Lululemon", emoji: "🧘", color: "#9B4A97" },
+  { ticker: "WMT", name: "Walmart", emoji: "🛒", color: "#0071CE" },
+  { ticker: "LUV", name: "Southwest Airlines", emoji: "✈️", color: "#304CB2" },
+  { ticker: "HOOD", name: "Robinhood", emoji: "📈", color: "#00C805" },
 ] as const;
 
 export type KidTicker = (typeof KID_STOCKS)[number]["ticker"];

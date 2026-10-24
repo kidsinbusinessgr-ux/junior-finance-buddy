@@ -18,6 +18,7 @@ import {
   type StockQuote,
   type StockHistory,
 } from "@/lib/stocks.functions";
+import { askBuddy, type BuddyResponse } from "@/lib/buddy.functions";
 
 export const Route = createFileRoute("/stocks")({
   head: () => ({
@@ -98,6 +99,8 @@ function StocksPage() {
   const [coins, setCoins] = useState(500);
   const [investInput, setInvestInput] = useState<Record<string, number>>({});
   const [toast, setToast] = useState("");
+  const [buddy, setBuddy] = useState<BuddyResponse | null>(null);
+  const [loadingBuddy, setLoadingBuddy] = useState(false);
 
   useEffect(() => {
     fetchQuotes();
@@ -122,9 +125,33 @@ function StocksPage() {
 
   async function fetchHistory(ticker: string) {
     setLoadingHistory(true);
+    setBuddy(null);
     try {
       const res = await getStockHistory({ data: ticker });
       setHistory(res);
+      // Ask buddy after history is loaded
+      const meta = KID_STOCKS.find((s) => s.ticker === ticker);
+      const quote = quotes.find((q) => q.ticker === ticker);
+      if (meta && quote && res.history.length > 0) {
+        setLoadingBuddy(true);
+        try {
+          const buddyRes = await askBuddy({
+            data: {
+              ticker,
+              name: meta.name,
+              emoji: meta.emoji,
+              currentPrice: quote.price,
+              changePercent: quote.changePercent,
+              history: res.history,
+            },
+          });
+          setBuddy(buddyRes);
+        } catch {
+          // buddy is optional, silently ignore
+        } finally {
+          setLoadingBuddy(false);
+        }
+      }
     } catch {
       // silently handle
     } finally {
@@ -437,6 +464,55 @@ function StocksPage() {
                       Δεν βρέθηκαν δεδομένα γραφήματος.
                     </p>
                   )
+                )}
+
+                {/* ── KidsInBusinessBuddy ── */}
+                {(loadingBuddy || buddy) && (
+                  <div className="mt-4 rounded-2xl p-4 ring-1"
+                    style={{
+                      background: buddy?.signal === "buy"
+                        ? "oklch(0.97 0.05 140)"
+                        : buddy?.signal === "wait"
+                        ? "oklch(0.97 0.05 25)"
+                        : "oklch(0.97 0.03 260)",
+                      borderColor: buddy?.signal === "buy"
+                        ? "oklch(0.55 0.18 140)"
+                        : buddy?.signal === "wait"
+                        ? "oklch(0.60 0.18 25)"
+                        : "oklch(0.57 0.23 292)",
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl select-none">🤖</span>
+                      <div className="flex-1">
+                        <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">
+                          KidsInBusiness Buddy
+                        </p>
+                        {loadingBuddy ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
+                            <span className="text-sm text-muted-foreground">Αναλύω την εταιρία…</span>
+                          </div>
+                        ) : buddy ? (
+                          <>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">
+                                {buddy.signal === "buy" ? "🟢" : buddy.signal === "wait" ? "🔴" : "🟡"}
+                              </span>
+                              <span className="text-sm font-black">
+                                {buddy.signal === "buy"
+                                  ? "Καλή στιγμή για αγορά!"
+                                  : buddy.signal === "wait"
+                                  ? "Περίμενε λίγο ακόμα"
+                                  : "Παρακολούθα την τιμή"}
+                              </span>
+                            </div>
+                            <p className="text-sm leading-relaxed">{buddy.message}</p>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
