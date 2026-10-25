@@ -75,3 +75,75 @@ export const askBuddy = createServerFn({ method: "GET" })
 
     return { message, signal };
   });
+
+// ── General Buddy (for non-stock pages) ──────────────────────────────────────
+
+export interface GeneralBuddyInput {
+  page: string;
+}
+
+export interface GeneralBuddyResponse {
+  message: string;
+  emoji: string;
+}
+
+const PAGE_CONTEXT: Record<string, string> = {
+  "/child-dashboard": "Το παιδί κοιτάει την αρχική του σελίδα με τα coins, το level και τα badges του.",
+  "/wallet": "Το παιδί κοιτάει το ιστορικό συναλλαγών του — τι αγόρασε, τι κέρδισε, τι ξόδεψε.",
+  "/earn":  "Το παιδί βλέπει τα tasks/δουλειές που μπορεί να κάνει για να κερδίσει coins.",
+  "/goals": "Το παιδί βλέπει τους αποταμιευτικούς του στόχους.",
+  "/save":  "Το παιδί αποταμιεύει για κάτι που θέλει.",
+  "/learn": "Το παιδί μαθαίνει για την επιχειρηματικότητα.",
+  "/stocks": "Το παιδί κοιτάει μετοχές εταιρειών όπως Apple, Roblox, Nike.",
+  "/investments": "Το παιδί βλέπει τις επενδύσεις/μετοχές που έχει αγοράσει.",
+  "/spend": "Το παιδί σκέφτεται πού να ξοδέψει τα coins του.",
+};
+
+export const askGeneralBuddy = createServerFn({ method: "GET" })
+  .validator((input: GeneralBuddyInput) => input)
+  .handler(async ({ data }): Promise<GeneralBuddyResponse> => {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) throw new Error("GEMINI_API_KEY is not set");
+
+    const context = PAGE_CONTEXT[data.page] ?? "Το παιδί χρησιμοποιεί την εφαρμογή Kids in Business.";
+
+    const prompt = `Είσαι ο KidsInBusiness Buddy 🤖, ένας φιλικός βοηθός που βοηθάει παιδιά 10-15 χρονών να μάθουν για χρήματα και επιχειρηματικότητα.
+
+Κατάσταση: ${context}
+
+Γράψε ΜΙΑ σύντομη, ζεστή συμβουλή ή ενθάρρυνση (2-3 προτάσεις MAX) στα ελληνικά που:
+- Είναι σχετική με αυτό που βλέπει το παιδί τώρα
+- Χρησιμοποιεί απλή, παιδική γλώσσα
+- Δίνει μια πρακτική ιδέα ή ερώτηση για σκέψη
+- ΔΕΝ χρησιμοποιεί markdown ή αστέρια
+
+Επίσης διάλεξε ένα emoji που ταιριάζει με τη συμβουλή σου (π.χ. 💡🎯💰🚀⭐).
+Απάντησε ΜΟΝΟ σε αυτή τη μορφή (δύο γραμμές):
+EMOJI: <ένα emoji>
+MESSAGE: <η συμβουλή σου>`;
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 150, temperature: 0.8 },
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
+
+    const json = await res.json();
+    const raw: string = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    const emojiMatch = raw.match(/EMOJI:\s*(.+)/);
+    const msgMatch   = raw.match(/MESSAGE:\s*([\s\S]+)/);
+
+    return {
+      emoji:   emojiMatch?.[1]?.trim() ?? "💡",
+      message: msgMatch?.[1]?.trim()   ?? "Συνέχισε έτσι! Κάθε μέρα μαθαίνεις κάτι νέο για τα χρήματα!",
+    };
+  });
