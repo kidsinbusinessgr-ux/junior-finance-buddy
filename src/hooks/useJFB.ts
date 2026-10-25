@@ -285,8 +285,8 @@ export async function depositToGoal(
     child_id: childId,
     type: "withdrawal",
     amount: -amount,
-    description: `ÃÂÃÂÃÂ¿ÃÂÃÂ±ÃÂ¼ÃÂ¯ÃÂµÃÂÃÂÃÂ·: ${goalName}`,
-    icon: "Ã°ÂÂÂ¯",
+    description: `Αποταμίευση: ${goalName}`,
+    icon: "🎯",
   });
 }
 
@@ -354,8 +354,8 @@ export async function approveRewardRequest(
     child_id: childId,
     type: "reward",
     amount: -cost,
-    description: `ÃÂÃÂÃÂ±ÃÂ²ÃÂµÃÂ¯ÃÂ¿: ${rewardName}`,
-    icon: "Ã°ÂÂÂ",
+    description: `Βραβείο: ${rewardName}`,
+    icon: "🎁",
   });
 }
 
@@ -396,8 +396,8 @@ export async function completeLesson(
       child_id: childId,
       type: "lesson",
       amount: coinsEarned,
-      description: `ÃÂÃÂ¬ÃÂ¸ÃÂ·ÃÂ¼ÃÂ±: ${lessonTitle}`,
-      icon: "Ã°ÂÂÂ",
+      description: `Μάθημα: ${lessonTitle}`,
+      icon: "📚",
     });
     // XP is added inside addTransaction via jfb_add_coins (xp = amount for lessons)
     // But we want xpEarned, not coinsEarned, for XP Ã¢ÂÂ call directly
@@ -459,7 +459,7 @@ export async function buyStock(
     child_id: childId,
     type: "investment",
     amount: -totalCost,
-    description: `ÃÂÃÂ³ÃÂ¿ÃÂÃÂ¬ ${quantity} ÃÂ¼ÃÂµÃÂÃÂ¿ÃÂÃÂÃÂ½ ${companyName}`,
+    description: `Αγορά ${quantity} μετοχών ${companyName}`,
     icon: emoji,
   });
 }
@@ -490,7 +490,7 @@ export async function sellStock(
     child_id: childId,
     type: "investment",
     amount: totalValue,
-    description: `ÃÂ ÃÂÃÂ»ÃÂ·ÃÂÃÂ· ${quantity} ÃÂ¼ÃÂµÃÂÃÂ¿ÃÂÃÂÃÂ½ ${companyName}`,
+    description: `Πώληση ${quantity} μετοχών ${companyName}`,
     icon: emoji,
   });
 }
@@ -538,7 +538,7 @@ export async function investInStartup(
     child_id: childId,
     type: "investment",
     amount: -totalCost,
-    description: `ÃÂÃÂÃÂ­ÃÂ½ÃÂ´ÃÂÃÂÃÂ· ÃÂÃÂµ ${startupName} (${quantity} ÃÂ¼ÃÂµÃÂÃÂ¯ÃÂ´ÃÂ¹ÃÂ±)`,
+    description: `Επένδυση σε ${startupName} (${quantity} μερίδια)`,
     icon: emoji,
   });
 }
@@ -549,8 +549,8 @@ export async function parentLoadCoins(childId: string, amount: number): Promise<
     child_id: childId,
     type: "deposit",
     amount,
-    description: "ÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ· ÃÂ±ÃÂÃÂ ÃÂ³ÃÂ¿ÃÂ½ÃÂ­ÃÂ±",
-    icon: "Ã°ÂÂÂ°",
+    description: "Φόρτωση από γονέα",
+    icon: "💰",
   });
 }
 
