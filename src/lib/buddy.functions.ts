@@ -147,3 +147,69 @@ MESSAGE: <η συμβουλή σου>`;
       message: msgMatch?.[1]?.trim()   ?? "Συνέχισε έτσι! Κάθε μέρα μαθαίνεις κάτι νέο για τα χρήματα!",
     };
   });
+
+// ── Chatbot: multi-turn conversation ─────────────────────────────────────────
+
+export interface ChatMessage { role: "user" | "model"; text: string; }
+
+export interface ChatInput {
+  messages: ChatMessage[];
+  page: string;
+}
+
+export interface ChatOutput {
+  reply: string;
+}
+
+const CHAT_PAGE_CONTEXT: Record<string, string> = {
+  "/child-dashboard": "dashboard με coins, level, badges",
+  "/wallet":          "ιστορικό συναλλαγών",
+  "/earn":            "tasks για να κερδίσει coins",
+  "/goals":           "αποταμιευτικοί στόχοι",
+  "/save":            "αποταμίευση",
+  "/learn":           "μαθήματα επιχειρηματικότητας",
+  "/stocks":          "μετοχές εταιρειών",
+  "/investments":     "επενδύσεις",
+  "/spend":           "αγορές με coins",
+};
+
+export const chatWithBuddy = createServerFn({ method: "POST" })
+  .validator((input: ChatInput) => input)
+  .handler(async ({ data }): Promise<ChatOutput> => {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) throw new Error("GEMINI_API_KEY not set");
+
+    const ctx = CHAT_PAGE_CONTEXT[data.page] ?? "εφαρμογή Kids in Business";
+
+    const systemMsg = `Είσαι ο KidsInBusiness Buddy — φιλικός βοηθός για παιδιά 10-15 χρονών για χρήματα και επιχειρηματικότητα. Σελίδα: ${ctx}. Μιλάς ΠΑΝΤΑ στα ελληνικά, σύντομα (2-4 προτάσεις), χωρίς markdown.`;
+
+    const contents = [
+      { role: "user",  parts: [{ text: systemMsg }] },
+      { role: "model", parts: [{ text: "Εντάξει, είμαι έτοιμος να βοηθήσω!" }] },
+      ...data.messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
+    ];
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents,
+          generationConfig: { maxOutputTokens: 300, temperature: 0.75 },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Gemini ${res.status}: ${errText}`);
+    }
+
+    const json = await res.json();
+    const reply: string =
+      json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ??
+      "Δεν κατάλαβα. Μπορείς να ξαναρωτήσεις;";
+
+    return { reply };
+  });

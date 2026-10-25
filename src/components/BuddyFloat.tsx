@@ -1,75 +1,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
+import { chatWithBuddy, type ChatMessage } from "@/lib/buddy.functions";
 
-// ── Server function: chat with Buddy ─────────────────────────────────────────
-interface ChatMessage { role: "user" | "model"; text: string; }
-interface ChatInput   { messages: ChatMessage[]; page: string; }
-interface ChatOutput  { reply: string; }
-
-const PAGE_CONTEXT: Record<string, string> = {
-  "/child-dashboard": "dashboard με coins, level, badges",
-  "/wallet":          "ιστορικό συναλλαγών, τι αγόρασε και τι κέρδισε",
-  "/earn":            "tasks/δουλειές για να κερδίσει coins",
-  "/goals":           "αποταμιευτικοί στόχοι",
-  "/save":            "αποταμίευση για κάτι που θέλει",
-  "/learn":           "μαθήματα επιχειρηματικότητας",
-  "/stocks":          "μετοχές εταιρειών όπως Apple, Roblox, Nike",
-  "/investments":     "επενδύσεις που έχει αγοράσει",
-  "/spend":           "αγορές με coins",
-};
-
-const chatWithBuddy = createServerFn({ method: "POST" })
-  .validator((input: ChatInput) => input)
-  .handler(async ({ data }): Promise<ChatOutput> => {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) throw new Error("GEMINI_API_KEY not set");
-
-    const ctx = PAGE_CONTEXT[data.page] ?? "εφαρμογή Kids in Business";
-
-    const systemPrompt = `Είσαι ο KidsInBusiness Buddy 🤖 — ένας φιλικός, έξυπνος βοηθός για παιδιά 10-15 χρονών που μαθαίνουν για χρήματα και επιχειρηματικότητα. Το παιδί βρίσκεται στη σελίδα: ${ctx}.
-
-Κανόνες:
-- Μιλάς ΠΑΝΤΑ στα ελληνικά, με ζεστό και παιδικό τρόπο
-- Απαντάς σύντομα (2-4 προτάσεις MAX) εκτός αν σε ρωτήσουν κάτι που χρειάζεται περισσότερα
-- Χρησιμοποιείς αναλογίες από καθημερινή ζωή για να εξηγείς οικονομικές έννοιες
-- Ενθαρρύνεις και δίνεις αυτοπεποίθηση στο παιδί
-- ΔΕΝ χρησιμοποιείς markdown, αστέρια ή λίστες — μόνο απλό κείμενο
-- Αν σε ρωτήσουν κάτι εκτός θέματος, ξαναφέρεις απαλά τη συζήτηση στα χρήματα/επιχειρηματικότητα`;
-
-    // Build Gemini contents array
-    const contents = [
-      { role: "user",  parts: [{ text: systemPrompt }] },
-      { role: "model", parts: [{ text: "Γεια! Είμαι ο KidsInBusiness Buddy 🤖 Πώς μπορώ να σε βοηθήσω;" }] },
-      ...data.messages.map((m) => ({
-        role:  m.role,
-        parts: [{ text: m.text }],
-      })),
-    ];
-
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents,
-          generationConfig: { maxOutputTokens: 300, temperature: 0.75 },
-        }),
-      }
-    );
-
-    if (!res.ok) throw new Error(`Gemini ${res.status}`);
-
-    const json = await res.json();
-    const reply: string =
-      json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ??
-      "Συγγνώμη, δεν κατάλαβα. Μπορείς να ξαναρωτήσεις;";
-
-    return { reply };
-  });
-
-// ── Component ─────────────────────────────────────────────────────────────────
 const PUBLIC_ROUTES = new Set([
   "/", "/login", "/signup", "/forgot-password",
   "/reset-password", "/pricing", "/payment-success", "/payment-cancel",
@@ -79,9 +11,9 @@ export function BuddyFloat() {
   const router = useRouter();
   const path   = router.state.location.pathname;
 
-  const [open, setOpen]     = useState(false);
-  const [input, setInput]   = useState("");
-  const [loading, setLoading] = useState(false);
+  const [open, setOpen]         = useState(false);
+  const [input, setInput]       = useState("");
+  const [loading, setLoading]   = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const isHidden =
@@ -103,7 +35,8 @@ export function BuddyFloat() {
     try {
       const { reply } = await chatWithBuddy({ data: { messages: newMessages, page: path } });
       setMessages([...newMessages, { role: "model", text: reply }]);
-    } catch {
+    } catch (e) {
+      console.error("Buddy error:", e);
       setMessages([...newMessages, { role: "model", text: "Ουπς! Κάτι πήγε στραβά. Δοκίμασε ξανά 😊" }]);
     } finally {
       setLoading(false);
@@ -119,7 +52,6 @@ export function BuddyFloat() {
         onClick={() => {
           if (!open && messages.length === 0) {
             setOpen(true);
-            send("Γεια! Τι κάνω εδώ;");
           } else {
             setOpen((v) => !v);
           }
