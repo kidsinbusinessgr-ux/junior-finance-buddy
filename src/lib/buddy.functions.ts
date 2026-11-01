@@ -58,7 +58,7 @@ export const askBuddy = createServerFn({ method: "GET" })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 200, temperature: 0.7 },
+          generationConfig: { maxOutputTokens: 500, temperature: 0.7 },
         }),
       }
     );
@@ -129,7 +129,7 @@ MESSAGE: <η συμβουλή σου>`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 150, temperature: 0.8 },
+          generationConfig: { maxOutputTokens: 350, temperature: 0.8 },
         }),
       }
     );
@@ -196,7 +196,7 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents,
-          generationConfig: { maxOutputTokens: 300, temperature: 0.75 },
+          generationConfig: { maxOutputTokens: 800, temperature: 0.75 },
         }),
       }
     );
