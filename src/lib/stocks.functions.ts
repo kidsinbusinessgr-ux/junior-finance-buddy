@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const FMP_BASE = "https://financialmodelingprep.com/api/v3";
+const FMP_BASE = "https://financialmodelingprep.com/stable";
 
 export const KID_STOCKS = [
   { ticker: "AAPL", name: "Apple", emoji: "🍎", color: "#6E6E73" },
@@ -59,7 +59,7 @@ export const getStockQuotes = createServerFn({ method: "GET" }).handler(
     const key = getKey();
     const tickers = KID_STOCKS.map((s) => s.ticker).join(",");
     const res = await fetch(
-      `${FMP_BASE}/quote/${tickers}?apikey=${key}`,
+      `${FMP_BASE}/quote?symbol=${tickers}&apikey=${key}`,
       { headers: { Accept: "application/json" } }
     );
     if (!res.ok) throw new Error(`FMP quote error: ${res.status}`);
@@ -75,7 +75,7 @@ export const getStockQuotes = createServerFn({ method: "GET" }).handler(
         color: meta.color,
         price: fmp?.price ?? 0,
         change: fmp?.change ?? 0,
-        changePercent: fmp?.changesPercentage ?? 0,
+        changePercent: fmp?.changePercentage ?? 0,
         marketCap: fmp?.marketCap ?? 0,
       };
     });
@@ -94,14 +94,14 @@ export const getStockHistory = createServerFn({ method: "GET" })
       .slice(0, 10);
 
     const res = await fetch(
-      `${FMP_BASE}/historical-price-full/${ticker}?from=${from}&to=${to}&apikey=${key}`,
+      `${FMP_BASE}/historical-price-eod/full?symbol=${ticker}&from=${from}&to=${to}&apikey=${key}`,
       { headers: { Accept: "application/json" } }
     );
     if (!res.ok) throw new Error(`FMP history error: ${res.status}`);
     const data = await res.json();
 
     const history: { date: string; close: number }[] = (
-      data.historical ?? []
+      Array.isArray(data) ? data : []
     )
       .slice(0, 30)
       .reverse()
