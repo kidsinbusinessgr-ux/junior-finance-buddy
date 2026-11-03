@@ -542,6 +542,9 @@ function LessonPage() {
           </div>
         </section>
         <section className="mx-auto max-w-xl px-6 py-12">
+          <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
+            <ArrowLeft size={14} /> Μαθήματα
+          </Link>
           <div className="flex items-center gap-3">
             {lesson.slides.map((_, i) => (
               <div key={i} className={`h-2 flex-1 rounded-full transition-all ${i <= slideIdx ? "bg-primary" : "bg-border"}`} />
@@ -560,7 +563,7 @@ function LessonPage() {
               </Button>
             ) : (
               <Button variant="outline" onClick={() => setPhase("intro")} className="h-12 flex-1 rounded-full">
-                <ArrowLeft size={18} /> Intro
+                <ArrowLeft size={18} /> Εισαγωγή
               </Button>
             )}
             {slideIdx + 1 < lesson.slides.length ? (
@@ -588,6 +591,9 @@ function LessonPage() {
           </div>
         </section>
         <section className="mx-auto max-w-xl px-6 py-12">
+          <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
+            <ArrowLeft size={14} /> Μαθήματα
+          </Link>
           <div className="flex items-center gap-3">
             {lesson.questions.map((_, i) => (
               <div key={i} className={`h-2 flex-1 rounded-full transition-all ${i < questionIdx ? "bg-primary" : i === questionIdx ? "bg-primary/50" : "bg-border"}`} />
