@@ -126,7 +126,7 @@ function AdminPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Κωδικός πρόσβaσης"
+              placeholder="Κωδικός πρόσβασης"
               autoFocus
               required
               className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300"
@@ -268,8 +268,8 @@ function AdminPage() {
             </section>
 
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800 font-semibold">
-              ⚠️ <strong>Σημείωση ασφάλειας:</strong> Ο πίνακας <code>jfb_achievements</code> έχει απενεργοποιθμένο RLS.
-              Ενεργοποιησέ το στο Supabase dashboard πριν την κυκλοφορία στο κοινό.
+              ⚠️ <strong>Σημείωση ασφάλειας:</strong> Ο πίνακας <code>jfb_achievements</code> έχει απενεργοποιημένο RLS.
+              Ενεργοποίησέ το στο Supabase dashboard πριν την κυκλοφορία στο κοινό.
             </div>
           </>
         ) : null}
