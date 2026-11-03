@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import logoImg from "@/assets/logo-kidsinbusiness_1.png";
 
 type BrightlyNavProps = {
-  active?: "pricing" | "earn" | "spend" | "save" | "invest" | "learn" | "dashboard";
+  active?: "pricing" | "earn" | "spend" | "save" | "invest" | "learn" | "dashboard" | "build" | "startups";
   tone?: "light" | "dark";
 };
 
@@ -17,6 +17,8 @@ const navigation = [
   { label: "Αποταμίευση", to: "/save" as const, key: "save" },
   { label: "Επενδύσεις", to: "/stocks" as const, key: "invest" },
   { label: "Μαθήματα", to: "/learn" as const, key: "learn" },
+  { label: "Startups", to: "/startups/" as const, key: "startups" },
+  { label: "Φτιάξε Startup", to: "/build" as const, key: "build" },
 ];
 
 export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
