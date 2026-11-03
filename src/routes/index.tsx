@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Check, Pause } from "lucide-react";
 import heroKid from "@/assets/hero-kids.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,6 +23,17 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
   const slides = [
     ["Χτίζουμε αυτοπεποίθηση γύρω από τα χρήματα", "Τα παιδιά μαθαίνουν να κερδίζουν, να αποταμιεύουν και να ξοδεύουν με σύνεση."],
     ["Η εφαρμογή που τα παιδιά θα αγαπήσουν", "Μικρές επιλογές σήμερα γίνονται έξυπνες συνήθειες αύριο."],
@@ -49,9 +61,11 @@ function Index() {
               <p className="mb-5 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Για ηλικίες 12—17</p>
               <h1 className="text-5xl font-black leading-[0.99] tracking-tight sm:text-6xl lg:text-7xl">{currentTitle}</h1>
               <p className="mt-7 max-w-xl text-xl leading-relaxed text-[oklch(0.96_0.02_292)] lg:text-2xl">{currentCopy}</p>
+              {!isLoggedIn && (
               <Link to="/signup">
                 <Button className="mt-9 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
               </Link>
+              )}
             </div>
             <div className="relative mx-auto mt-7 aspect-square w-full max-w-[610px] lg:mt-0">
               <div className="hero-orb absolute inset-[8%] rounded-full" />
@@ -143,7 +157,8 @@ function Index() {
         </div>
       </section>
 
-      {/* CTA section */}
+      {/* CTA section — visible only to non-logged-in visitors */}
+      {!isLoggedIn && (
       <section className="bg-background px-6 py-20 text-center">
         <div className="mx-auto max-w-2xl">
           <h2 className="text-4xl font-black leading-tight sm:text-5xl">Έτοιμος να ξεκινήσεις;</h2>
@@ -158,6 +173,7 @@ function Index() {
           </div>
         </div>
       </section>
+      )}
     </main>
   );
 }
