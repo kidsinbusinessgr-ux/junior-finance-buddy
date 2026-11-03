@@ -9,7 +9,7 @@ export const Route = createFileRoute("/learn/")({
   head: () => ({
     meta: [
       { title: "Μάθε — Kids in Business" },
-      { name: "description", content: "Επιχειρηματικότητα για νέους 12–17. Founder mindset, Business Model Canvas, Validation, Customer Persona, MVP." },
+      { name: "description", content: "Χρηματοοικονομική παιδεία & Επιχειρηματικότητα για νέους 12–17. Χρήματα, budget, startup mindset, business model, marketing, pricing, pitch." },
       { property: "og:title", content: "Μάθε — Kids in Business" },
       { property: "og:type", content: "website" },
     ],
@@ -17,11 +17,74 @@ export const Route = createFileRoute("/learn/")({
   component: LearnPage,
 });
 
-const lessons = [
+const module1 = [
   {
     id: 1,
-    title: "Πώς σκέφτεται ένας founder",
-    desc: "Τι κάνει έναν επιχειρηματία διαφορετικό; Η νοοτροπία που αλλάζει τα πάντα.",
+    title: "Τι είναι τα χρήματα;",
+    desc: "Από που έρχονται, πού πάνε και γιατί η κατανόησή τους αλλάζει τη ζωή σου.",
+    xp: 100,
+    duration: "5 λεπτά",
+    unlocked: true,
+    completed: false,
+    emoji: "💰",
+  },
+  {
+    id: 2,
+    title: "Ανάγκες vs Επιθυμίες",
+    desc: "Πώς να ξεχωρίζεις τι χρειάζεσαι από αυτό που θέλεις — και γιατί έχει σημασία.",
+    xp: 150,
+    duration: "6 λεπτά",
+    unlocked: true,
+    completed: false,
+    emoji: "🛒",
+  },
+  {
+    id: 3,
+    title: "Πώς λειτουργεί η αποταμίευση",
+    desc: "Η δύναμη του να αποταμιεύεις νωρίς — compound interest και πρακτικές στρατηγικές.",
+    xp: 150,
+    duration: "6 λεπτά",
+    unlocked: true,
+    completed: false,
+    emoji: "🐷",
+  },
+  {
+    id: 4,
+    title: "Το πρώτο μου budget",
+    desc: "Φτιάξε το προσωπικό σου budget και μάθε να ελέγχεις τα χρήματά σου.",
+    xp: 200,
+    duration: "7 λεπτά",
+    unlocked: true,
+    completed: false,
+    emoji: "📊",
+  },
+  {
+    id: 5,
+    title: "Τι είναι επιχείρηση;",
+    desc: "Πώς μια ιδέα γίνεται επιχείρηση — τα βασικά στοιχεία που κάθε νέος πρέπει να γνωρίζει.",
+    xp: 200,
+    duration: "7 λεπτά",
+    unlocked: true,
+    completed: false,
+    emoji: "🏪",
+  },
+  {
+    id: 6,
+    title: "Χρήματα και ευτυχία",
+    desc: "Η σχέση μεταξύ χρημάτων και ευτυχίας — τι λέει η επιστήμη και πώς να χρησιμοποιείς τα χρήματα έξυπνα.",
+    xp: 250,
+    duration: "8 λεπτά",
+    unlocked: true,
+    completed: false,
+    emoji: "😊",
+  },
+];
+
+const module2 = [
+  {
+    id: 7,
+    title: "Brainstorming: Βρες την ιδέα σου",
+    desc: "Τεχνικές για να βρεις ιδέες startup που λύνουν πραγματικά προβλήματα.",
     xp: 200,
     duration: "7 λεπτά",
     unlocked: true,
@@ -29,51 +92,53 @@ const lessons = [
     emoji: "💡",
   },
   {
-    id: 2,
-    title: "Το Business Model σε 1 σελίδα",
-    desc: "Το Business Model Canvas — πώς κάθε επιχείρηση χωράει σε 9 κουτιά.",
+    id: 8,
+    title: "Business Model Canvas",
+    desc: "Το εργαλείο που χρησιμοποιούν Airbnb, Spotify, Apple — 9 κουτιά που εξηγούν κάθε επιχείρηση.",
     xp: 250,
     duration: "8 λεπτά",
     unlocked: true,
     completed: false,
-    emoji: "🧩",
+    emoji: "🗺️",
   },
   {
-    id: 3,
-    title: "Validation με 0 ευρώ",
-    desc: "Μην χτίσεις ό,τι κανείς δεν θέλει. Πώς να αποδείξεις ότι η ιδέα σου έχει αγορά.",
-    xp: 300,
+    id: 9,
+    title: "Marketing & Branding",
+    desc: "Πώς χτίζεις brand και βρίσκεις πελάτες χωρίς budget — social media στρατηγική για teens.",
+    xp: 250,
     duration: "8 λεπτά",
     unlocked: true,
     completed: false,
-    emoji: "🔥",
+    emoji: "📣",
   },
   {
-    id: 4,
-    title: "Ποιος είναι ο πελάτης σου;",
-    desc: "Customer Persona & Jobs-To-Be-Done — γνώρισε τον πελάτη σου καλύτερα από τον εαυτό του.",
+    id: 10,
+    title: "Pricing & Break-even",
+    desc: "Πώς ορίζεις τιμή, υπολογίζεις break-even point και επιλέγεις τη σωστή στρατηγική τιμολόγησης.",
     xp: 300,
     duration: "9 λεπτά",
-    unlocked: false,
+    unlocked: true,
     completed: false,
-    emoji: "🎯",
+    emoji: "💹",
   },
   {
-    id: 5,
-    title: "MVP: Πούλα πρώτα, φτιάξε μετά",
-    desc: "Minimum Viable Product — πώς οι καλύτεροι founders δοκιμάζουν ιδέες πριν επενδύσουν.",
-    xp: 350,
+    id: 11,
+    title: "Pitch: Πούλησε την ιδέα σου",
+    desc: "Πώς παρουσιάζεις την ιδέα σου σε 2 λεπτά — δομή pitch, storytelling, και τι ψάχνουν οι επενδυτές.",
+    xp: 300,
     duration: "9 λεπτά",
-    unlocked: false,
+    unlocked: true,
     completed: false,
-    emoji: "📦",
+    emoji: "🎤",
   },
 ];
 
+const allLessons = [...module1, ...module2];
+
 function LearnPage() {
   const { isPaid, loading: subLoading } = useSubscription();
-  const totalXP = lessons.filter((l) => l.completed).reduce((s, l) => s + l.xp, 0);
-  const unlockedCount = lessons.filter((l) => l.unlocked).length;
+  const totalXP = allLessons.filter((l) => l.completed).reduce((s, l) => s + l.xp, 0);
+  const totalAvailable = allLessons.length;
 
   return (
     <main className="min-h-screen bg-background">
@@ -81,18 +146,18 @@ function LearnPage() {
         <div className="mx-auto max-w-[1440px]">
           <BrightlyNav active="learn" />
           <div className="mx-auto max-w-3xl pt-20 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Module 1 — Mindset Επιχειρηματία</p>
-            <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Σκέψου σαν Founder.</h1>
-            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">5 μαθήματα που δεν διδάσκουν στο σχολείο — real case studies, mental models, XP.</p>
+            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">2 Modules · 11 Μαθήματα</p>
+            <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Μάθε. Σκέψου. Δράσε.</h1>
+            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Χρηματοοικονομική παιδεία & Startup Mindset — real case studies, mental models, XP.</p>
 
             {/* Progress bar */}
             <div className="mx-auto mt-8 max-w-sm rounded-xl bg-[oklch(0.45_0.18_292)] p-5">
               <div className="flex items-center justify-between text-sm font-bold">
                 <span className="flex items-center gap-2"><Star size={16} className="text-[oklch(0.85_0.18_70)]" /> {totalXP} XP</span>
-                <span>{unlockedCount}/{lessons.length} διαθέσιμα</span>
+                <span>{totalAvailable}/{allLessons.length} διαθέσιμα</span>
               </div>
               <div className="mt-3 h-3 overflow-hidden rounded-full bg-[oklch(0.36_0.13_292)]">
-                <div className="h-full rounded-full bg-[oklch(0.85_0.18_70)] transition-all" style={{ width: `${(unlockedCount / lessons.length) * 100}%` }} />
+                <div className="h-full rounded-full bg-[oklch(0.85_0.18_70)] transition-all" style={{ width: `${(totalAvailable / allLessons.length) * 100}%` }} />
               </div>
             </div>
           </div>
@@ -101,47 +166,101 @@ function LearnPage() {
 
       <section className="px-6 py-16 lg:px-16">
         <div className="mx-auto max-w-5xl">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {lessons.map((lesson) => (
-              <PaidGate key={lesson.id} isPaid={lesson.id <= 2 || isPaid} loading={subLoading}>
-              <article
-                className={`rounded-xl border p-6 transition-all ${lesson.unlocked ? "bg-card shadow-sm hover:-translate-y-1 hover:shadow-md" : "bg-muted opacity-60"}`}
-              >
-                <div className="flex items-start justify-between">
-                  <span className="text-4xl">{lesson.emoji}</span>
-                  {lesson.unlocked ? (
-                    <span className="flex items-center gap-1 rounded-full bg-[oklch(0.88_0.1_55)] px-2 py-1 text-xs font-black text-[oklch(0.35_0.12_35)]">
-                      <Star size={10} /> +{lesson.xp} XP
-                    </span>
-                  ) : (
-                    <Lock size={16} className="text-muted-foreground" />
-                  )}
-                </div>
-                <h3 className="mt-4 text-xl font-black">{lesson.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{lesson.desc}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground"><BookOpenCheck size={12} /> {lesson.duration}</span>
-                  {lesson.completed && <Award size={16} className="text-[oklch(0.55_0.17_173)]" />}
-                </div>
-                {lesson.unlocked && (
-                  <Link to="/learn/$lessonId" params={{ lessonId: String(lesson.id) }}>
-                    <Button className="mt-4 h-10 w-full rounded-full text-sm">
-                      Άνοιξε μάθημα →
-                    </Button>
-                  </Link>
-                )}
-                {!lesson.unlocked && (
-                  <div className="mt-4 flex items-center gap-2 rounded-lg bg-background px-3 py-2 text-xs text-muted-foreground">
-                    <CircleHelp size={12} /> Ολοκλήρωσε τα προηγούμενα για να ξεκλειδωθεί
+
+          {/* Module 1 */}
+          <div className="mb-12">
+            <div className="mb-6 flex items-center gap-3">
+              <span className="rounded-full bg-[oklch(0.57_0.23_292)] px-4 py-1 text-xs font-black text-white uppercase tracking-widest">Module 1</span>
+              <h2 className="text-2xl font-black">Χρήματα & Επιχείρηση</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {module1.map((lesson) => (
+                <PaidGate key={lesson.id} isPaid={lesson.id <= 2 || isPaid} loading={subLoading}>
+                <article
+                  className={`rounded-xl border p-6 transition-all ${lesson.unlocked ? "bg-card shadow-sm hover:-translate-y-1 hover:shadow-md" : "bg-muted opacity-60"}`}
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="text-4xl">{lesson.emoji}</span>
+                    {lesson.unlocked ? (
+                      <span className="flex items-center gap-1 rounded-full bg-[oklch(0.88_0.1_55)] px-2 py-1 text-xs font-black text-[oklch(0.35_0.12_35)]">
+                        <Star size={10} /> +{lesson.xp} XP
+                      </span>
+                    ) : (
+                      <Lock size={16} className="text-muted-foreground" />
+                    )}
                   </div>
-                )}
-              </article>
-              </PaidGate>
-            ))}
+                  <h3 className="mt-4 text-xl font-black">{lesson.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{lesson.desc}</p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground"><BookOpenCheck size={12} /> {lesson.duration}</span>
+                    {lesson.completed && <Award size={16} className="text-[oklch(0.55_0.17_173)]" />}
+                  </div>
+                  {lesson.unlocked && (
+                    <Link to="/learn/$lessonId" params={{ lessonId: String(lesson.id) }}>
+                      <Button className="mt-4 h-10 w-full rounded-full text-sm">
+                        Άνοιξε μάθημα →
+                      </Button>
+                    </Link>
+                  )}
+                  {!lesson.unlocked && (
+                    <div className="mt-4 flex items-center gap-2 rounded-lg bg-background px-3 py-2 text-xs text-muted-foreground">
+                      <CircleHelp size={12} /> Ολοκλήρωσε τα προηγούμενα για να ξεκλειδωθεί
+                    </div>
+                  )}
+                </article>
+                </PaidGate>
+              ))}
+            </div>
+          </div>
+
+          {/* Module 2 */}
+          <div className="mb-12">
+            <div className="mb-6 flex items-center gap-3">
+              <span className="rounded-full bg-[oklch(0.55_0.17_173)] px-4 py-1 text-xs font-black text-white uppercase tracking-widest">Module 2</span>
+              <h2 className="text-2xl font-black">Startup Builder</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {module2.map((lesson) => (
+                <PaidGate key={lesson.id} isPaid={lesson.id <= 8 || isPaid} loading={subLoading}>
+                <article
+                  className={`rounded-xl border p-6 transition-all ${lesson.unlocked ? "bg-card shadow-sm hover:-translate-y-1 hover:shadow-md" : "bg-muted opacity-60"}`}
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="text-4xl">{lesson.emoji}</span>
+                    {lesson.unlocked ? (
+                      <span className="flex items-center gap-1 rounded-full bg-[oklch(0.88_0.1_55)] px-2 py-1 text-xs font-black text-[oklch(0.35_0.12_35)]">
+                        <Star size={10} /> +{lesson.xp} XP
+                      </span>
+                    ) : (
+                      <Lock size={16} className="text-muted-foreground" />
+                    )}
+                  </div>
+                  <h3 className="mt-4 text-xl font-black">{lesson.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{lesson.desc}</p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground"><BookOpenCheck size={12} /> {lesson.duration}</span>
+                    {lesson.completed && <Award size={16} className="text-[oklch(0.55_0.17_173)]" />}
+                  </div>
+                  {lesson.unlocked && (
+                    <Link to="/learn/$lessonId" params={{ lessonId: String(lesson.id) }}>
+                      <Button className="mt-4 h-10 w-full rounded-full text-sm">
+                        Άνοιξε μάθημα →
+                      </Button>
+                    </Link>
+                  )}
+                  {!lesson.unlocked && (
+                    <div className="mt-4 flex items-center gap-2 rounded-lg bg-background px-3 py-2 text-xs text-muted-foreground">
+                      <CircleHelp size={12} /> Ολοκλήρωσε τα προηγούμενα για να ξεκλειδωθεί
+                    </div>
+                  )}
+                </article>
+                </PaidGate>
+              ))}
+            </div>
           </div>
 
           {/* Investment Simulator Feature Card */}
-          <Link to="/stocks" className="mt-12 block">
+          <Link to="/stocks" className="mt-4 block">
             <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[oklch(0.22_0.05_240)] to-[oklch(0.15_0.08_260)] p-8 text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.4_0.2_280/0.3)] to-transparent" />
               <div className="relative">
@@ -167,11 +286,6 @@ function LearnPage() {
             </div>
           </Link>
 
-          <div className="mt-6 rounded-xl bg-[oklch(0.57_0.23_292)] p-8 text-center text-primary-foreground">
-            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Έρχεται σύντομα</p>
-            <h2 className="mt-3 text-3xl font-black">Module 2 — Από Ιδέα σε Προϊόν</h2>
-            <p className="mt-3 leading-relaxed text-[oklch(0.96_0.02_292)]">Pricing, Marketing, Χρηματοδότηση, Pitching — εβδομαδιαίες ενημερώσεις!</p>
-          </div>
         </div>
       </section>
     </main>
