@@ -69,7 +69,7 @@ export function BuddyFloat() {
         onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.1)")}
         onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}
       >
-        {open ? "✕" : "🤖"}
+        {open ? "✕" : <img src="/buddy-robot.png" className="w-8 h-8" alt="Buddy" />}
       </button>
 
       {/* ── Chat window ── */}
@@ -91,7 +91,7 @@ export function BuddyFloat() {
             padding: "12px 14px",
             display: "flex", alignItems: "center", gap: "8px",
           }}>
-            <span style={{ fontSize: "18px" }}>🤖</span>
+            <img src="/buddy-robot.png" style={{ width: "24px", height: "24px" }} alt="Buddy" />
             <div>
               <div style={{ fontWeight: 700, fontSize: "13px", color: "#fff" }}>KidsInBusiness Buddy</div>
               <div style={{ fontSize: "11px", color: "#e9d5ff" }}>Ρώτα με οτιδήποτε!</div>
@@ -111,7 +111,7 @@ export function BuddyFloat() {
           }}>
             {messages.length === 0 && !loading && (
               <div style={{ textAlign: "center", color: "#7c3aed", fontSize: "13px", marginTop: "20px" }}>
-                <div style={{ fontSize: "32px", marginBottom: "8px" }}>🤖</div>
+                <div style={{ marginBottom: "8px" }}><img src="/buddy-robot.png" style={{ width: "48px", height: "48px" }} alt="Buddy" /></div>
                 Γεια! Ρώτα με οτιδήποτε για χρήματα και επιχειρηματικότητα!
               </div>
             )}

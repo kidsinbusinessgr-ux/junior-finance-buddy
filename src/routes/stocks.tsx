@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -424,40 +425,116 @@ function StocksPage() {
                 </div>
 
                 {history && history.history.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={history.history}>
-                      <XAxis
-                        dataKey="date"
-                        tickFormatter={fmtDate}
-                        tick={{ fontSize: 10 }}
-                        tickLine={false}
-                        axisLine={false}
-                        interval="preserveStartEnd"
-                      />
-                      <YAxis
-                        domain={["auto", "auto"]}
-                        tick={{ fontSize: 10 }}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(v) => `$${v}`}
-                        width={55}
-                      />
-                      <Tooltip
-                        formatter={(v: number) => [`$${fmt(v)}`, "Τιμή"]}
-                        labelFormatter={fmtDate}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="close"
-                        stroke={
-                          KID_STOCKS.find((s) => s.ticker === selectedTicker)?.color ??
-                          "oklch(0.57 0.23 292)"
-                        }
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <>
+                    {/* Stats strip */}
+                    {(() => {
+                      const startP = history.history[0].close;
+                      const endP = history.history[history.history.length - 1].close;
+                      const changePct = ((endP - startP) / startP) * 100;
+                      const isUp = changePct >= 0;
+                      return (
+                        <div className="mb-4 grid grid-cols-3 gap-2 text-center text-sm">
+                          <div className="rounded-xl bg-muted p-2.5">
+                            <p className="text-xs text-muted-foreground font-semibold">Πριν 30 μέρες</p>
+                            <p className="font-black mt-0.5">${fmt(startP)}</p>
+                          </div>
+                          <div className={`rounded-xl p-2.5 ${isUp ? "bg-green-50 dark:bg-green-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
+                            <p className="text-xs text-muted-foreground font-semibold">Αλλαγή μήνα</p>
+                            <p className={`font-black text-base mt-0.5 ${isUp ? "text-green-600" : "text-red-500"}`}>
+                              {isUp ? "+" : ""}{fmt(changePct, 1)}%
+                            </p>
+                          </div>
+                          <div className="rounded-xl bg-muted p-2.5">
+                            <p className="text-xs text-muted-foreground font-semibold">Σήμερα</p>
+                            <p className="font-black mt-0.5">${fmt(endP)}</p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Area chart */}
+                    {(() => {
+                      const stockColor = KID_STOCKS.find((s) => s.ticker === selectedTicker)?.color ?? "oklch(0.57 0.23 292)";
+                      const startP = history.history[0].close;
+                      return (
+                        <ResponsiveContainer width="100%" height={200}>
+                          <AreaChart data={history.history}>
+                            <defs>
+                              <linearGradient id={`fill-${selectedTicker}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={stockColor} stopOpacity={0.25} />
+                                <stop offset="95%" stopColor={stockColor} stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <XAxis
+                              dataKey="date"
+                              tickFormatter={fmtDate}
+                              tick={{ fontSize: 10 }}
+                              tickLine={false}
+                              axisLine={false}
+                              interval="preserveStartEnd"
+                            />
+                            <YAxis
+                              domain={["auto", "auto"]}
+                              tick={{ fontSize: 10 }}
+                              tickLine={false}
+                              axisLine={false}
+                              tickFormatter={(v) => `$${v}`}
+                              width={55}
+                            />
+                            <Tooltip
+                              formatter={(v: number) => {
+                                const chg = ((v - startP) / startP) * 100;
+                                return [`$${fmt(v)}  (${chg >= 0 ? "+" : ""}${fmt(chg, 1)}% vs αρχή)`, "Τιμή"];
+                              }}
+                              labelFormatter={fmtDate}
+                            />
+                            <ReferenceLine
+                              y={startP}
+                              stroke="#9ca3af"
+                              strokeDasharray="4 3"
+                              label={{ value: "Αρχή μήνα", position: "insideTopLeft", fontSize: 9, fill: "#9ca3af" }}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="close"
+                              stroke={stockColor}
+                              strokeWidth={2.5}
+                              fill={`url(#fill-${selectedTicker})`}
+                              dot={false}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      );
+                    })()}
+
+                    {/* Educational explanation */}
+                    {(() => {
+                      const startP = history.history[0].close;
+                      const endP = history.history[history.history.length - 1].close;
+                      const changePct = ((endP - startP) / startP) * 100;
+                      const isUp = changePct >= 0;
+                      const absChg = Math.abs(changePct);
+                      const simulated = fmt(100 * (1 + changePct / 100), 0);
+                      let icon: string;
+                      let explanation: string;
+                      if (absChg < 1.5) {
+                        icon = "😐";
+                        explanation = "Η τιμή παρέμεινε σχεδόν σταθερή αυτόν τον μήνα — η αγορά δεν έχει αποφασίσει ακόμα!";
+                      } else if (isUp) {
+                        icon = "🚀";
+                        explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙! Η μετοχή ανέβηκε γιατί οι επενδυτές πιστεύουν ότι η εταιρία πάει καλά.`;
+                      } else {
+                        icon = "📉";
+                        explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙. Η τιμή έπεσε — μπορεί να είναι καλή στιγμή για αγορά, αλλά πάντα υπάρχει ρίσκο!`;
+                      }
+                      return (
+                        <div className={`mt-3 rounded-xl px-4 py-3 text-sm leading-relaxed ${isUp && absChg >= 1.5 ? "bg-green-50 dark:bg-green-950/30" : !isUp && absChg >= 1.5 ? "bg-orange-50 dark:bg-orange-950/30" : "bg-muted"}`}>
+                          <span className="font-black">{icon} Τι σημαίνει; </span>
+                          <span className="text-muted-foreground">{explanation}</span>
+                        </div>
+                      );
+                    })()}
+                  </>
                 ) : (
                   !loadingHistory && (
                     <p className="py-8 text-center text-sm text-muted-foreground">
@@ -483,7 +560,7 @@ function StocksPage() {
                     }}
                   >
                     <div className="flex items-start gap-3">
-                      <span className="text-3xl select-none">🤖</span>
+                      <img src="/buddy-robot.png" className="w-10 h-10" alt="Buddy" />
                       <div className="flex-1">
                         <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">
                           KidsInBusiness Buddy
