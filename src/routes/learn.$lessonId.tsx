@@ -287,6 +287,75 @@ const lessons: Record<string, Lesson> = {
       },
     ],
   },
+  "7": {
+    id: 7,
+    title: "Brainstorming: Βρες την ιδέα σου",
+    emoji: "💡",
+    xp: 200,
+    color: "oklch(0.57_0.23_292)",
+    slides: [
+      { heading: "Το πρόβλημα είναι η ιδέα", body: "Κάθε επιτυχημένη επιχείρηση λύνει ένα πρόβλημα. Η Airbnb είδε ότι τα ξενοδοχεία ήταν ακριβά. Η Uber είδε ότι δεν υπήρχε εύκολο ταξί. Ρώτα τον εαυτό σου: «Τι με εκνευρίζει; Τι λείπει από τη ζωή μου;» Εκεί κρύβεται η ιδέα.", emoji: "🔍" },
+      { heading: "Τεχνικές brainstorming", body: "3 τρόποι για να βρεις ιδέες: 1) Mind map — γράψε ένα πρόβλημα στη μέση και βάλε γύρω λύσεις. 2) «Τι θα έκανε ο...» — σκέψου πώς θα έλυνε το πρόβλημα ο Elon Musk ή ο Steve Jobs. 3) Παρατήρηση — κάθισε σε ένα σημείο 1 ώρα και γράψε ό,τι παρατηρείς που δεν δουλεύει καλά.", emoji: "🧠" },
+      { heading: "Πώς επιλέγεις την καλύτερη ιδέα", body: "Από 10 ιδέες, επέλεξε με 3 ερωτήσεις: Α) Υπάρχουν ήδη άνθρωποι που έχουν αυτό το πρόβλημα; Β) Θα πλήρωναν για να λυθεί; Γ) Μπορώ εγώ να το κάνω με τα μέσα που έχω; Η ιδέα που απαντά ΝΑΙ και στις 3 — αυτή πας μπροστά.", emoji: "✅" },
+    ],
+    questions: [
+      { q: "Ποιο είναι το πρώτο βήμα για να βρεις μια επιχειρηματική ιδέα;", options: ["Να νοικιάσεις γραφείο", "Να εντοπίσεις ένα πρόβλημα που υπάρχει", "Να φτιάξεις logo", "Να βρεις χρηματοδότη"], correct: 1, explain: "Σωστά! Κάθε επιτυχημένη επιχείρηση ξεκινά από ένα πρόβλημα που κάποιος θέλει να λύσει — και πληρώνει για αυτό." },
+      { q: "Έχεις 10 ιδέες. Ποια κρατάς;", options: ["Αυτή που σου αρέσει περισσότερο αισθητικά", "Αυτή που έχει ήδη ανταγωνισμό οπότε αποδεδειγμένα δουλεύει", "Αυτή για την οποία υπάρχει πρόβλημα, κόσμος που πληρώνει, και μπορείς να υλοποιήσεις", "Αυτή με το πιο cool όνομα"], correct: 2, explain: "Ακριβώς! Η ιδέα που απαντά ΝΑΙ και στις 3 ερωτήσεις (πρόβλημα, πληρωμή, υλοποίηση) είναι αυτή που προχωράς." },
+      { q: "Η Uber ξεκίνησε γιατί οι ιδρυτές της:", options: ["Ήθελαν να γίνουν πλούσιοι γρήγορα", "Δεν μπορούσαν να βρουν ταξί εύκολα μια βροχερή νύχτα", "Είχαν ήδη κεφάλαιο και αναζητούσαν ιδέα", "Αντέγραψαν μια ευρωπαϊκή εταιρία"], correct: 1, explain: "Σωστά! Το πραγματικό πρόβλημα της καθημερινής ζωής έγινε δισεκατομμυριούχα εταιρία. Τα καλύτερα startups ξεκινούν έτσι." },
+    ],
+  },
+  "8": {
+    id: 8, title: "Business Model Canvas", emoji: "🗺️", xp: 250, color: "oklch(0.55_0.17_173)",
+    slides: [
+      { heading: "Ένα σχέδιο σε 1 σελίδα", body: "Το Business Model Canvas (BMC) είναι ένας χάρτης που δείχνει ολόκληρη την επιχείρησή σου σε 9 κουτιά. Αντί να γράφεις business plan 50 σελίδων, το BMC σε αναγκάζει να σκεφτείς τα βασικά σε 30 λεπτά. Το χρησιμοποιούν Airbnb, Spotify, Apple.", emoji: "📋" },
+      { heading: "Τα 9 κουτιά", body: "1) Πελάτες — ποιοι είναι; 2) Αξία — τι τους δίνεις; 3) Κανάλια — πώς τους φτάνεις; 4) Σχέση — πώς τους κρατάς; 5) Έσοδα — πώς πληρώνεσαι; 6) Πόροι — τι χρειάζεσαι; 7) Δραστηριότητες — τι κάνεις κάθε μέρα; 8) Συνεργάτες — ποιοι σε βοηθούν; 9) Κόστος — τι πληρώνεις.", emoji: "🔲" },
+      { heading: "Παράδειγμα: Spotify", body: "Πελάτες: ακροατές + καλλιτέχνες. Αξία: μουσική παντού χωρίς να αγοράζεις. Κανάλια: app. Έσοδα: συνδρομή €10/μήνα + διαφήμιση για δωρεάν χρήστες. Κόστος: άδειες μουσικής. Αυτά τα 9 κουτιά εξηγούν μια εταιρία €90 δισ. Τώρα σκέψου: ποιο είναι το δικό σου BMC;", emoji: "🎵" },
+    ],
+    questions: [
+      { q: "Ποιο κουτί του BMC απαντά στο «Πώς κερδίζω χρήματα;»", options: ["Κανάλια", "Έσοδα", "Πόροι", "Σχέση με πελάτες"], correct: 1, explain: "Σωστά! Το κουτί «Έσοδα» (Revenue Streams) δείχνει όλους τους τρόπους που η επιχείρηση παράγει χρήμα." },
+      { q: "Γιατί είναι χρήσιμο το BMC αντί για business plan 50 σελίδων;", options: ["Γιατί είναι πιο εντυπωσιακό οπτικά", "Γιατί αναγκάζει να σκεφτείς τα βασικά γρήγορα και να τα δεις όλα μαζί", "Γιατί το ζητούν οι τράπεζες", "Γιατί δεν χρειάζεται να σκεφτείς πολύ"], correct: 1, explain: "Ακριβώς! Το BMC δίνει μια ολοκληρωμένη εικόνα της επιχείρησης σε 1 σελίδα — ιδανικό για να ελέγξεις αν η ιδέα σου έχει νόημα." },
+      { q: "Στο BMC της Spotify, ποιο είναι το κουτί «Αξία» για τους ακροατές;", options: ["Η συνδρομή €10/μήνα", "Μουσική παντού χωρίς να αγοράζεις κάθε τραγούδι", "Το app στο κινητό", "Οι διαφημίσεις"], correct: 1, explain: "Σωστά! Η «αξία» είναι αυτό που λύνει το πρόβλημα του πελάτη. Το Spotify λύνει το «θέλω μουσική παντού, φθηνά»." },
+    ],
+  },
+  "9": {
+    id: 9, title: "Marketing & Branding", emoji: "📣", xp: 250, color: "oklch(0.57_0.2_28)",
+    slides: [
+      { heading: "Ποιος είναι ο πελάτης σου;", body: "Πριν κάνεις οτιδήποτε, πρέπει να ξέρεις ΑΚΡΙΒΩΣ σε ποιον μιλάς. Όχι «όλοι» — αυτό σημαίνει κανείς. Π.χ.: «Κορίτσια 13-16 που αγαπούν τη μόδα, ζουν στην πόλη, έχουν χαρτζιλίκι €20/εβδομάδα, και ακολουθούν influencers στο TikTok.» Όσο πιο συγκεκριμένος ο πελάτης, τόσο πιο εύκολο το marketing.", emoji: "🎯" },
+      { heading: "Πώς χτίζεις brand", body: "Brand δεν είναι το logo — είναι η αίσθηση που αφήνεις. 3 ερωτήσεις: Α) Ποιες αξίες εκπροσωπεί η επιχείρησή σου; Β) Αν ήταν άνθρωπος, πώς θα μιλούσε; Γ) Ποιο πρόβλημα λύνει και πώς κάνει τον πελάτη να νιώθει μετά; Η Apple δεν πουλά τηλέφωνα — πουλά το «εγώ είμαι δημιουργικός».", emoji: "✨" },
+      { heading: "Marketing για teens: social media", body: "Δεν χρειάζεσαι budget. Χρειάζεσαι στρατηγική: 1) TikTok/Reels — δείξε τη διαδικασία, όχι μόνο το αποτέλεσμα. 2) Before/after — δείξε το πρόβλημα και τη λύση σου. 3) Testimonials — ζήτα από τους πρώτους πελάτες να μιλήσουν. 4) Consistency — 3 posts/εβδομάδα είναι καλύτερα από 10 posts μια φορά και μετά τίποτα.", emoji: "📱" },
+    ],
+    questions: [
+      { q: "Ποιος είναι ο σωστός τρόπος να ορίσεις τον πελάτη σου;", options: ["«Όλοι οι άνθρωποι»", "«Νέοι 15-25»", "«Κορίτσια 14-17 που αγαπούν τη μόδα, έχουν TikTok, χαρτζιλίκι €15-25/εβδομάδα»", "«Οποιος θέλει να αγοράσει»"], correct: 2, explain: "Ακριβώς! Όσο πιο συγκεκριμένος ο πελάτης, τόσο πιο αποτελεσματικό το μήνυμά σου." },
+      { q: "Τι πουλά στην ουσία η Apple με τη διαφήμισή της;", options: ["Τεχνικές προδιαγραφές", "Φθηνές τιμές", "Την αίσθηση ότι είσαι δημιουργικός και διαφορετικός", "Εξυπηρέτηση πελατών"], correct: 2, explain: "Σωστά! Το brand marketing πουλά συναίσθημα και ταυτότητα, όχι χαρακτηριστικά." },
+      { q: "Ποια στρατηγική social media είναι πιο αποτελεσματική για νέα επιχείρηση με μηδέν budget;", options: ["Να πληρώσεις για διαφήμιση αμέσως", "3 συνεπή posts/εβδομάδα που δείχνουν τη διαδικασία και το before/after", "Να ανεβάσεις 50 posts μια μέρα", "Να περιμένεις να σε βρουν οι πελάτες μόνοι τους"], correct: 1, explain: "Μπράβο! Η συνέπεια κτίζει κοινό." },
+    ],
+  },
+  "10": {
+    id: 10, title: "Pricing & Break-even", emoji: "💹", xp: 300, color: "oklch(0.57_0.23_292)",
+    slides: [
+      { heading: "Πώς ορίζεις τιμή", body: "3 τρόποι: Α) Cost-plus — υπολογίζεις κόστος + κέρδος (π.χ. κόστος €3, θες 50% κέρδος = τιμή €4,50). Β) Ανταγωνισμός — κοιτάς τι χρεώνουν οι άλλοι. Γ) Αξία — χρεώνεις βάσει του τι αξίζει για τον πελάτη. Π.χ. αν εξοικονομεί €100, μπορείς να χρεώσεις €30 άνετα.", emoji: "💰" },
+      { heading: "Το Break-even point", body: "Break-even = το σημείο που δεν χάνεις αλλά δεν κερδίζεις. Τύπος: Break-even = Σταθερό κόστος ÷ (Τιμή − Μεταβλητό κόστος/unit). Π.χ.: Σταθερό κόστος €200/μήνα, πουλάς €10, κόστος ανά προϊόν €4. Break-even = 200 ÷ (10−4) = 34 πωλήσεις.", emoji: "📊" },
+      { heading: "Στρατηγικές τιμολόγησης", body: "Freemium: δώσε κάτι δωρεάν, χρέωσε για premium (Spotify). Subscription: μηνιαία χρέωση (Netflix). Bundle: πούλα 3 μαζί φθηνότερα. Anchoring: βάλε μια ακριβή επιλογή δίπλα στη μέση για να φαίνεται φθηνή.", emoji: "🧩" },
+    ],
+    questions: [
+      { q: "Κόστος παραγωγής €5, θες 60% κέρδος. Ποια η τιμή πώλησης;", options: ["€7", "€8", "€8,50", "€10"], correct: 1, explain: "Σωστά! Cost-plus: €5 × 1,60 = €8." },
+      { q: "Σταθερό κόστος €150/μήνα. Πουλάς €5/unit, κόστος ανά unit €2. Πόσα πρέπει να πουλήσεις για break-even;", options: ["30 units", "50 units", "75 units", "150 units"], correct: 1, explain: "Σωστά! Break-even = 150 ÷ (5−2) = 50 units." },
+      { q: "Ποια στρατηγική χρησιμοποιεί το Spotify;", options: ["Bundle", "Anchoring", "Freemium", "Cost-plus"], correct: 2, explain: "Ακριβώς! Freemium = δίνεις βασική υπηρεσία δωρεάν, χρεώνεις για premium." },
+    ],
+  },
+  "11": {
+    id: 11, title: "Pitch: Πούλησε την ιδέα σου", emoji: "🎤", xp: 300, color: "oklch(0.55_0.17_173)",
+    slides: [
+      { heading: "Τι είναι ένα pitch", body: "Pitch είναι η παρουσίαση της ιδέας σου σε κάποιον που μπορεί να επενδύσει ή να αγοράσει. Έχεις 2 λεπτά ή 10 διαφάνειες. Στόχος δεν είναι να εξηγήσεις τα πάντα — στόχος είναι να τους κάνεις να πουν «θέλω να μάθω περισσότερα». Ο Airbnb pitch του 2009 ήταν 10 διαφάνειες και πήρε $600.000.", emoji: "🚀" },
+      { heading: "Η δομή του pitch (10 slides)", body: "1) Πρόβλημα 2) Λύση 3) Αγορά 4) Προϊόν 5) Business model 6) Ανταγωνισμός 7) Marketing 8) Ομάδα 9) Αριθμοί 10) Αίτημα", emoji: "📑" },
+      { heading: "Τι κάνει ένα pitch δυνατό", body: "3 μυστικά: Α) Ξεκίνα με ιστορία. Β) Δείξε, μην πεις — demo ή mockup. Γ) Να ξέρεις τους αριθμούς. Ο επενδυτής αγοράζει εσένα — την ικανότητά σου να το υλοποιήσεις.", emoji: "💪" },
+    ],
+    questions: [
+      { q: "Ποιος είναι ο ΚΥΡΙΟΣ στόχος ενός pitch;", options: ["Να εξηγήσεις κάθε λεπτομέρεια", "Να κάνεις τον επενδυτή να πει «θέλω να μάθω περισσότερα»", "Να δείξεις ότι ξέρεις πολλά πράγματα", "Να διαβάσεις τις διαφάνειές σου"], correct: 1, explain: "Σωστά! Το pitch είναι «άνοιγμα πόρτας»." },
+      { q: "Ποια διαφάνεια έρχεται ΠΡΩΤΗ;", options: ["Οι αριθμοί", "Η ομάδα", "Το πρόβλημα που λύνεις", "Το αίτημα χρηματοδότησης"], correct: 2, explain: "Ακριβώς! Πρώτα δείχνεις ότι υπάρχει πραγματικό πρόβλημα." },
+      { q: "Ποιο είναι το πιο δυνατό άνοιγμα;", options: ["«Η εταιρία μας ιδρύθηκε το 2024...»", "«Φανταστείτε ότι είστε 14 χρονών και δεν μπορείτε να βρείτε...»", "«Έχω 47 διαφάνειες»", "«Το προϊόν μας έχει 15 χαρακτηριστικά»"], correct: 1, explain: "Μπράβο! Η ιστορία που βάζει τον ακροατή στο πρόβλημα είναι το πιο δυνατό άνοιγμα." },
+    ],
+  },
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -383,22 +452,17 @@ function LessonPage() {
           </div>
         </section>
         <section className="mx-auto max-w-xl px-6 py-12">
-          {/* Progress */}
           <div className="flex items-center gap-3">
             {lesson.slides.map((_, i) => (
               <div key={i} className={`h-2 flex-1 rounded-full transition-all ${i <= slideIdx ? "bg-primary" : "bg-border"}`} />
             ))}
           </div>
           <p className="mt-3 text-sm text-muted-foreground">{slideIdx + 1} / {lesson.slides.length}</p>
-
-          {/* Slide content */}
           <div className="mt-8 rounded-2xl border bg-card p-8 shadow-sm">
             <div className="text-center text-6xl">{slide.emoji}</div>
             <h2 className="mt-6 text-2xl font-black">{slide.heading}</h2>
             <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{slide.body}</p>
           </div>
-
-          {/* Nav */}
           <div className="mt-8 flex gap-4">
             {slideIdx > 0 ? (
               <Button variant="outline" onClick={() => setSlideIdx((i) => i - 1)} className="h-12 flex-1 rounded-full">
@@ -434,18 +498,14 @@ function LessonPage() {
           </div>
         </section>
         <section className="mx-auto max-w-xl px-6 py-12">
-          {/* Progress */}
           <div className="flex items-center gap-3">
             {lesson.questions.map((_, i) => (
               <div key={i} className={`h-2 flex-1 rounded-full transition-all ${i < questionIdx ? "bg-primary" : i === questionIdx ? "bg-primary/50" : "bg-border"}`} />
             ))}
           </div>
           <p className="mt-3 text-sm font-bold text-muted-foreground">Ερώτηση {questionIdx + 1} από {totalQuestions}</p>
-
-          {/* Question */}
           <div className="mt-6 rounded-2xl border bg-card p-7 shadow-sm">
             <p className="text-xl font-black leading-snug">{currentQ.q}</p>
-
             <div className="mt-6 grid gap-3">
               {currentQ.options.map((opt, i) => {
                 let style = "border-border bg-background hover:border-primary hover:bg-secondary";
@@ -469,15 +529,12 @@ function LessonPage() {
                 );
               })}
             </div>
-
-            {/* Explanation */}
             {answered && (
               <div className={`mt-5 rounded-xl p-4 text-sm font-bold leading-relaxed ${selected === currentQ.correct ? "bg-[oklch(0.93_0.06_173)] text-[oklch(0.2_0.08_173)]" : "bg-[oklch(0.95_0.04_25)] text-destructive"}`}>
                 {selected === currentQ.correct ? "✅ " : "❌ "}{currentQ.explain}
               </div>
             )}
           </div>
-
           {answered && (
             <Button onClick={nextQuestion} className="mt-6 h-12 w-full rounded-full font-black">
               {questionIdx + 1 < totalQuestions ? "Επόμενη ερώτηση →" : "Δες τα αποτελέσματα 🏆"}
@@ -491,7 +548,7 @@ function LessonPage() {
   // ── Result ─────────────────────────────────────────────────────────────────
   const perfect = score === totalQuestions;
   const nextLessonId = lesson.id + 1;
-  const hasNext = nextLessonId <= 6;
+  const hasNext = nextLessonId <= 11;
 
   return (
     <main className="min-h-screen bg-background">
@@ -508,15 +565,11 @@ function LessonPage() {
         <p className="mt-3 text-lg text-muted-foreground">
           {score} / {totalQuestions} σωστές απαντήσεις
         </p>
-
-        {/* XP */}
         <div className="mx-auto mt-8 max-w-xs rounded-2xl bg-[oklch(0.88_0.1_55)] px-6 py-5">
           <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.45_0.13_50)]">Κέρδισες</p>
           <p className="mt-1 text-5xl font-black text-[oklch(0.35_0.12_35)]">+{earnedXP} XP</p>
           <p className="mt-1 text-xs text-[oklch(0.5_0.12_45)]">από {lesson.xp} δυνατά</p>
         </div>
-
-        {/* Score breakdown */}
         <div className="mt-8 rounded-xl border bg-card p-5 text-left">
           {lesson.questions.map((q, i) => (
             <div key={i} className={`flex items-start gap-3 py-2 ${i < lesson.questions.length - 1 ? "border-b" : ""}`}>
@@ -525,7 +578,6 @@ function LessonPage() {
             </div>
           ))}
         </div>
-
         <div className="mt-8 grid gap-3">
           {!perfect && (
             <Button variant="outline" onClick={() => { setPhase("quiz"); setQuestionIdx(0); setSelected(null); setAnswered(false); setScore(0); setWrongAnswers([]); }} className="h-12 rounded-full">
