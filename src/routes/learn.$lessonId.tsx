@@ -25,7 +25,7 @@ type Lesson = {
 const lessons: Record<string, Lesson> = {
   "1": {
     id: 1,
-    title: "Τι είναι τα χρήματα;",
+    title: "Γιατί ένα διαμάντι αξίζει περισσότερο από νερό;",
     emoji: "💰",
     xp: 100,
     color: "oklch(0.57_0.23_292)",
