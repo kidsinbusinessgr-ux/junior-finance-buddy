@@ -428,7 +428,7 @@ function StocksPage() {
                     </div>
 
                     {/* Company description */}
-                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground line-clamp-2">{q.description}</p>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{q.description}</p>
 
                     {isSelected && (
                       <div
