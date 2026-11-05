@@ -68,9 +68,27 @@ function getKey() {
   return key;
 }
 
+
+async function getEurRate(key: string): Promise<number> {
+  try {
+    const res = await fetch(
+      `${FMP_BASE}/quote?symbol=EURUSD&apikey=${key}`,
+      { headers: { Accept: 'application/json' } }
+    );
+    if (!res.ok) return 0.92;
+    const data = await res.json();
+    const fmp = Array.isArray(data) ? data[0] : null;
+    if (!fmp || !fmp.price) return 0.92;
+    return 1 / fmp.price;
+  } catch {
+    return 0.92;
+  }
+}
+
 export const getStockQuotes = createServerFn({ method: "GET" }).handler(
   async () => {
     const key = getKey();
+    const eurRate = await getEurRate(key);
 
     // Fetch each ticker individually to avoid batch endpoint issues
     const results = await Promise.allSettled(
@@ -121,6 +139,7 @@ export const getStockHistory = createServerFn({ method: "GET" })
   .validator((ticker: string) => ticker)
   .handler(async ({ data: ticker }) => {
     const key = getKey();
+    const eurRate = await getEurRate(key);
     const to = new Date().toISOString().slice(0, 10);
     const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -140,7 +159,7 @@ export const getStockHistory = createServerFn({ method: "GET" })
       .reverse()
       .map((d: { date: string; close: number }) => ({
         date: d.date,
-        close: d.close,
+        close: d.close * eurRate,
       }));
 
     return { ticker, history } as StockHistory;

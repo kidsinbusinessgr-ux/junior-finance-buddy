@@ -414,7 +414,7 @@ function StocksPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-black">${fmt(q.price)}</p>
+                        <p className="font-black">€{fmt(q.price)}</p>
                         <p
                           className={`flex items-center gap-0.5 text-xs font-black ${
                             isUp ? "text-green-600" : "text-red-500"
@@ -490,7 +490,7 @@ function StocksPage() {
                         <div className="mb-4 grid grid-cols-3 gap-2 text-center text-sm">
                           <div className="rounded-xl bg-muted p-2.5">
                             <p className="text-xs text-muted-foreground font-semibold">Πριν 30 μέρες</p>
-                            <p className="font-black mt-0.5">${fmt(startP)}</p>
+                            <p className="font-black mt-0.5">€{fmt(startP)}</p>
                           </div>
                           <div className={`rounded-xl p-2.5 ${isUp ? "bg-green-50 dark:bg-green-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
                             <p className="text-xs text-muted-foreground font-semibold">Αλλαγή μήνα</p>
@@ -500,7 +500,7 @@ function StocksPage() {
                           </div>
                           <div className="rounded-xl bg-muted p-2.5">
                             <p className="text-xs text-muted-foreground font-semibold">Σήμερα</p>
-                            <p className="font-black mt-0.5">${fmt(endP)}</p>
+                            <p className="font-black mt-0.5">€{fmt(endP)}</p>
                           </div>
                         </div>
                       );
@@ -532,13 +532,13 @@ function StocksPage() {
                               tick={{ fontSize: 10 }}
                               tickLine={false}
                               axisLine={false}
-                              tickFormatter={(v) => `$${v}`}
+                              tickFormatter={(v) => `€${v}`}
                               width={55}
                             />
                             <Tooltip
                               formatter={(v: number) => {
                                 const chg = ((v - startP) / startP) * 100;
-                                return [`$${fmt(v)}  (${chg >= 0 ? "+" : ""}${fmt(chg, 1)}% vs αρχή)`, "Τιμή"];
+                                return [`€${fmt(v)}  (${chg >= 0 ? "+" : ""}${fmt(chg, 1)}% vs αρχή)`, "Τιμή"];
                               }}
                               labelFormatter={fmtDate}
                             />
@@ -789,7 +789,7 @@ function StocksPage() {
                           <div>
                             <p className="font-black">{meta?.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {h.shares.toFixed(4)} μετοχές · Αγορά ${fmt(h.buyPrice)}
+                              {h.shares.toFixed(4)} μετοχές · Αγορά €{fmt(h.buyPrice)}
                             </p>
                           </div>
                         </div>
