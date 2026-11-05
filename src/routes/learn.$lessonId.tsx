@@ -627,7 +627,7 @@ function LessonPage() {
             </div>
             {answered && (
               <div className={`mt-5 rounded-xl p-4 text-sm font-bold leading-relaxed ${selected === currentQ.correct ? "bg-[oklch(0.93_0.06_173)] text-[oklch(0.2_0.08_173)]" : "bg-[oklch(0.95_0.04_25)] text-destructive"}`}>
-                {selected === currentQ.correct ? "✅ " : "❌ "}{currentQ.explain}
+                {selected === currentQ.correct ? `✅ ${currentQ.explain}` : `❌ Λάθος! ${currentQ.explain.replace(/^(Σωστά!|Ακριβώς!|Μπράβο!|Σωστά|Ακριβώς|Μπράβο)\s*/u, "")}`}
               </div>
             )}
           </div>
