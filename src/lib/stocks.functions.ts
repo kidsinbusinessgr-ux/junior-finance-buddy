@@ -71,27 +71,45 @@ function getKey() {
 export const getStockQuotes = createServerFn({ method: "GET" }).handler(
   async () => {
     const key = getKey();
-    const tickers = KID_STOCKS.map((s) => s.ticker).join(",");
-    const res = await fetch(
-      `${FMP_BASE}/quote?symbol=${tickers}&apikey=${key}`,
-      { headers: { Accept: "application/json" } }
-    );
-    if (!res.ok) throw new Error(`FMP quote error: ${res.status}`);
-    const data = await res.json();
 
-    // Merge FMP data with our kid-friendly metadata
-    const quotes: StockQuote[] = KID_STOCKS.map((meta) => {
-      const fmp = data.find((d: { symbol: string }) => d.symbol === meta.ticker);
+    // Fetch each ticker individually to avoid batch endpoint issues
+    const results = await Promise.allSettled(
+      KID_STOCKS.map(async (meta) => {
+        const res = await fetch(
+          `${FMP_BASE}/quote?symbol=${meta.ticker}&apikey=${key}`,
+          { headers: { Accept: "application/json" } }
+        );
+        if (!res.ok) return null;
+        const data = await res.json();
+        const fmp = Array.isArray(data) ? data[0] : null;
+        if (!fmp || !fmp.price) return null;
+        return {
+          ticker: meta.ticker,
+          name: meta.name,
+          emoji: meta.emoji,
+          color: meta.color,
+          description: meta.description,
+          price: fmp.price ?? 0,
+          change: fmp.change ?? 0,
+          changePercent: fmp.changePercentage ?? 0,
+          marketCap: fmp.marketCap ?? 0,
+        };
+      })
+    );
+
+    const quotes: StockQuote[] = results.map((r, i) => {
+      const meta = KID_STOCKS[i];
+      if (r.status === "fulfilled" && r.value) return r.value;
       return {
         ticker: meta.ticker,
         name: meta.name,
         emoji: meta.emoji,
         color: meta.color,
         description: meta.description,
-        price: fmp?.price ?? 0,
-        change: fmp?.change ?? 0,
-        changePercent: fmp?.changePercentage ?? 0,
-        marketCap: fmp?.marketCap ?? 0,
+        price: 0,
+        change: 0,
+        changePercent: 0,
+        marketCap: 0,
       };
     });
 
