@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, Menu, X } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoImg from "@/assets/logo-kidsinbusiness_1.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,7 @@ type BrightlyNavProps = {
 
 const navigation = [
   { label: "Αρχική", to: "/" as const, key: "home" },
-  { label: "Τιμές", to: "/pricing" as const, key: "pricing" },
+  { label: "Πλάνα", to: "/pricing" as const, key: "pricing" },
   { label: "Κέρδη", to: "/earn" as const, key: "earn" },
   { label: "Δαπάνες", to: "/spend" as const, key: "spend" },
   { label: "Αποταμίευση", to: "/save" as const, key: "save" },
@@ -25,6 +25,12 @@ const navigation = [
 export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.navigate({ to: "/" });
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -61,6 +67,7 @@ export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
         <Link className="flex items-center gap-2 text-sm transition-opacity hover:opacity-70" to="/parent-dashboard"><LayoutDashboard size={16} /> Πίνακας</Link>
         {!isLoggedIn && <Link className="text-sm transition-opacity hover:opacity-70" to="/login">Σύνδεση</Link>}
         {!isLoggedIn && <Link to="/signup" className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Ξεκίνα τώρα</Link>}
+        {isLoggedIn && <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm transition-opacity hover:opacity-70"><LogOut size={15} /> Αποσύνδεση</button>}
       </div>
       <Button onClick={() => setMenuOpen((open) => !open)} variant="ghost" size="icon" className={`lg:hidden ${menuButton}`} aria-label="Άνοιγμα μενού">
         {menuOpen ? <X /> : <Menu />}
@@ -75,6 +82,7 @@ export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
           <Link to="/parent-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-secondary"><LayoutDashboard size={16} /> Πίνακας γονέα</Link>
           {!isLoggedIn && <Link to="/login" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 hover:bg-secondary">Σύνδεση</Link>}
           {!isLoggedIn && <Link to="/signup" onClick={() => setMenuOpen(false)} className="mt-2 rounded-full bg-primary px-3 py-3 text-center font-bold text-primary-foreground">Ξεκίνα τώρα</Link>}
+          {isLoggedIn && <button onClick={handleSignOut} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-secondary text-sm"><LogOut size={15} /> Αποσύνδεση</button>}
         </nav>
       ) : null}
     </header>
