@@ -19,11 +19,42 @@ export const Route = createFileRoute("/earn")({
   component: EarnPage,
 });
 
-const initialTasks = [
-  { id: 1, label: "Τάισε τα ζώα", amount: "€2,00", done: false },
-  { id: 2, label: "Τακτοποίησε το δωμάτιό σου", amount: "€1,50", done: true },
-  { id: 3, label: "Βοήθησε στο μαγείρεμα", amount: "€2,50", done: false },
+const taskGroups = [
+  {
+    category: "🏠 Σπίτι & Γειτονιά",
+    tasks: [
+      { id: 1,  label: "Τακτοποίηση σπιτιού", amount: "€2,00" },
+      { id: 2,  label: "Πλύσιμο αυτοκινήτου γείτονα", amount: "€8,00" },
+      { id: 3,  label: "Κηπουρική / πότισμα φυτών", amount: "€5,00" },
+      { id: 4,  label: "Φύλαξη κατοικίδιου (ανά μέρα)", amount: "€10,00" },
+      { id: 5,  label: "Βοήθεια σε ψώνια ηλικιωμένου", amount: "€5,00" },
+      { id: 6,  label: "Τύλιγμα & παράδοση δώρων", amount: "€4,00" },
+    ],
+  },
+  {
+    category: "📱 Ψηφιακές Δουλειές",
+    tasks: [
+      { id: 7,  label: "Post για Instagram τοπικής επιχείρησης", amount: "€15,00" },
+      { id: 8,  label: "Σχεδιασμός αφίσας / flyer (Canva)", amount: "€10,00" },
+      { id: 9,  label: "Βοήθεια ηλικιωμένου με κινητό / υπολογιστή", amount: "€8,00" },
+      { id: 10, label: "Επεξεργασία φωτογραφιών για event", amount: "€12,00" },
+      { id: 11, label: "Δημιουργία σύντομου βίντεο (Reels / TikTok)", amount: "€20,00" },
+    ],
+  },
+  {
+    category: "📚 Γνώσεις & Skills",
+    tasks: [
+      { id: 12, label: "Μαθήματα σε μικρότερα παιδιά (ανά ώρα)", amount: "€8,00" },
+      { id: 13, label: "Μαθήματα κιθάρας / ζωγραφικής (ανά ώρα)", amount: "€8,00" },
+      { id: 14, label: "Διοργάνωση mini workshop στη γειτονιά", amount: "€20,00" },
+      { id: 15, label: "Μετάφραση κειμένου (αγγλικά-ελληνικά)", amount: "€10,00" },
+    ],
+  },
 ];
+
+const initialTasks = taskGroups.flatMap((g) =>
+  g.tasks.map((t) => ({ ...t, done: false }))
+);
 
 function EarnPage() {
   const [tasks, setTasks] = useState(initialTasks);
@@ -69,28 +100,36 @@ function EarnPage() {
             <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Σήμερα στη λίστα</h2>
             <p className="mt-4 text-lg text-muted-foreground">Κάνε κλικ για να επισημάνεις τις δουλειές που ολοκλήρωσες.</p>
           </div>
-          <div className="mx-auto mt-10 max-w-md rounded-2xl bg-card p-6 shadow-lg">
-            <ul className="grid gap-3">
-              {tasks.map((task) => (
-                <li key={task.id}>
-                  <button
-                    onClick={() => toggle(task.id)}
-                    className={`flex w-full items-center justify-between rounded-xl border px-5 py-4 text-left transition-colors ${task.done ? "border-[oklch(0.7_0.17_173)] bg-[oklch(0.95_0.05_173)]" : "border-border bg-background hover:bg-muted"}`}
-                  >
-                    <span className="flex items-center gap-3 font-semibold">
-                      {task.done ? (
-                        <CheckCircle2 className="h-5 w-5 text-[oklch(0.55_0.17_173)]" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-muted-foreground" />
-                      )}
-                      <span className={task.done ? "line-through text-muted-foreground" : ""}>{task.label}</span>
-                    </span>
-                    <span className="font-black text-[oklch(0.55_0.17_173)]">{task.amount}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 flex items-center justify-between rounded-xl bg-[oklch(0.57_0.23_292)] px-5 py-4 text-primary-foreground">
+          <div className="mx-auto mt-10 max-w-2xl space-y-6">
+            {taskGroups.map((group) => (
+              <div key={group.category} className="rounded-2xl bg-card p-6 shadow-lg">
+                <p className="mb-4 text-sm font-black uppercase tracking-[0.12em] text-muted-foreground">{group.category}</p>
+                <ul className="grid gap-3">
+                  {group.tasks.map((task) => {
+                    const t = tasks.find((x) => x.id === task.id)!;
+                    return (
+                      <li key={task.id}>
+                        <button
+                          onClick={() => toggle(task.id)}
+                          className={`flex w-full items-center justify-between rounded-xl border px-5 py-4 text-left transition-colors ${t.done ? "border-[oklch(0.7_0.17_173)] bg-[oklch(0.95_0.05_173)]" : "border-border bg-background hover:bg-muted"}`}
+                        >
+                          <span className="flex items-center gap-3 font-semibold">
+                            {t.done ? (
+                              <CheckCircle2 className="h-5 w-5 text-[oklch(0.55_0.17_173)]" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-muted-foreground" />
+                            )}
+                            <span className={t.done ? "line-through text-muted-foreground" : ""}>{task.label}</span>
+                          </span>
+                          <span className="font-black text-[oklch(0.55_0.17_173)]">{task.amount}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+            <div className="flex items-center justify-between rounded-xl bg-[oklch(0.57_0.23_292)] px-5 py-4 text-primary-foreground">
               <span className="font-bold">Σύνολο κερδών σήμερα</span>
               <span className="text-2xl font-black">€{earned.toFixed(2).replace(".", ",")}</span>
             </div>

@@ -131,29 +131,21 @@ function ChildDashboard() {
               </span>
               Kids in Business
             </span>
-            <button className="relative grid h-10 w-10 place-items-center rounded-full bg-[oklch(0.46_0.18_292)] text-primary-foreground">
-              <Bell size={18} />
-              {(extraChores.length > 0 || pendingSubmissionIds.length > 0) && (
-                <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-[oklch(0.7_0.22_28)] text-[10px] font-black">
-                  {extraChores.length}
-                </span>
-              )}
-            </button>
             {/* Ειδοποιήσεις */}
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-full hover:bg-black/10 transition-colors"
+                className="relative grid h-10 w-10 place-items-center rounded-full bg-[oklch(0.46_0.18_292)] text-primary-foreground hover:bg-[oklch(0.42_0.18_292)] transition-colors"
               >
-                <Bell size={20} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {unreadCount}
+                <Bell size={18} />
+                {(unreadCount > 0 || extraChores.length > 0) && (
+                  <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-red-500 text-[10px] font-black text-white">
+                    {unreadCount + extraChores.length}
                   </span>
                 )}
               </button>
               {showNotifications && (
-                <div className="absolute right-0 top-10 z-50 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                <div className="absolute right-0 top-12 z-50 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm text-gray-700">Ειδοποιήσεις</div>
                   <div className="max-h-64 overflow-y-auto divide-y divide-gray-50">
                     {notifications.length === 0 ? (
