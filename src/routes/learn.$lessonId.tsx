@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Award, CheckCircle2, Star, XCircle } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
@@ -464,6 +464,16 @@ function LessonPage() {
   const [answered, setAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState<number[]>([]);
+
+  useEffect(() => {
+    setPhase("intro");
+    setSlideIdx(0);
+    setQuestionIdx(0);
+    setSelected(null);
+    setAnswered(false);
+    setScore(0);
+    setWrongAnswers([]);
+  }, [lessonId]);
 
   if (!lesson) {
     return (
