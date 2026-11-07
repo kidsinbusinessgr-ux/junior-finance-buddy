@@ -664,7 +664,7 @@ function LessonPage() {
         <div className="mx-auto mt-8 max-w-xs rounded-2xl bg-[oklch(0.88_0.1_55)] px-6 py-5">
           <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.45_0.13_50)]">Κέρδισες</p>
           <p className="mt-1 text-5xl font-black text-[oklch(0.35_0.12_35)]">+{earnedXP} XP</p>
-          <p className="mt-1 text-xs text-[oklch(0.5_0.12_45)]">από {lesson.xp} δυνατά</p>
+          <p className="mt-1 text-xs text-[oklch(0.5_0.12_45)]">μέγιστη βαθμολογία!</p>
         </div>
         <div className="mt-8 rounded-xl border bg-card p-5 text-left">
           {lesson.questions.map((q, i) => (
