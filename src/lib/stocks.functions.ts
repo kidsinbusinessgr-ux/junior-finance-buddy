@@ -90,10 +90,10 @@ export const getStockQuotes = createServerFn({ method: "GET" }).handler(
     const key = getKey();
     const eurRate = await getEurRate(key);
 
-    // Single batch call for all tickers — avoids rate-limit issues from 29 parallel requests
+    // Batch call using FMP v3 path-based endpoint (supports comma-separated tickers)
     const symbols = KID_STOCKS.map((s) => s.ticker).join(",");
     const res = await fetch(
-      `${FMP_BASE}/quote?symbols=${symbols}&apikey=${key}`,
+      `https://financialmodelingprep.com/api/v3/quote/${symbols}?apikey=${key}`,
       { headers: { Accept: "application/json" } }
     );
 
