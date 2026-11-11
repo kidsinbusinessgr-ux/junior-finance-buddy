@@ -90,44 +90,35 @@ export const getStockQuotes = createServerFn({ method: "GET" }).handler(
     const key = getKey();
     const eurRate = await getEurRate(key);
 
-    // Fetch each ticker individually to avoid batch endpoint issues
-    const results = await Promise.allSettled(
-      KID_STOCKS.map(async (meta) => {
-        const res = await fetch(
-          `${FMP_BASE}/quote?symbol=${meta.ticker}&apikey=${key}`,
-          { headers: { Accept: "application/json" } }
-        );
-        if (!res.ok) return null;
-        const data = await res.json();
-        const fmp = Array.isArray(data) ? data[0] : null;
-        if (!fmp || !fmp.price) return null;
-        return {
-          ticker: meta.ticker,
-          name: meta.name,
-          emoji: meta.emoji,
-          color: meta.color,
-          description: meta.description,
-          price: fmp.price ?? 0,
-          change: fmp.change ?? 0,
-          changePercent: fmp.changePercentage ?? 0,
-          marketCap: fmp.marketCap ?? 0,
-        };
-      })
+    // Single batch call for all tickers — avoids rate-limit issues from 29 parallel requests
+    const symbols = KID_STOCKS.map((s) => s.ticker).join(",");
+    const res = await fetch(
+      `${FMP_BASE}/quote?symbols=${symbols}&apikey=${key}`,
+      { headers: { Accept: "application/json" } }
     );
 
-    const quotes: StockQuote[] = results.map((r, i) => {
-      const meta = KID_STOCKS[i];
-      if (r.status === "fulfilled" && r.value) return r.value;
+    const quoteMap = new Map<string, { price: number; change: number; changePercentage: number; marketCap: number }>();
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          if (item.symbol && item.price) quoteMap.set(item.symbol, item);
+        }
+      }
+    }
+
+    const quotes: StockQuote[] = KID_STOCKS.map((meta) => {
+      const fmp = quoteMap.get(meta.ticker);
       return {
         ticker: meta.ticker,
         name: meta.name,
         emoji: meta.emoji,
         color: meta.color,
         description: meta.description,
-        price: 0,
-        change: 0,
-        changePercent: 0,
-        marketCap: 0,
+        price: fmp ? fmp.price * eurRate : 0,
+        change: fmp ? fmp.change * eurRate : 0,
+        changePercent: fmp?.changePercentage ?? 0,
+        marketCap: fmp?.marketCap ?? 0,
       };
     });
 
