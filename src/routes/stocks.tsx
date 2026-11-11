@@ -396,7 +396,7 @@ function StocksPage() {
                     onClick={() => setSelectedTicker(q.ticker)}
                     className={`cursor-pointer rounded-2xl p-4 ring-1 transition-all ${
                       isSelected
-                        ? "bg-[oklch(0.96_0.02_260)] ring-[oklch(0.57_0.23_292)]"
+                        ? "sm:col-span-2 bg-[oklch(0.96_0.02_260)] ring-[oklch(0.57_0.23_292)]"
                         : "bg-card ring-border hover:ring-[oklch(0.57_0.23_292)/50]"
                     }`}
                   >
@@ -431,288 +431,359 @@ function StocksPage() {
                     <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{q.description}</p>
 
                     {isSelected && (
-                      <div
-                        className="mt-4 flex items-center gap-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <input
-                          type="number"
-                          min={0}
-                          max={coins}
-                          value={investInput[q.ticker] ?? ""}
-                          onChange={(e) =>
-                            setInvestInput((prev) => ({
-                              ...prev,
-                              [q.ticker]: Number(e.target.value),
-                            }))
-                          }
-                          placeholder="Νομίσματα 🪙"
-                          className="h-9 flex-1 rounded-xl border border-border bg-background px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[oklch(0.57_0.23_292)]"
-                        />
-                        <Button
-                          onClick={() => handleInvest(q.ticker)}
-                          className="h-9 rounded-xl px-4 text-xs font-black"
-                          style={{ background: "oklch(0.57 0.23 292)" }}
+                      <>
+                        <div
+                          className="mt-4 flex items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          Επένδυσε
-                        </Button>
-                      </div>
+                          <input
+                            type="number"
+                            min={0}
+                            max={coins}
+                            value={investInput[q.ticker] ?? ""}
+                            onChange={(e) =>
+                              setInvestInput((prev) => ({
+                                ...prev,
+                                [q.ticker]: Number(e.target.value),
+                              }))
+                            }
+                            placeholder="Νομίσματα 🪙"
+                            className="h-9 flex-1 rounded-xl border border-border bg-background px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[oklch(0.57_0.23_292)]"
+                          />
+                          <Button
+                            onClick={() => handleInvest(q.ticker)}
+                            className="h-9 rounded-xl px-4 text-xs font-black"
+                            style={{ background: "oklch(0.57 0.23 292)" }}
+                          >
+                            Επένδυσε
+                          </Button>
+                        </div>
+
+                        {/* Chart + educational panels */}
+                        <div className="mt-5 border-t border-border pt-4" onClick={(e) => e.stopPropagation()}>
+                          <div className="mb-3 flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-black">Πορεία τιμής — 30 ημέρες</p>
+                              <p className="text-xs text-muted-foreground">Πραγματικές τιμές κλεισίματος</p>
+                            </div>
+                            {loadingHistory && (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[oklch(0.57_0.23_292)] border-t-transparent" />
+                            )}
+                          </div>
+
+                          {history && history.history.length > 0 ? (
+                            <>
+                              {/* Stats strip */}
+                              {(() => {
+                                const startP = history.history[0].close;
+                                const endP = history.history[history.history.length - 1].close;
+                                const changePct = ((endP - startP) / startP) * 100;
+                                const isUp = changePct >= 0;
+                                return (
+                                  <div className="mb-4 grid grid-cols-3 gap-2 text-center text-sm">
+                                    <div className="rounded-xl bg-muted p-2.5">
+                                      <p className="text-xs text-muted-foreground font-semibold">Πριν 30 μέρες</p>
+                                      <p className="font-black mt-0.5">€{fmt(startP)}</p>
+                                    </div>
+                                    <div className={`rounded-xl p-2.5 ${isUp ? "bg-green-50 dark:bg-green-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
+                                      <p className="text-xs text-muted-foreground font-semibold">Αλλαγή μήνα</p>
+                                      <p className={`font-black text-base mt-0.5 ${isUp ? "text-green-600" : "text-red-500"}`}>
+                                        {isUp ? "+" : ""}{fmt(changePct, 1)}%
+                                      </p>
+                                    </div>
+                                    <div className="rounded-xl bg-muted p-2.5">
+                                      <p className="text-xs text-muted-foreground font-semibold">Σήμερα</p>
+                                      <p className="font-black mt-0.5">€{fmt(endP)}</p>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
+                              {/* Area chart */}
+                              {(() => {
+                                const stockColor = q.color ?? "oklch(0.57 0.23 292)";
+                                const startP = history.history[0].close;
+                                return (
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <AreaChart data={history.history}>
+                                      <defs>
+                                        <linearGradient id={`fill-${q.ticker}`} x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="5%" stopColor={stockColor} stopOpacity={0.25} />
+                                          <stop offset="95%" stopColor={stockColor} stopOpacity={0.02} />
+                                        </linearGradient>
+                                      </defs>
+                                      <XAxis
+                                        dataKey="date"
+                                        tickFormatter={fmtDate}
+                                        tick={{ fontSize: 10 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        interval="preserveStartEnd"
+                                      />
+                                      <YAxis
+                                        domain={["auto", "auto"]}
+                                        tick={{ fontSize: 10 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickFormatter={(v) => `€${v}`}
+                                        width={55}
+                                      />
+                                      <Tooltip
+                                        formatter={(v: number) => {
+                                          const chg = ((v - startP) / startP) * 100;
+                                          return [`€${fmt(v)}  (${chg >= 0 ? "+" : ""}${fmt(chg, 1)}% vs αρχή)`, "Τιμή"];
+                                        }}
+                                        labelFormatter={fmtDate}
+                                      />
+                                      <ReferenceLine
+                                        y={startP}
+                                        stroke="#9ca3af"
+                                        strokeDasharray="4 3"
+                                        label={{ value: "Αρχή μήνα", position: "insideTopLeft", fontSize: 9, fill: "#9ca3af" }}
+                                      />
+                                      <Area
+                                        type="monotone"
+                                        dataKey="close"
+                                        stroke={stockColor}
+                                        strokeWidth={2.5}
+                                        fill={`url(#fill-${q.ticker})`}
+                                        dot={false}
+                                      />
+                                    </AreaChart>
+                                  </ResponsiveContainer>
+                                );
+                              })()}
+
+                              {/* Τι σημαίνει; */}
+                              {(() => {
+                                const startP = history.history[0].close;
+                                const endP = history.history[history.history.length - 1].close;
+                                const changePct = ((endP - startP) / startP) * 100;
+                                const isUp = changePct >= 0;
+                                const absChg = Math.abs(changePct);
+                                const simulated = fmt(100 * (1 + changePct / 100), 0);
+                                let icon: string;
+                                let explanation: string;
+                                if (absChg < 1.5) {
+                                  icon = "😐";
+                                  explanation = "Η τιμή παρέμεινε σχεδόν σταθερή αυτόν τον μήνα — η αγορά δεν έχει αποφασίσει ακόμα!";
+                                } else if (isUp) {
+                                  icon = "🚀";
+                                  explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙! Η μετοχή ανέβηκε γιατί οι επενδυτές πιστεύουν ότι η εταιρία πάει καλά.`;
+                                } else {
+                                  icon = "📉";
+                                  explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙. Η τιμή έπεσε — μπορεί να είναι καλή στιγμή για αγορά, αλλά πάντα υπάρχει ρίσκο!`;
+                                }
+                                return (
+                                  <div className={`mt-3 rounded-xl px-4 py-3 text-sm leading-relaxed ${isUp && absChg >= 1.5 ? "bg-green-50 dark:bg-green-950/30" : !isUp && absChg >= 1.5 ? "bg-orange-50 dark:bg-orange-950/30" : "bg-muted"}`}>
+                                    <span className="font-black">{icon} Τι σημαίνει; </span>
+                                    <span className="text-muted-foreground">{explanation}</span>
+                                  </div>
+                                );
+                              })()}
+
+                              {/* 🎯 Τι κοιτάω πριν αγοράσω; */}
+                              {(() => {
+                                const prices = history.history.map((h) => h.close);
+                                const startP = prices[0];
+                                const endP = prices[prices.length - 1];
+                                const changePct = ((endP - startP) / startP) * 100;
+                                const isUp = changePct >= 0;
+                                const absChg = Math.abs(changePct);
+                                const maxP = Math.max(...prices);
+                                const minP = Math.min(...prices);
+                                const volatility = ((maxP - minP) / minP) * 100;
+                                const isVolatile = volatility > 10;
+                                const third = Math.max(1, Math.floor(prices.length / 3));
+                                const firstAvg = prices.slice(0, third).reduce((a: number, b: number) => a + b, 0) / third;
+                                const lastAvg = prices.slice(-third).reduce((a: number, b: number) => a + b, 0) / third;
+                                const trendUp = lastAvg > firstAvg;
+                                return (
+                                  <div className="mt-4 rounded-xl border border-border bg-background p-4">
+                                    <p className="mb-3 text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                      🎯 Τι κοιτάω πριν αγοράσω;
+                                    </p>
+                                    <div className="space-y-2.5 text-sm">
+                                      <div className="flex items-start gap-2">
+                                        <span className="mt-0.5 shrink-0">{trendUp ? "📈" : "📉"}</span>
+                                        <p>
+                                          <span className="font-black">{trendUp ? "Ανοδική τάση: " : "Καθοδική τάση: "}</span>
+                                          <span className="text-muted-foreground">
+                                            {trendUp
+                                              ? "Η τιμή ανεβαίνει τελευταία — οι επενδυτές πιστεύουν στην εταιρία."
+                                              : "Η τιμή κατεβαίνει — μπορεί να είναι ευκαιρία, αλλά κοίτα γιατί πέφτει!"}
+                                          </span>
+                                        </p>
+                                      </div>
+                                      <div className="flex items-start gap-2">
+                                        <span className="mt-0.5 shrink-0">{isVolatile ? "🎢" : "😌"}</span>
+                                        <p>
+                                          <span className="font-black">{isVolatile ? "Υψηλή αστάθεια: " : "Σταθερή τιμή: "}</span>
+                                          <span className="text-muted-foreground">
+                                            {isVolatile
+                                              ? `Η τιμή κυμάνθηκε ${fmt(volatility, 0)}% αυτόν τον μήνα — ριψοκίνδυνη αλλά με δυνατότητα μεγάλου κέρδους!`
+                                              : "Η τιμή κινείται ομαλά — πιο ασφαλής επιλογή για αρχάριους."}
+                                          </span>
+                                        </p>
+                                      </div>
+                                      <div className="flex items-start gap-2">
+                                        <span className="mt-0.5 shrink-0">⏰</span>
+                                        <p>
+                                          <span className="font-black">Πότε να αγοράσω; </span>
+                                          <span className="text-muted-foreground">
+                                            {isUp && absChg > 5
+                                              ? "Η τιμή έχει ήδη ανέβει πολύ — ίσως περίμενε να πέσει λίγο πριν αγοράσεις."
+                                              : !isUp && absChg > 5
+                                              ? "Η τιμή έχει πέσει — μπορεί να είναι καλή στιγμή για είσοδο!"
+                                              : "Η τιμή είναι σχετικά σταθερή — καλή στιγμή για να εξετάσεις αγορά."}
+                                          </span>
+                                        </p>
+                                      </div>
+                                      <div className="flex items-start gap-2">
+                                        <span className="mt-0.5 shrink-0">💡</span>
+                                        <p>
+                                          <span className="font-black">Χρυσός κανόνας: </span>
+                                          <span className="text-muted-foreground">
+                                            Μη βάζεις ποτέ όλα τα νομίσματά σου σε μία μετοχή — διάδωσε τον κίνδυνο!
+                                          </span>
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+                            </>
+                          ) : (
+                            !loadingHistory && (
+                              <p className="py-6 text-center text-sm text-muted-foreground">
+                                Δεν βρέθηκαν δεδομένα γραφήματος.
+                              </p>
+                            )
+                          )}
+
+                          {/* News */}
+                          {(loadingNews || news.length > 0) && (
+                            <div className="mt-4">
+                              <p className="mb-2 text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                📰 Τελευταία Νέα
+                              </p>
+                              {loadingNews ? (
+                                <div className="flex items-center gap-2 py-2">
+                                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-[oklch(0.57_0.23_292)] border-t-transparent" />
+                                  <span className="text-xs text-muted-foreground">Φορτώνω νέα...</span>
+                                </div>
+                              ) : (
+                                <div className="space-y-2">
+                                  {news.map((item, i) => (
+                                    <a
+                                      key={i}
+                                      href={item.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="block rounded-xl bg-muted p-3 hover:bg-muted/80 transition-colors"
+                                    >
+                                      <p className="text-xs font-black leading-snug line-clamp-2">{item.title}</p>
+                                      <div className="mt-1 flex items-center gap-2">
+                                        <span className="text-[10px] text-muted-foreground">{item.site}</span>
+                                        <span className="text-[10px] text-muted-foreground">·</span>
+                                        <span className="text-[10px] text-muted-foreground">
+                                          {new Date(item.publishedDate).toLocaleDateString("el-GR", { day: "numeric", month: "short" })}
+                                        </span>
+                                      </div>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Push Notifications */}
+                          {pushStatus !== "unsupported" && (
+                            <div className="mt-4">
+                              {pushStatus === "subscribed" ? (
+                                <div className="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-950/30 px-3 py-2">
+                                  <span className="text-sm">🔔</span>
+                                  <span className="text-xs font-black text-green-700 dark:text-green-400">
+                                    Ενεργοποιημένες ειδοποιήσεις νέων!
+                                  </span>
+                                </div>
+                              ) : pushStatus === "denied" ? (
+                                <div className="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/30 px-3 py-2">
+                                  <span className="text-sm">🔕</span>
+                                  <span className="text-xs text-red-600 dark:text-red-400">
+                                    Οι ειδοποιήσεις απορρίφθηκαν από τον browser σου.
+                                  </span>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={subscribeToPush}
+                                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-black hover:bg-muted/70 transition-colors"
+                                >
+                                  <span>🔔</span>
+                                  Ειδοποιήσου για νέα της {q.name}
+                                </button>
+                              )}
+                            </div>
+                          )}
+
+                          {/* KidsInBusiness Buddy */}
+                          {(loadingBuddy || buddy) && (
+                            <div className="mt-4 rounded-2xl p-4 ring-1"
+                              style={{
+                                background: buddy?.signal === "buy"
+                                  ? "oklch(0.97 0.05 140)"
+                                  : buddy?.signal === "wait"
+                                  ? "oklch(0.97 0.05 25)"
+                                  : "oklch(0.97 0.03 260)",
+                                borderColor: buddy?.signal === "buy"
+                                  ? "oklch(0.55 0.18 140)"
+                                  : buddy?.signal === "wait"
+                                  ? "oklch(0.60 0.18 25)"
+                                  : "oklch(0.57 0.23 292)",
+                              }}
+                            >
+                              <div className="flex items-start gap-3">
+                                <img src="/buddy-robot.png" className="w-10 h-10" alt="Buddy" />
+                                <div className="flex-1">
+                                  <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">
+                                    KidsInBusiness Buddy
+                                  </p>
+                                  {loadingBuddy ? (
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
+                                      <span className="text-sm text-muted-foreground">Αναλύω την εταιρία…</span>
+                                    </div>
+                                  ) : buddy ? (
+                                    <>
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-lg">
+                                          {buddy.signal === "buy" ? "🟢" : buddy.signal === "wait" ? "🔴" : "🟡"}
+                                        </span>
+                                        <span className="text-sm font-black">
+                                          {buddy.signal === "buy"
+                                            ? "Καλή στιγμή για αγορά!"
+                                            : buddy.signal === "wait"
+                                            ? "Περίμενε λίγο ακόμα"
+                                            : "Παρακολούθα την τιμή"}
+                                        </span>
+                                      </div>
+                                      <p className="text-sm leading-relaxed">{buddy.message}</p>
+                                    </>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
                 );
               })}
             </div>
 
-            {selectedTicker && (
-              <div className="rounded-2xl bg-card p-5 ring-1 ring-border">
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-black">
-                      {KID_STOCKS.find((s) => s.ticker === selectedTicker)?.emoji}{" "}
-                      {KID_STOCKS.find((s) => s.ticker === selectedTicker)?.name} — 30 ημέρες
-                    </p>
-                    <p className="text-xs text-muted-foreground">Πραγματικές τιμές κλεισίματος</p>
-                  </div>
-                  {loadingHistory && (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[oklch(0.57_0.23_292)] border-t-transparent" />
-                  )}
-                </div>
-
-                {history && history.history.length > 0 ? (
-                  <>
-                    {/* Stats strip */}
-                    {(() => {
-                      const startP = history.history[0].close;
-                      const endP = history.history[history.history.length - 1].close;
-                      const changePct = ((endP - startP) / startP) * 100;
-                      const isUp = changePct >= 0;
-                      return (
-                        <div className="mb-4 grid grid-cols-3 gap-2 text-center text-sm">
-                          <div className="rounded-xl bg-muted p-2.5">
-                            <p className="text-xs text-muted-foreground font-semibold">Πριν 30 μέρες</p>
-                            <p className="font-black mt-0.5">€{fmt(startP)}</p>
-                          </div>
-                          <div className={`rounded-xl p-2.5 ${isUp ? "bg-green-50 dark:bg-green-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
-                            <p className="text-xs text-muted-foreground font-semibold">Αλλαγή μήνα</p>
-                            <p className={`font-black text-base mt-0.5 ${isUp ? "text-green-600" : "text-red-500"}`}>
-                              {isUp ? "+" : ""}{fmt(changePct, 1)}%
-                            </p>
-                          </div>
-                          <div className="rounded-xl bg-muted p-2.5">
-                            <p className="text-xs text-muted-foreground font-semibold">Σήμερα</p>
-                            <p className="font-black mt-0.5">€{fmt(endP)}</p>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Area chart */}
-                    {(() => {
-                      const stockColor = KID_STOCKS.find((s) => s.ticker === selectedTicker)?.color ?? "oklch(0.57 0.23 292)";
-                      const startP = history.history[0].close;
-                      return (
-                        <ResponsiveContainer width="100%" height={200}>
-                          <AreaChart data={history.history}>
-                            <defs>
-                              <linearGradient id={`fill-${selectedTicker}`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={stockColor} stopOpacity={0.25} />
-                                <stop offset="95%" stopColor={stockColor} stopOpacity={0.02} />
-                              </linearGradient>
-                            </defs>
-                            <XAxis
-                              dataKey="date"
-                              tickFormatter={fmtDate}
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                              interval="preserveStartEnd"
-                            />
-                            <YAxis
-                              domain={["auto", "auto"]}
-                              tick={{ fontSize: 10 }}
-                              tickLine={false}
-                              axisLine={false}
-                              tickFormatter={(v) => `€${v}`}
-                              width={55}
-                            />
-                            <Tooltip
-                              formatter={(v: number) => {
-                                const chg = ((v - startP) / startP) * 100;
-                                return [`€${fmt(v)}  (${chg >= 0 ? "+" : ""}${fmt(chg, 1)}% vs αρχή)`, "Τιμή"];
-                              }}
-                              labelFormatter={fmtDate}
-                            />
-                            <ReferenceLine
-                              y={startP}
-                              stroke="#9ca3af"
-                              strokeDasharray="4 3"
-                              label={{ value: "Αρχή μήνα", position: "insideTopLeft", fontSize: 9, fill: "#9ca3af" }}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="close"
-                              stroke={stockColor}
-                              strokeWidth={2.5}
-                              fill={`url(#fill-${selectedTicker})`}
-                              dot={false}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      );
-                    })()}
-
-                    {/* Educational explanation */}
-                    {(() => {
-                      const startP = history.history[0].close;
-                      const endP = history.history[history.history.length - 1].close;
-                      const changePct = ((endP - startP) / startP) * 100;
-                      const isUp = changePct >= 0;
-                      const absChg = Math.abs(changePct);
-                      const simulated = fmt(100 * (1 + changePct / 100), 0);
-                      let icon: string;
-                      let explanation: string;
-                      if (absChg < 1.5) {
-                        icon = "😐";
-                        explanation = "Η τιμή παρέμεινε σχεδόν σταθερή αυτόν τον μήνα — η αγορά δεν έχει αποφασίσει ακόμα!";
-                      } else if (isUp) {
-                        icon = "🚀";
-                        explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙! Η μετοχή ανέβηκε γιατί οι επενδυτές πιστεύουν ότι η εταιρία πάει καλά.`;
-                      } else {
-                        icon = "📉";
-                        explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙. Η τιμή έπεσε — μπορεί να είναι καλή στιγμή για αγορά, αλλά πάντα υπάρχει ρίσκο!`;
-                      }
-                      return (
-                        <div className={`mt-3 rounded-xl px-4 py-3 text-sm leading-relaxed ${isUp && absChg >= 1.5 ? "bg-green-50 dark:bg-green-950/30" : !isUp && absChg >= 1.5 ? "bg-orange-50 dark:bg-orange-950/30" : "bg-muted"}`}>
-                          <span className="font-black">{icon} Τι σημαίνει; </span>
-                          <span className="text-muted-foreground">{explanation}</span>
-                        </div>
-                      );
-                    })()}
-                  </>
-                ) : (
-                  !loadingHistory && (
-                    <p className="py-8 text-center text-sm text-muted-foreground">
-                      Δεν βρέθηκαν δεδομένα γραφήματος.
-                    </p>
-                  )
-                )}
-
-                {/* ── News Section ── */}
-                {(loadingNews || news.length > 0) && (
-                  <div className="mt-4">
-                    <p className="mb-2 text-xs font-black uppercase tracking-widest text-muted-foreground">
-                      📰 Τελευταία Νέα
-                    </p>
-                    {loadingNews ? (
-                      <div className="flex items-center gap-2 py-2">
-                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-[oklch(0.57_0.23_292)] border-t-transparent" />
-                        <span className="text-xs text-muted-foreground">Φορτώνω νέα...</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {news.map((item, i) => (
-                          <a
-                            key={i}
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block rounded-xl bg-muted p-3 hover:bg-muted/80 transition-colors"
-                          >
-                            <p className="text-xs font-black leading-snug line-clamp-2">{item.title}</p>
-                            <div className="mt-1 flex items-center gap-2">
-                              <span className="text-[10px] text-muted-foreground">{item.site}</span>
-                              <span className="text-[10px] text-muted-foreground">·</span>
-                              <span className="text-[10px] text-muted-foreground">
-                                {new Date(item.publishedDate).toLocaleDateString("el-GR", { day: "numeric", month: "short" })}
-                              </span>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* ── Push Notifications ── */}
-                {pushStatus !== "unsupported" && (
-                  <div className="mt-4">
-                    {pushStatus === "subscribed" ? (
-                      <div className="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-950/30 px-3 py-2">
-                        <span className="text-sm">🔔</span>
-                        <span className="text-xs font-black text-green-700 dark:text-green-400">
-                          Ενεργοποιημένες ειδοποιήσεις νέων!
-                        </span>
-                      </div>
-                    ) : pushStatus === "denied" ? (
-                      <div className="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/30 px-3 py-2">
-                        <span className="text-sm">🔕</span>
-                        <span className="text-xs text-red-600 dark:text-red-400">
-                          Οι ειδοποιήσεις απορρίφθηκαν από τον browser σου.
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={subscribeToPush}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-black hover:bg-muted/70 transition-colors"
-                      >
-                        <span>🔔</span>
-                        Ειδοποιήσου για νέα της {quotes.find(q => q.ticker === selectedTicker)?.name ?? selectedTicker}
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* ── KidsInBusinessBuddy ── */}
-                {(loadingBuddy || buddy) && (
-                  <div className="mt-4 rounded-2xl p-4 ring-1"
-                    style={{
-                      background: buddy?.signal === "buy"
-                        ? "oklch(0.97 0.05 140)"
-                        : buddy?.signal === "wait"
-                        ? "oklch(0.97 0.05 25)"
-                        : "oklch(0.97 0.03 260)",
-                      borderColor: buddy?.signal === "buy"
-                        ? "oklch(0.55 0.18 140)"
-                        : buddy?.signal === "wait"
-                        ? "oklch(0.60 0.18 25)"
-                        : "oklch(0.57 0.23 292)",
-                    }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <img src="/buddy-robot.png" className="w-10 h-10" alt="Buddy" />
-                      <div className="flex-1">
-                        <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">
-                          KidsInBusiness Buddy
-                        </p>
-                        {loadingBuddy ? (
-                          <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
-                            <span className="text-sm text-muted-foreground">Αναλύω την εταιρία…</span>
-                          </div>
-                        ) : buddy ? (
-                          <>
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-lg">
-                                {buddy.signal === "buy" ? "🟢" : buddy.signal === "wait" ? "🔴" : "🟡"}
-                              </span>
-                              <span className="text-sm font-black">
-                                {buddy.signal === "buy"
-                                  ? "Καλή στιγμή για αγορά!"
-                                  : buddy.signal === "wait"
-                                  ? "Περίμενε λίγο ακόμα"
-                                  : "Παρακολούθα την τιμή"}
-                              </span>
-                            </div>
-                            <p className="text-sm leading-relaxed">{buddy.message}</p>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
+        )}div>
         )}
 
         {/* ── TAB 3: Χαρτοφυλάκιο ── */}
