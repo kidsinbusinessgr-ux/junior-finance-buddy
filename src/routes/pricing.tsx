@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
 import { BrightlyNav } from "@/components/brightly-nav";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -56,6 +58,14 @@ const PLANS = [
 ];
 
 function PricingPage() {
+  // Tag the Stripe payment with the user's id so payment-success can verify it belongs to them.
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+  const checkoutHref = (href: string) =>
+    userId ? `${href}?client_reference_id=${encodeURIComponent(userId)}` : href;
+
   return (
     <main className="min-h-screen overflow-hidden bg-background">
       {/* Hero */}
@@ -117,7 +127,7 @@ function PricingPage() {
                 </ul>
 
                 <a
-                  href={plan.href}
+                  href={checkoutHref(plan.href)}
                   className={`mt-8 block rounded-xl py-3.5 text-center text-sm font-black transition-all hover:-translate-y-0.5 active:scale-95 ${
                     plan.highlight
                       ? "bg-white text-[oklch(0.57_0.23_292)]"

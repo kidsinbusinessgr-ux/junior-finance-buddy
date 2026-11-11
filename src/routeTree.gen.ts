@@ -11,16 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as BuildRouteImport } from './routes/build'
 import { Route as ChildDashboardRouteImport } from './routes/child-dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EarnRouteImport } from './routes/earn'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password.'
 import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as InvestRouteImport } from './routes/invest'
 import { Route as InvestmentsRouteImport } from './routes/investments'
 import { Route as LearnRouteImport } from './routes/learn'
-import { Route as LearnIndexRouteImport } from './routes/learn.index'
-import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ParentDashboardRouteImport } from './routes/parent-dashboard'
@@ -33,6 +31,13 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SpendRouteImport } from './routes/spend'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password.'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnLessonIdRouteImport } from './routes/learn.$lessonId'
+import { Route as StartupsIndexRouteImport } from './routes/startups.index'
+import { Route as StartupsIdRouteImport } from './routes/startups.$id'
+import { Route as ApiCronNewsPushRouteImport } from './routes/api/cron/news-push'
+import { Route as ApiPushSubscribeRouteImport } from './routes/api/push/subscribe'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildRoute = BuildRouteImport.update({
+  id: '/build',
+  path: '/build',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChildDashboardRoute = ChildDashboardRouteImport.update({
@@ -57,11 +67,6 @@ const DashboardRoute = DashboardRouteImport.update({
 const EarnRoute = EarnRouteImport.update({
   id: '/earn',
   path: '/earn',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoalsRoute = GoalsRouteImport.update({
@@ -83,16 +88,6 @@ const LearnRoute = LearnRouteImport.update({
   id: '/learn',
   path: '/learn',
   getParentRoute: () => rootRouteImport,
-} as any)
-const LearnIndexRoute = LearnIndexRouteImport.update({
-  id: '/learn/',
-  path: '/',
-  getParentRoute: () => LearnRoute,
-} as any)
-const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
-  id: '/learn/$lessonId',
-  path: '$lessonId',
-  getParentRoute: () => LearnRoute,
 } as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -154,20 +149,53 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password/',
+  path: '/forgot-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnLessonIdRoute = LearnLessonIdRouteImport.update({
+  id: '/$lessonId',
+  path: '/$lessonId',
+  getParentRoute: () => LearnRoute,
+} as any)
+const StartupsIndexRoute = StartupsIndexRouteImport.update({
+  id: '/startups/',
+  path: '/startups/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartupsIdRoute = StartupsIdRouteImport.update({
+  id: '/startups/$id',
+  path: '/startups/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronNewsPushRoute = ApiCronNewsPushRouteImport.update({
+  id: '/api/cron/news-push',
+  path: '/api/cron/news-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPushSubscribeRoute = ApiPushSubscribeRouteImport.update({
+  id: '/api/push/subscribe',
+  path: '/api/push/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/build': typeof BuildRoute
   '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
   '/investments': typeof InvestmentsRoute
-  '/learn': typeof LearnRoute
-  '/learn/': typeof LearnIndexRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/learn': typeof LearnRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/parent-dashboard': typeof ParentDashboardRoute
@@ -180,20 +208,24 @@ export interface FileRoutesByFullPath {
   '/spend': typeof SpendRoute
   '/stocks': typeof StocksRoute
   '/wallet': typeof WalletRoute
+  '/forgot-password/': typeof ForgotPasswordRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/startups/$id': typeof StartupsIdRoute
+  '/learn/': typeof LearnIndexRoute
+  '/startups/': typeof StartupsIndexRoute
+  '/api/cron/news-push': typeof ApiCronNewsPushRoute
+  '/api/push/subscribe': typeof ApiPushSubscribeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/build': typeof BuildRoute
   '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
   '/investments': typeof InvestmentsRoute
-  '/learn': typeof LearnRoute
-  '/learn/': typeof LearnIndexRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/parent-dashboard': typeof ParentDashboardRoute
@@ -206,21 +238,26 @@ export interface FileRoutesByTo {
   '/spend': typeof SpendRoute
   '/stocks': typeof StocksRoute
   '/wallet': typeof WalletRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/startups/$id': typeof StartupsIdRoute
+  '/learn': typeof LearnIndexRoute
+  '/startups': typeof StartupsIndexRoute
+  '/api/cron/news-push': typeof ApiCronNewsPushRoute
+  '/api/push/subscribe': typeof ApiPushSubscribeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/build': typeof BuildRoute
   '/child-dashboard': typeof ChildDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/earn': typeof EarnRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/goals': typeof GoalsRoute
   '/invest': typeof InvestRoute
   '/investments': typeof InvestmentsRoute
-  '/learn': typeof LearnRoute
-  '/learn/': typeof LearnIndexRoute
-  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/learn': typeof LearnRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/parent-dashboard': typeof ParentDashboardRoute
@@ -233,22 +270,27 @@ export interface FileRoutesById {
   '/spend': typeof SpendRoute
   '/stocks': typeof StocksRoute
   '/wallet': typeof WalletRoute
+  '/forgot-password/': typeof ForgotPasswordRoute
+  '/learn/$lessonId': typeof LearnLessonIdRoute
+  '/startups/$id': typeof StartupsIdRoute
+  '/learn/': typeof LearnIndexRoute
+  '/startups/': typeof StartupsIndexRoute
+  '/api/cron/news-push': typeof ApiCronNewsPushRoute
+  '/api/push/subscribe': typeof ApiPushSubscribeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/build'
     | '/child-dashboard'
     | '/dashboard'
     | '/earn'
-    | '/forgot-password'
     | '/goals'
     | '/invest'
     | '/investments'
     | '/learn'
-    | '/learn/'
-    | '/learn/$lessonId'
     | '/login'
     | '/onboarding'
     | '/parent-dashboard'
@@ -261,20 +303,24 @@ export interface FileRouteTypes {
     | '/spend'
     | '/stocks'
     | '/wallet'
+    | '/forgot-password/'
+    | '/learn/$lessonId'
+    | '/startups/$id'
+    | '/learn/'
+    | '/startups/'
+    | '/api/cron/news-push'
+    | '/api/push/subscribe'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/build'
     | '/child-dashboard'
     | '/dashboard'
     | '/earn'
-    | '/forgot-password'
     | '/goals'
     | '/invest'
     | '/investments'
-    | '/learn'
-    | '/learn/'
-    | '/learn/$lessonId'
     | '/login'
     | '/onboarding'
     | '/parent-dashboard'
@@ -287,20 +333,25 @@ export interface FileRouteTypes {
     | '/spend'
     | '/stocks'
     | '/wallet'
+    | '/forgot-password'
+    | '/learn/$lessonId'
+    | '/startups/$id'
+    | '/learn'
+    | '/startups'
+    | '/api/cron/news-push'
+    | '/api/push/subscribe'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/build'
     | '/child-dashboard'
     | '/dashboard'
     | '/earn'
-    | '/forgot-password'
     | '/goals'
     | '/invest'
     | '/investments'
     | '/learn'
-    | '/learn/'
-    | '/learn/$lessonId'
     | '/login'
     | '/onboarding'
     | '/parent-dashboard'
@@ -313,23 +364,26 @@ export interface FileRouteTypes {
     | '/spend'
     | '/stocks'
     | '/wallet'
+    | '/forgot-password/'
+    | '/learn/$lessonId'
+    | '/startups/$id'
+    | '/learn/'
+    | '/startups/'
+    | '/api/cron/news-push'
+    | '/api/push/subscribe'
   fileRoutesById: FileRoutesById
-}
-export interface LearnRouteChildren {
-  LearnIndexRoute: typeof LearnIndexRoute
-  LearnLessonIdRoute: typeof LearnLessonIdRoute
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  BuildRoute: typeof BuildRoute
   ChildDashboardRoute: typeof ChildDashboardRoute
   DashboardRoute: typeof DashboardRoute
   EarnRoute: typeof EarnRoute
-  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GoalsRoute: typeof GoalsRoute
   InvestRoute: typeof InvestRoute
   InvestmentsRoute: typeof InvestmentsRoute
-  LearnRoute: typeof LearnRoute
+  LearnRoute: typeof LearnRouteWithChildren
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   ParentDashboardRoute: typeof ParentDashboardRoute
@@ -342,6 +396,11 @@ export interface RootRouteChildren {
   SpendRoute: typeof SpendRoute
   StocksRoute: typeof StocksRoute
   WalletRoute: typeof WalletRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  StartupsIdRoute: typeof StartupsIdRoute
+  StartupsIndexRoute: typeof StartupsIndexRoute
+  ApiCronNewsPushRoute: typeof ApiCronNewsPushRoute
+  ApiPushSubscribeRoute: typeof ApiPushSubscribeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -358,6 +417,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build': {
+      id: '/build'
+      path: '/build'
+      fullPath: '/build'
+      preLoaderRoute: typeof BuildRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/child-dashboard': {
@@ -379,13 +445,6 @@ declare module '@tanstack/react-router' {
       path: '/earn'
       fullPath: '/earn'
       preLoaderRoute: typeof EarnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/goals': {
@@ -415,20 +474,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn'
       preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/learn/': {
-      id: '/learn/'
-      path: '/'
-      fullPath: '/learn/'
-      preLoaderRoute: typeof LearnIndexRouteImport
-      parentRoute: typeof LearnRoute
-    }
-    '/learn/$lessonId': {
-      id: '/learn/$lessonId'
-      path: '$lessonId'
-      fullPath: '/learn/$lessonId'
-      preLoaderRoute: typeof LearnLessonIdRouteImport
-      parentRoute: typeof LearnRoute
     }
     '/login': {
       id: '/login'
@@ -514,25 +559,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password/': {
+      id: '/forgot-password/'
+      path: '/forgot-password'
+      fullPath: '/forgot-password/'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/$lessonId': {
+      id: '/learn/$lessonId'
+      path: '/$lessonId'
+      fullPath: '/learn/$lessonId'
+      preLoaderRoute: typeof LearnLessonIdRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/startups/': {
+      id: '/startups/'
+      path: '/startups'
+      fullPath: '/startups/'
+      preLoaderRoute: typeof StartupsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/startups/$id': {
+      id: '/startups/$id'
+      path: '/startups/$id'
+      fullPath: '/startups/$id'
+      preLoaderRoute: typeof StartupsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/news-push': {
+      id: '/api/cron/news-push'
+      path: '/api/cron/news-push'
+      fullPath: '/api/cron/news-push'
+      preLoaderRoute: typeof ApiCronNewsPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/push/subscribe': {
+      id: '/api/push/subscribe'
+      path: '/api/push/subscribe'
+      fullPath: '/api/push/subscribe'
+      preLoaderRoute: typeof ApiPushSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
-const learnRouteChildren: LearnRouteChildren = {
-  LearnIndexRoute: LearnIndexRoute,
-  LearnLessonIdRoute: LearnLessonIdRoute,
+interface LearnRouteChildren {
+  LearnLessonIdRoute: typeof LearnLessonIdRoute
+  LearnIndexRoute: typeof LearnIndexRoute
 }
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnLessonIdRoute: LearnLessonIdRoute,
+  LearnIndexRoute: LearnIndexRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  BuildRoute: BuildRoute,
   ChildDashboardRoute: ChildDashboardRoute,
   DashboardRoute: DashboardRoute,
   EarnRoute: EarnRoute,
-  ForgotPasswordRoute: ForgotPasswordRoute,
   GoalsRoute: GoalsRoute,
   InvestRoute: InvestRoute,
   InvestmentsRoute: InvestmentsRoute,
-  LearnRoute: LearnRoute._addFileChildren(learnRouteChildren),
+  LearnRoute: LearnRouteWithChildren,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   ParentDashboardRoute: ParentDashboardRoute,
@@ -545,6 +646,11 @@ const rootRouteChildren: RootRouteChildren = {
   SpendRoute: SpendRoute,
   StocksRoute: StocksRoute,
   WalletRoute: WalletRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  StartupsIdRoute: StartupsIdRoute,
+  StartupsIndexRoute: StartupsIndexRoute,
+  ApiCronNewsPushRoute: ApiCronNewsPushRoute,
+  ApiPushSubscribeRoute: ApiPushSubscribeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

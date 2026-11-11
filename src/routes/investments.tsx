@@ -138,9 +138,6 @@ function InvestmentsPage() {
   const getStockShares = (ticker: string): number => {
     return holdings.find((h) => h.ticker === ticker)?.shares ?? 0;
   };
-  const getStockAvgPrice = (ticker: string): number => {
-    return holdings.find((h) => h.ticker === ticker)?.avg_buy_price ?? 0;
-  };
   const getStartupShares = (startupName: string): number => {
     return investments.find((inv) => inv.startup_name === startupName)?.shares ?? 0;
   };
@@ -160,23 +157,26 @@ function InvestmentsPage() {
     if (child.coins < price) return;
     setBusyTicker(ticker);
     try {
-      const currentShares = getStockShares(ticker);
-      const currentAvgPrice = getStockAvgPrice(ticker);
-      await buyStockFn(child.id, ticker, name, emoji, 1, price, currentShares, currentAvgPrice);
+      // Price is checked again server-side (jfb_trade_stock); this is only a UI guard.
+      await buyStockFn(child.id, ticker, name, emoji, 1);
       await Promise.all([refetchHoldings(), refetchChild()]);
+    } catch (err) {
+      console.error("Buy failed:", err);
     } finally {
       setBusyTicker(null);
     }
   };
 
-  const handleSellStock = async (ticker: string, name: string, emoji: string, price: number) => {
+  const handleSellStock = async (ticker: string, name: string, emoji: string, _price: number) => {
     if (!child) return;
     const owned = getStockShares(ticker);
     if (owned <= 0) return;
     setBusyTicker(ticker);
     try {
-      await sellStockFn(child.id, ticker, name, emoji, 1, price, owned);
+      await sellStockFn(child.id, ticker, name, emoji, 1);
       await Promise.all([refetchHoldings(), refetchChild()]);
+    } catch (err) {
+      console.error("Sell failed:", err);
     } finally {
       setBusyTicker(null);
     }
@@ -190,10 +190,11 @@ function InvestmentsPage() {
     if (child.coins < totalCost) return;
     setBusyStartup(startupName);
     try {
-      const currentShares = getStartupShares(startupName);
-      await investInStartupFn(child.id, startupName, emoji, qty, pricePerShare, currentShares);
+      await investInStartupFn(child.id, startupName, emoji, qty);
       await Promise.all([refetchStartups(), refetchChild()]);
       setSliders((s) => ({ ...s, [startupName]: 1 }));
+    } catch (err) {
+      console.error("Startup investment failed:", err);
     } finally {
       setBusyStartup(null);
     }

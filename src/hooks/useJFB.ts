@@ -144,16 +144,13 @@ export function useTransactions(childId: string | null | undefined) {
   return { transactions, loading };
 }
 
-export async function addTransaction(
-  tx: TablesInsert<"jfb_transactions">
-): Promise<void> {
-  await supabase.from("jfb_transactions").insert(tx);
-  // Update child coins via DB function
-  await supabase.rpc("jfb_add_coins", {
-    p_child_id: tx.child_id,
-    p_amount: tx.amount,
-    p_xp: tx.type === "lesson" ? tx.amount : 0,
-  });
+// All coin changes go through SECURITY DEFINER functions in Supabase
+// (see supabase/migrations/20261111120000_secure_coin_functions.sql).
+// They check who is calling and read prices/amounts from the database.
+async function callRpc(fn: string, args: Record<string, unknown>): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)(fn, args);
+  if (error) throw new Error(error.message);
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Chores Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
@@ -209,25 +206,17 @@ export async function submitChore(choreId: string, childId: string): Promise<voi
 
 export async function reviewChore(
   submissionId: string,
-  status: "approved" | "rejected",
-  childId: string,
-  coins: number,
-  choreName: string
+  status: "approved" | "rejected"
 ): Promise<void> {
+  if (status === "approved") {
+    await callRpc("jfb_approve_chore", { p_submission_id: submissionId });
+    return;
+  }
   await supabase
     .from("jfb_chore_submissions")
     .update({ status, reviewed_at: new Date().toISOString() })
-    .eq("id", submissionId);
-
-  if (status === "approved") {
-    await addTransaction({
-      child_id: childId,
-      type: "chore",
-      amount: coins,
-      description: choreName,
-      icon: "Ã¢ÂÂ",
-    });
-  }
+    .eq("id", submissionId)
+    .eq("status", "pending");
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Savings goals Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
@@ -265,29 +254,8 @@ export async function createSavingsGoal(
   });
 }
 
-export async function depositToGoal(
-  goalId: string,
-  childId: string,
-  amount: number,
-  goalName: string,
-  currentSaved: number,
-  targetCoins: number
-): Promise<void> {
-  const newSaved = Math.min(currentSaved + amount, targetCoins);
-  const completed = newSaved >= targetCoins;
-
-  await supabase
-    .from("jfb_savings_goals")
-    .update({ saved_coins: newSaved, completed })
-    .eq("id", goalId);
-
-  await addTransaction({
-    child_id: childId,
-    type: "withdrawal",
-    amount: -amount,
-    description: `Αποταμίευση: ${goalName}`,
-    icon: "🎯",
-  });
+export async function depositToGoal(goalId: string, amount: number): Promise<void> {
+  await callRpc("jfb_deposit_to_goal", { p_goal_id: goalId, p_amount: amount });
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Rewards Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
@@ -339,24 +307,8 @@ export async function requestReward(rewardId: string, childId: string): Promise<
   });
 }
 
-export async function approveRewardRequest(
-  requestId: string,
-  childId: string,
-  cost: number,
-  rewardName: string
-): Promise<void> {
-  await supabase
-    .from("jfb_reward_requests")
-    .update({ status: "approved", reviewed_at: new Date().toISOString() })
-    .eq("id", requestId);
-
-  await addTransaction({
-    child_id: childId,
-    type: "reward",
-    amount: -cost,
-    description: `Βραβείο: ${rewardName}`,
-    icon: "🎁",
-  });
+export async function approveRewardRequest(requestId: string): Promise<void> {
+  await callRpc("jfb_approve_reward", { p_request_id: requestId });
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Lesson progress Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
@@ -379,34 +331,13 @@ export function useLessonProgress(childId: string | null | undefined) {
   return { progress, loading };
 }
 
-export async function completeLesson(
-  childId: string,
-  lessonId: string,
-  lessonTitle: string,
-  xpEarned: number,
-  coinsEarned: number
-): Promise<void> {
-  // Upsert Ã¢ÂÂ if lesson already completed, skip
-  const { error } = await supabase.from("jfb_lesson_progress").upsert(
-    { child_id: childId, lesson_id: lessonId, lesson_title: lessonTitle, xp_earned: xpEarned, coins_earned: coinsEarned },
+export async function completeLesson(childId: string, lessonId: string, lessonTitle: string): Promise<void> {
+  // Records progress only. Rewards are not paid from the browser; add a
+  // server-side jfb_complete_lesson function if lessons should award coins/XP.
+  await supabase.from("jfb_lesson_progress").upsert(
+    { child_id: childId, lesson_id: lessonId, lesson_title: lessonTitle, xp_earned: 0, coins_earned: 0 },
     { onConflict: "child_id,lesson_id", ignoreDuplicates: true }
   );
-  if (!error) {
-    await addTransaction({
-      child_id: childId,
-      type: "lesson",
-      amount: coinsEarned,
-      description: `Μάθημα: ${lessonTitle}`,
-      icon: "📚",
-    });
-    // XP is added inside addTransaction via jfb_add_coins (xp = amount for lessons)
-    // But we want xpEarned, not coinsEarned, for XP Ã¢ÂÂ call directly
-    await supabase.rpc("jfb_add_coins", {
-      p_child_id: childId,
-      p_amount: 0,
-      p_xp: xpEarned,
-    });
-  }
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Stock holdings Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
@@ -434,33 +365,11 @@ export async function buyStock(
   ticker: string,
   companyName: string,
   emoji: string,
-  quantity: number,
-  pricePerShare: number,
-  currentShares: number,
-  currentAvgPrice: number
+  quantity: number
 ): Promise<void> {
-  const totalCost = quantity * pricePerShare;
-  const newShares = currentShares + quantity;
-  const newAvgPrice = currentShares === 0
-    ? pricePerShare
-    : Math.round(((currentShares * currentAvgPrice) + (quantity * pricePerShare)) / newShares);
-
-  await supabase.from("jfb_stock_holdings").upsert({
-    child_id: childId,
-    ticker,
-    company_name: companyName,
-    emoji,
-    shares: newShares,
-    avg_buy_price: newAvgPrice,
-    updated_at: new Date().toISOString(),
-  }, { onConflict: "child_id,ticker" });
-
-  await addTransaction({
-    child_id: childId,
-    type: "investment",
-    amount: -totalCost,
-    description: `Αγορά ${quantity} μετοχών ${companyName}`,
-    icon: emoji,
+  await callRpc("jfb_trade_stock", {
+    p_child_id: childId, p_ticker: ticker, p_company: companyName,
+    p_emoji: emoji, p_quantity: quantity, p_side: "buy",
   });
 }
 
@@ -469,29 +378,11 @@ export async function sellStock(
   ticker: string,
   companyName: string,
   emoji: string,
-  quantity: number,
-  pricePerShare: number,
-  currentShares: number
+  quantity: number
 ): Promise<void> {
-  const totalValue = quantity * pricePerShare;
-  const newShares = Math.max(0, currentShares - quantity);
-
-  if (newShares === 0) {
-    await supabase.from("jfb_stock_holdings").delete()
-      .eq("child_id", childId).eq("ticker", ticker);
-  } else {
-    await supabase.from("jfb_stock_holdings").update({
-      shares: newShares,
-      updated_at: new Date().toISOString(),
-    }).eq("child_id", childId).eq("ticker", ticker);
-  }
-
-  await addTransaction({
-    child_id: childId,
-    type: "investment",
-    amount: totalValue,
-    description: `Πώληση ${quantity} μετοχών ${companyName}`,
-    icon: emoji,
+  await callRpc("jfb_trade_stock", {
+    p_child_id: childId, p_ticker: ticker, p_company: companyName,
+    p_emoji: emoji, p_quantity: quantity, p_side: "sell",
   });
 }
 
@@ -519,39 +410,16 @@ export async function investInStartup(
   childId: string,
   startupName: string,
   emoji: string,
-  quantity: number,
-  pricePerShare: number,
-  currentShares: number
+  quantity: number
 ): Promise<void> {
-  const totalCost = quantity * pricePerShare;
-
-  await supabase.from("jfb_startup_investments").upsert({
-    child_id: childId,
-    startup_name: startupName,
-    emoji,
-    shares: currentShares + quantity,
-    price_per_share: pricePerShare,
-    invested_at: new Date().toISOString(),
-  }, { onConflict: "child_id,startup_name" });
-
-  await addTransaction({
-    child_id: childId,
-    type: "investment",
-    amount: -totalCost,
-    description: `Επένδυση σε ${startupName} (${quantity} μερίδια)`,
-    icon: emoji,
+  await callRpc("jfb_invest_startup", {
+    p_child_id: childId, p_startup_name: startupName, p_emoji: emoji, p_quantity: quantity,
   });
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Parent: load coins manually Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export async function parentLoadCoins(childId: string, amount: number): Promise<void> {
-  await addTransaction({
-    child_id: childId,
-    type: "deposit",
-    amount,
-    description: "Φόρτωση από γονέα",
-    icon: "💰",
-  });
+  await callRpc("jfb_parent_give_coins", { p_child_id: childId, p_amount: amount, p_note: "Φόρτωση από γονέα" });
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Onboarding helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
@@ -598,7 +466,7 @@ export async function addFirstChild(
   const invite_code = generateInviteCode();
   const { data, error } = await supabase
     .from("jfb_children")
-    .insert({ parent_id: parentId, name, avatar, coins: 0, level: 1, xp: 0, invite_code })
+    .insert({ parent_id: parentId, name, avatar, invite_code })
     .select()
     .single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create child");
@@ -858,24 +726,20 @@ export function usePendingSubmissions(parentId: string | null | undefined) {
   return { submissions, refresh };
 }
 
-export async function approveChoreSubmission(subId: string, childId: string, choreName: string, choreEmoji: string, coins: number) {
-  await supabase.from("jfb_chore_submissions").update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", subId);
-  const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
-  await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
-  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "chore", amount: coins, description: choreEmoji + " " + choreName, icon: choreEmoji });
-  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "chore_approved", message: choreEmoji + " " + choreName + " εγκρίθηκε! Κέρδισες " + coins + " 🪙" });
+export async function approveChoreSubmission(subId: string) {
+  await callRpc("jfb_approve_chore", { p_submission_id: subId });
 }
 
 export async function rejectChoreSubmission(subId: string, childId: string, choreName: string) {
-  await supabase.from("jfb_chore_submissions").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", subId);
+  const { data } = await supabase.from("jfb_chore_submissions")
+    .update({ status: "rejected", reviewed_at: new Date().toISOString() })
+    .eq("id", subId).eq("status", "pending").select("id");
+  if (!data || data.length === 0) return;
   await supabase.from("jfb_notifications").insert({ child_id: childId, type: "chore_rejected", message: "❌ " + choreName + " δεν εγκρίθηκε. Προσπάθησε ξανά!" });
 }
 
 export async function sendAllowanceCoins(childId: string, coins: number, note: string) {
-  const { data: ch } = await supabase.from("jfb_children").select("coins").eq("id", childId).single();
-  await supabase.from("jfb_children").update({ coins: (ch?.coins ?? 0) + coins }).eq("id", childId);
-  await supabase.from("jfb_transactions").insert({ child_id: childId, type: "deposit", amount: coins, description: note || "Χαρτζιλίκι", icon: "💰" });
-  await supabase.from("jfb_notifications").insert({ child_id: childId, type: "allowance_received", message: "💰 έλαβες " + coins + " 🪙 χαρτζιλίκι!" });
+  await callRpc("jfb_parent_give_coins", { p_child_id: childId, p_amount: coins, p_note: note });
 }
 
 // ── Notifications ─────────────────────────────────────────────────────────────────────────────────
@@ -935,21 +799,23 @@ export async function markNotificationRead(id: string) {
 
 
 // ── Subscription / paid tier ──────────────────────────────────────────────────────────────────────────────────
-// Checks the Supabase auth user's metadata for subscription_tier.
-// To mark a user as paid: UPDATE auth.users SET raw_user_meta_data =
-//   raw_user_meta_data || '{"subscription_tier":"paid"}' WHERE id = '<uid>';
+// Checks the Supabase auth user's app_metadata for subscription_tier.
+// Set by activatePremium (src/lib/stripe.functions.ts). To mark a user as paid by hand:
+//   UPDATE auth.users SET raw_app_meta_data =
+//   raw_app_meta_data || '{"subscription_tier":"paid"}' WHERE id = '<uid>';
 export function useSubscription() {
   const [isPaid, setIsPaid] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // app_metadata can only be set server-side (see activatePremium), unlike user_metadata.
     supabase.auth.getUser().then(({ data }) => {
-      const tier = data.user?.user_metadata?.subscription_tier as string | undefined;
+      const tier = data.user?.app_metadata?.subscription_tier as string | undefined;
       setIsPaid(tier === "paid" || tier === "premium");
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
-      const tier = session?.user?.user_metadata?.subscription_tier as string | undefined;
+      const tier = session?.user?.app_metadata?.subscription_tier as string | undefined;
       setIsPaid(tier === "paid" || tier === "premium");
     });
     return () => sub.subscription.unsubscribe();

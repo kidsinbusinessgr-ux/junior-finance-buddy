@@ -3,7 +3,7 @@ import { CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { verifyCheckoutSession } from "@/lib/stripe.functions";
+import { activatePremium } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/payment-success")({
   head: () => ({
@@ -31,25 +31,23 @@ function PaymentSuccessPage() {
 
     (async () => {
       try {
-        // 1. Verify with Stripe server-side
-        const result = await verifyCheckoutSession({ data: { sessionId: session_id } });
+        // Verified and saved server-side; the browser can't mark itself premium.
+        const result = await activatePremium({ data: { sessionId: session_id } });
 
-        if (!result.paid) {
+        if (!result.ok) {
           setStatus("error");
-          setErrorMsg("Η πληρωμή δεν ολοκληρώθηκε. Παρακαλώ δοκιμάστε ξανά.");
+          setErrorMsg(
+            result.reason === "login"
+              ? "Συνδέσου στον λογαριασμό σου και άνοιξε ξανά αυτή τη σελίδα για να ενεργοποιηθεί η συνδρομή."
+              : result.reason === "unpaid"
+                ? "Η πληρωμή δεν ολοκληρώθηκε. Παρακαλώ δοκιμάστε ξανά."
+                : "Αυτή η πληρωμή δεν αντιστοιχεί σε αυτόν τον λογαριασμό. Επικοινωνήστε μαζί μας.",
+          );
           return;
         }
 
-        // 2. Update user metadata client-side (user must be logged in)
-        const { error } = await supabase.auth.updateUser({
-          data: { subscription_tier: "paid", subscription_plan: result.plan },
-        });
-
-        if (error) {
-          // Not fatal — they paid, just metadata didn't update. Show success anyway.
-          console.error("Metadata update failed:", error.message);
-        }
-
+        // Pick up the new app_metadata in the session token.
+        await supabase.auth.refreshSession();
         setStatus("success");
       } catch (err) {
         console.error("Payment verification error:", err);

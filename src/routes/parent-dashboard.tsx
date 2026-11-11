@@ -29,13 +29,11 @@ function ParentDashboard() {
 
   async function handleApprove(sub: PendingSubmission) {
     setActing(sub.id);
-    await approveChoreSubmission(
-      sub.id,
-      sub.child_id,
-      sub.jfb_chores?.name ?? "",
-      sub.jfb_chores?.emoji ?? "🧹",
-      sub.jfb_chores?.coins ?? 0,
-    );
+    try {
+      await approveChoreSubmission(sub.id);
+    } catch (err) {
+      console.error("Approve failed:", err);
+    }
     await refreshSubmissions();
     await refreshChildren();
     setActing(null);
@@ -51,7 +49,13 @@ function ParentDashboard() {
   async function handleSendAllowance() {
     if (!selectedChild || allowanceCoins <= 0) return;
     setSending(true);
-    await sendAllowanceCoins(selectedChild, allowanceCoins, allowanceNote);
+    try {
+      await sendAllowanceCoins(selectedChild, allowanceCoins, allowanceNote);
+    } catch (err) {
+      console.error("Allowance failed:", err);
+      setSending(false);
+      return;
+    }
     await refreshChildren();
     setSending(false);
     setSendDone(true);

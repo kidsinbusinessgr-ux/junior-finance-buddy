@@ -1,91 +1,64 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import Stripe from "stripe";
 
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
+async function getStripe() {
+  const key = process.env["STRIPE_SECRET_KEY"];
   if (!key) throw new Error("STRIPE_SECRET_KEY is not set");
-  return new Stripe(key, { apiVersion: "2025-06-30.basil" });
+  const { default: Stripe } = await import("stripe");
+  return new Stripe(key);
 }
 
-const PLANS = {
-  monthly: {
-    amount: 499, // €4.99
-    interval: "month" as const,
-    label: "Μηνιαία συνδρομή — €4,99/μήνα",
-  },
-  yearly: {
-    amount: 3900, // €39
-    interval: "year" as const,
-    label: "Ετήσια συνδρομή — €39/χρόνο",
-  },
-} as const;
+export type ActivatePremiumResult =
+  | { ok: true; plan: "monthly" | "yearly" }
+  | { ok: false; reason: "login" | "unpaid" | "mismatch" };
 
-const checkoutInputSchema = z.object({
-  plan: z.enum(["monthly", "yearly"]),
-  successUrl: z.string().url(),
-  cancelUrl: z.string().url(),
-  userId: z.string().optional(),
-  userEmail: z.string().email().optional(),
-});
+/**
+ * Verifies a Stripe Checkout session (from our Payment Links) and marks the
+ * signed-in user as premium in app_metadata, which users cannot edit.
+ * The payment must belong to this user (client_reference_id, or the same email),
+ * and each session can unlock only one account.
+ */
+export const activatePremium = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ sessionId: z.string().min(1).max(255) }).parse(data))
+  .handler(async ({ data }): Promise<ActivatePremiumResult> => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { getAdminClient, getUserFromRequest } = await import("./supabase-admin.server");
 
-export const createCheckoutSession = createServerFn({ method: "POST" })
-  .inputValidator((data) => checkoutInputSchema.parse(data))
-  .handler(async ({ data }) => {
-    const stripe = getStripe();
-    const plan = PLANS[data.plan];
+    const user = await getUserFromRequest(getRequest());
+    if (!user) return { ok: false, reason: "login" };
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: "Kids in Business Premium",
-              description: plan.label,
-              images: [],
-            },
-            unit_amount: plan.amount,
-            recurring: { interval: plan.interval },
-          },
-          quantity: 1,
-        },
-      ],
-      customer_email: data.userEmail,
-      metadata: {
-        userId: data.userId ?? "",
-        plan: data.plan,
-      },
-      success_url: data.successUrl,
-      cancel_url: data.cancelUrl,
-      locale: "el",
-      allow_promotion_codes: true,
-    });
-
-    return { sessionId: session.id, url: session.url };
-  });
-
-const verifyInputSchema = z.object({
-  sessionId: z.string(),
-});
-
-export const verifyCheckoutSession = createServerFn({ method: "POST" })
-  .inputValidator((data) => verifyInputSchema.parse(data))
-  .handler(async ({ data }) => {
-    const stripe = getStripe();
-
+    const stripe = await getStripe();
     const session = await stripe.checkout.sessions.retrieve(data.sessionId);
-
     const paid =
-      session.payment_status === "paid" &&
-      session.status === "complete";
+      session.status === "complete" &&
+      (session.payment_status === "paid" || session.payment_status === "no_payment_required");
+    if (!paid) return { ok: false, reason: "unpaid" };
 
-    return {
-      paid,
-      plan: (session.metadata?.plan ?? "monthly") as "monthly" | "yearly",
-      userId: session.metadata?.userId ?? "",
-      customerEmail: session.customer_email ?? session.customer_details?.email ?? "",
-    };
+    const payerEmail = (session.customer_details?.email ?? session.customer_email ?? "").toLowerCase();
+    const ownsPayment = session.client_reference_id
+      ? session.client_reference_id === user.id
+      : !!payerEmail && payerEmail === (user.email ?? "").toLowerCase();
+    if (!ownsPayment) return { ok: false, reason: "mismatch" };
+
+    const admin = getAdminClient();
+    const { error: claimError } = await admin
+      .from("jfb_premium_claims")
+      .insert({ session_id: session.id, user_id: user.id });
+    if (claimError) {
+      if (claimError.code !== "23505") throw new Error(claimError.message);
+      const { data: existing } = await admin
+        .from("jfb_premium_claims")
+        .select("user_id")
+        .eq("session_id", session.id)
+        .maybeSingle();
+      if (existing?.user_id !== user.id) return { ok: false, reason: "mismatch" };
+    }
+
+    const plan: "monthly" | "yearly" = (session.amount_total ?? 0) >= 3000 ? "yearly" : "monthly";
+    const { error: updateError } = await admin.auth.admin.updateUserById(user.id, {
+      app_metadata: { subscription_tier: "paid", subscription_plan: plan },
+    });
+    if (updateError) throw new Error(updateError.message);
+
+    return { ok: true, plan };
   });

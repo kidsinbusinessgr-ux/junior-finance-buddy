@@ -1,133 +1,78 @@
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { createClient } from "@supabase/supabase-js";
+import { createFileRoute } from "@tanstack/react-router";
 
 const FMP_BASE = "https://financialmodelingprep.com/stable";
 
-// Minimal VAPID JWT signing for web push
-async function createVapidJWT(audience: string, subject: string, privateKeyB64u: string): Promise<string> {
-  const header = { typ: "JWT", alg: "ES256" };
-  const now = Math.floor(Date.now() / 1000);
-  const payload = { aud: audience, exp: now + 86400, sub: subject };
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-  const b64u = (s: string) => btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-  const encode = (obj: object) => b64u(JSON.stringify(obj));
-  const signingInput = `${encode(header)}.${encode(payload)}`;
+// Daily job (see vercel.json). Vercel sends `Authorization: Bearer $CRON_SECRET`.
+export const Route = createFileRoute("/api/cron/news-push")({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        const cronSecret = process.env["CRON_SECRET"];
+        // Fail closed: without a secret configured, nobody can trigger this.
+        if (!cronSecret || request.headers.get("authorization") !== `Bearer ${cronSecret}`) {
+          return new Response("Unauthorized", { status: 401 });
+        }
 
-  // Import the private key
-  const rawPrivate = Uint8Array.from(atob(privateKeyB64u.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    rawPrivate,
-    { name: "ECDSA", namedCurve: "P-256" },
-    false,
-    ["sign"]
-  );
+        const fmpKey = process.env["FMP_API_KEY"];
+        const vapidPublic = process.env["VAPID_PUBLIC_KEY"];
+        const vapidPrivate = process.env["VAPID_PRIVATE_KEY"];
+        if (!fmpKey || !vapidPublic || !vapidPrivate) return json({ error: "Missing env vars" }, 500);
 
-  const sig = await crypto.subtle.sign(
-    { name: "ECDSA", hash: "SHA-256" },
-    cryptoKey,
-    new TextEncoder().encode(signingInput)
-  );
+        const { getAdminClient } = await import("@/lib/supabase-admin.server");
+        const { default: webpush } = await import("web-push");
+        webpush.setVapidDetails("mailto:info@kidsinbusiness.gr", vapidPublic, vapidPrivate);
 
-  const sigB64u = btoa(String.fromCharCode(...new Uint8Array(sig)))
-    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+        const supabase = getAdminClient();
+        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth");
+        if (error) return json({ error: error.message }, 500);
+        if (!subs || subs.length === 0) return json({ sent: 0 });
 
-  return `${signingInput}.${sigB64u}`;
-}
+        const tickers = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL", "META", "AMZN"];
+        const newsRes = await fetch(
+          `${FMP_BASE}/news/stock?symbols=${tickers.join(",")}&limit=3&apikey=${fmpKey}`,
+          { headers: { Accept: "application/json" } },
+        );
+        if (!newsRes.ok) return json({ error: "FMP news failed" }, 502);
+        const newsData = await newsRes.json();
+        if (!Array.isArray(newsData) || newsData.length === 0) return json({ sent: 0, reason: "no news" });
 
-async function sendPush(
-  endpoint: string,
-  p256dh: string,
-  auth: string,
-  payload: object,
-  vapidPublic: string,
-  vapidPrivate: string
-) {
-  const url = new URL(endpoint);
-  const audience = `${url.protocol}//${url.host}`;
-  const jwt = await createVapidJWT(audience, "mailto:info@kidsinbusiness.gr", vapidPrivate);
+        const top = newsData[0];
+        const payload = JSON.stringify({
+          title: `📰 ${top.symbol || "Αγορά"} — Νέο άρθρο`,
+          body: top.title?.slice(0, 120) || "Δες τα τελευταία νέα της αγοράς!",
+          url: "/stocks",
+        });
 
-  const payloadStr = JSON.stringify(payload);
-  const payloadBytes = new TextEncoder().encode(payloadStr);
+        let sent = 0;
+        let removed = 0;
+        let failed = 0;
+        for (const sub of subs) {
+          try {
+            // web-push encrypts the payload (aes128gcm) and signs the VAPID JWT.
+            await webpush.sendNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              payload,
+              { TTL: 86400 },
+            );
+            sent++;
+          } catch (err) {
+            const status = (err as { statusCode?: number }).statusCode;
+            if (status === 404 || status === 410) {
+              // Only subscriptions the push service says are gone get removed.
+              await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+              removed++;
+            } else {
+              failed++;
+              console.error("push failed", status, err);
+            }
+          }
+        }
 
-  // Send push (simplified - no encryption for now, using basic push)
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/octet-stream",
-      "TTL": "86400",
-      "Authorization": `vapid t=${jwt},k=${vapidPublic}`,
+        return json({ sent, removed, failed });
+      },
     },
-    body: payloadBytes,
-  });
-  return res.status;
-}
-
-export const APIRoute = createAPIFileRoute("/api/cron/news-push")({
-  GET: async ({ request }) => {
-    // Verify cron secret to prevent abuse
-    const authHeader = request.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return new Response("Unauthorized", { status: 401 });
-    }
-
-    const fmpKey = process.env.FMP_API_KEY;
-    const vapidPublic = process.env.VAPID_PUBLIC_KEY;
-    const vapidPrivate = process.env.VAPID_PRIVATE_KEY;
-
-    if (!fmpKey || !vapidPublic || !vapidPrivate) {
-      return new Response(JSON.stringify({ error: "Missing env vars" }), { status: 500 });
-    }
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY!
-    );
-
-    // Get all subscriptions
-    const { data: subs } = await supabase.from("push_subscriptions").select("*");
-    if (!subs || subs.length === 0) {
-      return new Response(JSON.stringify({ sent: 0 }));
-    }
-
-    // Fetch news for top tickers
-    const tickers = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL", "META", "AMZN"];
-    const newsRes = await fetch(
-      `${FMP_BASE}/news/stock?symbols=${tickers.join(",")}&limit=3&apikey=${fmpKey}`,
-      { headers: { Accept: "application/json" } }
-    );
-
-    if (!newsRes.ok) {
-      return new Response(JSON.stringify({ error: "FMP news failed" }), { status: 500 });
-    }
-
-    const newsData = await newsRes.json();
-    if (!Array.isArray(newsData) || newsData.length === 0) {
-      return new Response(JSON.stringify({ sent: 0, reason: "no news" }));
-    }
-
-    // Pick the most recent news item
-    const topNews = newsData[0];
-    const payload = {
-      title: `📰 ${topNews.symbol || "Αγορά"} — Νέο άρθρο`,
-      body: topNews.title?.slice(0, 120) || "Δες τα τελευταία νέα της αγοράς!",
-      url: "/stocks",
-    };
-
-    let sent = 0;
-    for (const sub of subs) {
-      try {
-        await sendPush(sub.endpoint, sub.p256dh, sub.auth, payload, vapidPublic, vapidPrivate);
-        sent++;
-      } catch {
-        // Remove invalid subscriptions
-        await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
-      }
-    }
-
-    return new Response(JSON.stringify({ sent }), {
-      headers: { "Content-Type": "application/json" },
-    });
   },
 });

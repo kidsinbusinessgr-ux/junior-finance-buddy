@@ -783,7 +783,6 @@ function StocksPage() {
             </div>
 
           </div>
-        )}div>
         )}
 
         {/* ── TAB 3: Χαρτοφυλάκιο ── */}

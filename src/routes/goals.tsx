@@ -80,7 +80,13 @@ function GoalsPage() {
     const goal = goals.find((g) => g.id === goalId);
     if (!goal) return;
     setDepositing(true);
-    await depositToGoal(goalId, child.id, amount, goal.name, goal.saved_coins, goal.target_coins);
+    try {
+      await depositToGoal(goalId, amount);
+    } catch (err) {
+      console.error("Deposit failed:", err);
+      setDepositing(false);
+      return;
+    }
     await Promise.all([refetchGoals(), refetchChild()]);
     setDepositing(false);
     if (Math.min(goal.saved_coins + amount, goal.target_coins) >= goal.target_coins) {

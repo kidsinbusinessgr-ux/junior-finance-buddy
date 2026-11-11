@@ -1,41 +1,42 @@
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { createClient } from "@supabase/supabase-js";
+import { createFileRoute } from "@tanstack/react-router";
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY!;
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-export const APIRoute = createAPIFileRoute("/api/push/subscribe")({
-  POST: async ({ request }) => {
-    try {
-      const body = await request.json();
-      const { subscription, ticker } = body as {
-        subscription: PushSubscriptionJSON;
-        ticker?: string;
-      };
+export const Route = createFileRoute("/api/push/subscribe")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        let body: { subscription?: PushSubscriptionJSON; ticker?: string };
+        try {
+          body = await request.json();
+        } catch {
+          return json({ error: "Invalid JSON" }, 400);
+        }
 
-      if (!subscription?.endpoint) {
-        return new Response(JSON.stringify({ error: "No subscription" }), { status: 400 });
-      }
+        const sub = body.subscription;
+        const endpoint = sub?.endpoint ?? "";
+        const p256dh = sub?.keys?.["p256dh"] ?? "";
+        const auth = sub?.keys?.["auth"] ?? "";
+        if (!endpoint.startsWith("https://") || endpoint.length > 1000 || !p256dh || !auth
+            || p256dh.length > 200 || auth.length > 100) {
+          return json({ error: "Invalid subscription" }, 400);
+        }
+        const ticker = typeof body.ticker === "string" && /^[A-Z.]{1,10}$/.test(body.ticker) ? body.ticker : null;
 
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-      await supabase.from("push_subscriptions").upsert(
-        {
-          endpoint: subscription.endpoint,
-          p256dh: subscription.keys?.p256dh,
-          auth: subscription.keys?.auth,
-          tickers: ticker ? [ticker] : [],
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "endpoint" }
-      );
-
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      console.error("subscribe error", err);
-      return new Response(JSON.stringify({ error: "Internal error" }), { status: 500 });
-    }
+        try {
+          const { getAdminClient } = await import("@/lib/supabase-admin.server");
+          const { error } = await getAdminClient().from("push_subscriptions").upsert(
+            { endpoint, p256dh, auth, tickers: ticker ? [ticker] : [], updated_at: new Date().toISOString() },
+            { onConflict: "endpoint" },
+          );
+          if (error) throw error;
+          return json({ ok: true });
+        } catch (err) {
+          console.error("subscribe error", err);
+          return json({ error: "Internal error" }, 500);
+        }
+      },
+    },
   },
 });
