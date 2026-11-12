@@ -40,7 +40,7 @@ export const askBuddy = createServerFn({ method: "GET" })
     const prompt = `Είσαι ο KidsInBusiness Buddy, ένας φιλικός εκπαιδευτικός βοηθός που εξηγεί μετοχές σε παιδιά 10-15 χρονών στα ελληνικά.
 
 Δεδομένα για τη μετοχή ${emoji} ${name} (${ticker}):
-- Τρέχουσα τιμή: $${currentPrice.toFixed(2)}
+- Τρέχουσα τιμή: €${currentPrice.toFixed(2)}
 - Σήμερα: ${changePercent >= 0 ? "+" : ""}${changePercent.toFixed(2)}%
 - Τελευταίος μήνας: ${monthChange >= 0 ? "+" : ""}${monthChange.toFixed(1)}%
 

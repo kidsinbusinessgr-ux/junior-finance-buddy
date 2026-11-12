@@ -97,7 +97,8 @@ export const getStockQuotes = createServerFn({ method: "GET" }).handler(
       { headers: { Accept: "application/json" } }
     );
 
-    const quoteMap = new Map<string, { price: number; change: number; changePercentage: number; marketCap: number }>();
+    // v3 /quote names the field `changesPercentage`; the /stable API uses `changePercentage`.
+    const quoteMap = new Map<string, { price: number; change: number; changesPercentage?: number; changePercentage?: number; marketCap: number }>();
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data)) {
@@ -117,7 +118,7 @@ export const getStockQuotes = createServerFn({ method: "GET" }).handler(
         description: meta.description,
         price: fmp ? fmp.price * eurRate : 0,
         change: fmp ? fmp.change * eurRate : 0,
-        changePercent: fmp?.changePercentage ?? 0,
+        changePercent: fmp?.changesPercentage ?? fmp?.changePercentage ?? 0,
         marketCap: fmp?.marketCap ?? 0,
       };
     });
