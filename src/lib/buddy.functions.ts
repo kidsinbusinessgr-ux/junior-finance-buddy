@@ -1,4 +1,33 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+// Every Gemini call requires a signed-in user and counts against a daily cap
+// (see ai-guard.server.ts). Inputs are size-limited so one request stays cheap.
+async function gate(kind: "chat" | "stock" | "tip") {
+  const { checkAiAllowance, AI_BLOCKED_MESSAGES } = await import("./ai-guard.server");
+  const result = await checkAiAllowance(kind);
+  return result.ok ? null : AI_BLOCKED_MESSAGES[result.reason];
+}
+
+const finite = z.number().finite();
+const buddyInputSchema = z.object({
+  ticker: z.string().min(1).max(10),
+  name: z.string().min(1).max(60),
+  emoji: z.string().max(16),
+  currentPrice: finite,
+  changePercent: finite,
+  history: z.array(z.object({ date: z.string().max(20), close: finite })).max(60),
+});
+const generalInputSchema = z.object({ page: z.string().max(100) });
+const chatInputSchema = z.object({
+  page: z.string().max(100),
+  messages: z
+    .array(z.object({ role: z.enum(["user", "model"]), text: z.string().min(1).max(500) }))
+    .min(1)
+    .max(40)
+    // Only the recent conversation is sent to Gemini.
+    .transform((m) => m.slice(-12)),
+});
 
 export interface BuddyInput {
   ticker: string;
@@ -15,9 +44,12 @@ export interface BuddyResponse {
 }
 
 export const askBuddy = createServerFn({ method: "GET" })
-  .validator((input: BuddyInput) => input)
+  .validator((input: BuddyInput) => buddyInputSchema.parse(input))
   .handler(async ({ data }): Promise<BuddyResponse> => {
-    const key = process.env.GEMINI_API_KEY;
+    const blocked = await gate("stock");
+    if (blocked) return { message: blocked, signal: "watch" };
+
+    const key = process.env["GEMINI_API_KEY"];
     if (!key) throw new Error("GEMINI_API_KEY is not set");
 
     const { ticker, name, emoji, currentPrice, changePercent, history } = data;
@@ -25,7 +57,7 @@ export const askBuddy = createServerFn({ method: "GET" })
     // Calculate 30-day trend
     const first = history[0]?.close ?? currentPrice;
     const last = history[history.length - 1]?.close ?? currentPrice;
-    const monthChange = ((last - first) / first) * 100;
+    const monthChange = first ? ((last - first) / first) * 100 : 0;
     const isDownFromMonth = monthChange < -3;
     const isUpFromMonth = monthChange > 5;
 
@@ -64,8 +96,9 @@ export const askBuddy = createServerFn({ method: "GET" })
     );
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Gemini error: ${res.status} ${err}`);
+      // Log details server-side only; don't send Gemini's error body to the browser.
+      console.error("Gemini error", res.status, await res.text());
+      throw new Error("Buddy is unavailable right now");
     }
 
     const json = await res.json();
@@ -100,9 +133,12 @@ const PAGE_CONTEXT: Record<string, string> = {
 };
 
 export const askGeneralBuddy = createServerFn({ method: "GET" })
-  .validator((input: GeneralBuddyInput) => input)
+  .validator((input: GeneralBuddyInput) => generalInputSchema.parse(input))
   .handler(async ({ data }): Promise<GeneralBuddyResponse> => {
-    const key = process.env.GEMINI_API_KEY;
+    const blocked = await gate("tip");
+    if (blocked) return { message: blocked, emoji: "🤖" };
+
+    const key = process.env["GEMINI_API_KEY"];
     if (!key) throw new Error("GEMINI_API_KEY is not set");
 
     const context = PAGE_CONTEXT[data.page] ?? "Το παιδί χρησιμοποιεί την εφαρμογή Kids in Business.";
@@ -174,9 +210,12 @@ const CHAT_PAGE_CONTEXT: Record<string, string> = {
 };
 
 export const chatWithBuddy = createServerFn({ method: "POST" })
-  .validator((input: ChatInput) => input)
+  .validator((input: ChatInput) => chatInputSchema.parse(input))
   .handler(async ({ data }): Promise<ChatOutput> => {
-    const key = process.env.GEMINI_API_KEY;
+    const blocked = await gate("chat");
+    if (blocked) return { reply: blocked };
+
+    const key = process.env["GEMINI_API_KEY"];
     if (!key) throw new Error("GEMINI_API_KEY not set");
 
     const ctx = CHAT_PAGE_CONTEXT[data.page] ?? "εφαρμογή Kids in Business";
@@ -202,8 +241,8 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
     );
 
     if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Gemini ${res.status}: ${errText}`);
+      console.error("Gemini error", res.status, await res.text());
+      throw new Error("Buddy is unavailable right now");
     }
 
     const json = await res.json();

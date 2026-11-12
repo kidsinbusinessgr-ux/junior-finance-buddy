@@ -24,7 +24,8 @@ export function BuddyFloat() {
     path.startsWith("/onboarding");
 
   const send = useCallback(async (text?: string) => {
-    const userText = (text ?? input).trim();
+    // The server accepts up to 500 characters per message and uses the last 12 messages.
+    const userText = (text ?? input).trim().slice(0, 500);
     if (!userText || loading) return;
     setInput("");
 
@@ -33,7 +34,7 @@ export function BuddyFloat() {
     setLoading(true);
 
     try {
-      const { reply } = await chatWithBuddy({ data: { messages: newMessages, page: path } });
+      const { reply } = await chatWithBuddy({ data: { messages: newMessages.slice(-12), page: path } });
       setMessages([...newMessages, { role: "model", text: reply }]);
     } catch (e) {
       console.error("Buddy error:", e);
@@ -164,6 +165,7 @@ export function BuddyFloat() {
           }}>
             <input
               value={input}
+              maxLength={500}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && send()}
               placeholder="Γράψε εδώ..."
