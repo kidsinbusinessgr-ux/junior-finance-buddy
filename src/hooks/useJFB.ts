@@ -66,6 +66,38 @@ export function useCurrentUser() {
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Child profile Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Invite codes ──────────────────────────────────────────────────────────────
+/** Child's first name if the invite code is valid and unused, else null. Works logged out. */
+export async function checkInviteCode(code: string): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)("jfb_check_invite", { p_code: code });
+  if (error) return null;
+  return (data as string | null) ?? null;
+}
+
+/** Links the signed-in account to the child row for this invite code. */
+export async function claimInviteCode(code: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)("jfb_claim_invite", { p_code: code });
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * After email confirmation the child is signed in but not linked yet: the code
+ * was saved in their sign-up metadata. Links it once; returns true if it did.
+ */
+export async function claimPendingInvite(): Promise<boolean> {
+  const { data } = await supabase.auth.getUser();
+  const code = data.user?.user_metadata?.["invite_code"] as string | undefined;
+  if (!code) return false;
+  try {
+    await claimInviteCode(code);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function useChild() {
   const { userId } = useCurrentUser();
   const [child, setChild] = useState<JFBChild | null>(null);
@@ -73,11 +105,12 @@ export function useChild() {
 
   const fetch = useCallback(async () => {
     if (!userId) return;
-    const { data } = await supabase
-      .from("jfb_children")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
+    const load = () =>
+      supabase.from("jfb_children").select("*").eq("user_id", userId).maybeSingle();
+    let { data } = await load();
+    if (!data && (await claimPendingInvite())) {
+      ({ data } = await load());
+    }
     setChild(data);
     setLoading(false);
   }, [userId]);

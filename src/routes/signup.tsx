@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { checkInviteCode, claimInviteCode } from "@/hooks/useJFB";
 import logo from "@/assets/logo-kidsinbusiness_1.png";
 
 export const Route = createFileRoute("/signup")({
@@ -171,7 +172,6 @@ function ChildSignup() {
   const [step, setStep] = useState<"code" | "password" | "done">("code");
   const [inviteCode, setInviteCode] = useState("");
   const [childName, setChildName] = useState("");
-  const [childId, setChildId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -183,25 +183,14 @@ function ChildSignup() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const code = inviteCode.trim().toUpperCase();
-    const { data, error: dbError } = await supabase
-      .from("jfb_children")
-      .select("id, name, user_id")
-      .eq("invite_code", code)
-      .maybeSingle();
-
-    if (dbError || !data) {
-      setError("Ο κωδικός δεν βρέθηκε. Ρώτα τον γονέα σου.");
+    // Checked by a database function, since a logged-out child can't read the table.
+    const name = await checkInviteCode(inviteCode.trim().toUpperCase());
+    if (!name) {
+      setError("Ο κωδικός δεν βρέθηκε ή έχει ήδη χρησιμοποιηθεί. Ρώτα τον γονέα σου.");
       setLoading(false);
       return;
     }
-    if (data.user_id) {
-      setError("Αυτός ο κωδικός έχει ήδη χρησιμοποιηθεί.");
-      setLoading(false);
-      return;
-    }
-    setChildId(data.id);
-    setChildName(data.name);
+    setChildName(name);
     setStep("password");
     setLoading(false);
   }
@@ -214,10 +203,15 @@ function ChildSignup() {
     if (!email.includes("@")) { setError("Χρειάζεσαι ένα έγκυρο email."); return; }
     setLoading(true);
 
+    const code = inviteCode.trim().toUpperCase();
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/child-dashboard` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/child-dashboard`,
+        // Kept so the account can be linked after email confirmation (claimPendingInvite).
+        data: { invite_code: code },
+      },
     });
 
     if (authError || !authData.user) {
@@ -226,17 +220,20 @@ function ChildSignup() {
       return;
     }
 
-    const { error: updateError } = await supabase
-      .from("jfb_children")
-      .update({ user_id: authData.user.id })
-      .eq("id", childId);
-
-    if (updateError) {
-      setError("Σφάλμα σύνδεσης λογαριασμού: " + updateError.message);
-      setLoading(false);
-      return;
+    // If email confirmation is off we're already signed in: link right away.
+    if (authData.session) {
+      try {
+        await claimInviteCode(code);
+        navigate({ to: "/child-dashboard" });
+        return;
+      } catch (err) {
+        setError("Σφάλμα σύνδεσης λογαριασμού: " + (err as Error).message);
+        setLoading(false);
+        return;
+      }
     }
 
+    // Otherwise it's linked on the first login after confirming the email.
     setStep("done");
     setLoading(false);
   }

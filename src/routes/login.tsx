@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { claimPendingInvite } from "@/hooks/useJFB";
 import logo from "@/assets/logo-kidsinbusiness_1.png";
 
 export const Route = createFileRoute("/login")({
@@ -36,6 +37,9 @@ function LoginPage() {
     // Check which profile type this user has
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); return; }
+
+    // A child who signed up with an invite code gets linked on first login.
+    await claimPendingInvite();
 
     const { data: child } = await supabase
       .from("jfb_children")
