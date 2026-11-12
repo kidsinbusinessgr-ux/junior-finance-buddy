@@ -1,6 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+// Gemini model for every Buddy call. "gemini-3.8-flash" is NOT a typo: as of
+// Nov 2026 Google returns 404 for gemini-2.x ("no longer available to new users")
+// and names 3.8-flash as the replacement. Set GEMINI_MODEL on Vercel to change it
+// without a code edit.
+function geminiModel() {
+  return process.env["GEMINI_MODEL"] || "gemini-3.8-flash";
+}
+
 // Every Gemini call requires a signed-in user and counts against a daily cap
 // (see ai-guard.server.ts). Inputs are size-limited so one request stays cheap.
 async function gate(kind: "chat" | "stock" | "tip") {
@@ -84,7 +92,7 @@ export const askBuddy = createServerFn({ method: "GET" })
 Μην χρησιμοποιείς αστέρια ή markdown. Γράψε σαν να μιλάς σε παιδί, ζεστά και απλά.`;
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -159,7 +167,7 @@ EMOJI: <ένα emoji>
 MESSAGE: <η συμβουλή σου>`;
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,7 +237,7 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
     ];
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
