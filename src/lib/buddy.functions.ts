@@ -9,6 +9,20 @@ function geminiModel() {
   return process.env["GEMINI_MODEL"] || "gemini-3.8-flash";
 }
 
+// fetch() for Gemini that logs how long each call takes and why it failed
+// (timeouts included), so problems show up in Vercel's runtime logs.
+async function geminiFetch(url: string, init: RequestInit): Promise<Response> {
+  const started = Date.now();
+  try {
+    const res = await fetch(url, init);
+    console.log(`Gemini ${geminiModel()} → ${res.status} in ${Date.now() - started}ms`);
+    return res;
+  } catch (err) {
+    console.error(`Gemini ${geminiModel()} request failed after ${Date.now() - started}ms:`, (err as Error).name, (err as Error).message);
+    throw new Error("Buddy is unavailable right now");
+  }
+}
+
 // Every Gemini call requires a signed-in user and counts against a daily cap
 // (see ai-guard.server.ts). Inputs are size-limited so one request stays cheap.
 async function gate(kind: "chat" | "stock" | "tip") {
@@ -91,10 +105,12 @@ export const askBuddy = createServerFn({ method: "GET" })
 
 Μην χρησιμοποιείς αστέρια ή markdown. Γράψε σαν να μιλάς σε παιδί, ζεστά και απλά.`;
 
-    const res = await fetch(
+    const res = await geminiFetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
+        // Never leave a child waiting: give up after 25s and show the friendly error.
+        signal: AbortSignal.timeout(25_000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
@@ -166,10 +182,12 @@ export const askGeneralBuddy = createServerFn({ method: "GET" })
 EMOJI: <ένα emoji>
 MESSAGE: <η συμβουλή σου>`;
 
-    const res = await fetch(
+    const res = await geminiFetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
+        // Never leave a child waiting: give up after 25s and show the friendly error.
+        signal: AbortSignal.timeout(25_000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
@@ -236,10 +254,12 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
       ...data.messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
     ];
 
-    const res = await fetch(
+    const res = await geminiFetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
+        // Never leave a child waiting: give up after 25s and show the friendly error.
+        signal: AbortSignal.timeout(25_000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents,
