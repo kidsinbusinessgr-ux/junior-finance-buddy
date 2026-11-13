@@ -40,6 +40,19 @@ async function geminiFetch(url: string, init: RequestInit): Promise<Response> {
   throw new Error("Buddy is unavailable right now");
 }
 
+// The reply text from a Gemini response. Gemini can split a reply into several
+// parts (and 3.x models also return "thought" parts), so join every text part
+// that isn't a thought. Logs when Google stopped early, e.g. MAX_TOKENS.
+function geminiText(json: any): string | undefined {
+  const candidate = json?.candidates?.[0];
+  if (candidate?.finishReason && candidate.finishReason !== "STOP") {
+    console.warn("Gemini finishReason:", candidate.finishReason, json?.usageMetadata);
+  }
+  const parts: any[] = candidate?.content?.parts ?? [];
+  const text = parts.filter((p) => !p?.thought && typeof p?.text === "string").map((p) => p.text).join("");
+  return text.trim() ? text : undefined;
+}
+
 // Every Gemini call requires a signed-in user and counts against a daily cap
 // (see ai-guard.server.ts). Inputs are size-limited so one request stays cheap.
 async function gate(kind: "chat" | "stock" | "tip") {
@@ -129,7 +142,7 @@ export const askBuddy = createServerFn({ method: "GET" })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 500, temperature: 0.7 },
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
         }),
       }
     );
@@ -142,7 +155,7 @@ export const askBuddy = createServerFn({ method: "GET" })
 
     const json = await res.json();
     const message =
-      json?.candidates?.[0]?.content?.parts?.[0]?.text ??
+      geminiText(json) ??
       "Συγγνώμη, δεν μπόρεσα να αναλύσω τη μετοχή αυτή τη στιγμή. Δοκίμασε ξανά!";
 
     return { message, signal };
@@ -204,7 +217,7 @@ MESSAGE: <η συμβουλή σου>`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 350, temperature: 0.8 },
+          generationConfig: { maxOutputTokens: 1024, temperature: 0.8 },
         }),
       }
     );
@@ -212,7 +225,7 @@ MESSAGE: <η συμβουλή σου>`;
     if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
 
     const json = await res.json();
-    const raw: string = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const raw: string = geminiText(json) ?? "";
 
     const emojiMatch = raw.match(/EMOJI:\s*(.+)/);
     const msgMatch   = raw.match(/MESSAGE:\s*([\s\S]+)/);
@@ -274,7 +287,7 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents,
-          generationConfig: { maxOutputTokens: 800, temperature: 0.75 },
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.75 },
         }),
       }
     );
@@ -286,7 +299,7 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
 
     const json = await res.json();
     const reply: string =
-      json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ??
+      geminiText(json)?.trim() ??
       "Δεν κατάλαβα. Μπορείς να ξαναρωτήσεις;";
 
     return { reply };
