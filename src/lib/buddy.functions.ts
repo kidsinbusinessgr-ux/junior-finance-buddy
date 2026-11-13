@@ -1,5 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import {
+  BUDDY_RULES,
+  GEMINI_SAFETY_SETTINGS,
+  SAFE_REPLIES,
+  containsBadWords,
+  looksLikeDistress,
+} from "./buddy-safety";
 
 // Gemini models for every Buddy call (these names are NOT typos; as of Nov 2026
 // Google returns 404 for gemini-2.x). Main model: 3.5 Flash-Lite, which Google
@@ -142,6 +149,7 @@ export const askBuddy = createServerFn({ method: "GET" })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
+          safetySettings: GEMINI_SAFETY_SETTINGS,
           generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
         }),
       }
@@ -217,6 +225,7 @@ MESSAGE: <η συμβουλή σου>`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
+          safetySettings: GEMINI_SAFETY_SETTINGS,
           generationConfig: { maxOutputTokens: 1024, temperature: 0.8 },
         }),
       }
@@ -264,6 +273,13 @@ const CHAT_PAGE_CONTEXT: Record<string, string> = {
 export const chatWithBuddy = createServerFn({ method: "POST" })
   .validator((input: ChatInput) => chatInputSchema.parse(input))
   .handler(async ({ data }): Promise<ChatOutput> => {
+    // Safety checks run on the server before Gemini is called (see buddy-safety.ts).
+    const latest = data.messages[data.messages.length - 1];
+    if (latest.role === "user") {
+      if (looksLikeDistress(latest.text)) return { reply: SAFE_REPLIES.distress };
+      if (containsBadWords(latest.text)) return { reply: SAFE_REPLIES.badWords };
+    }
+
     const blocked = await gate("chat");
     if (blocked) return { reply: blocked };
 
@@ -272,13 +288,11 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
 
     const ctx = CHAT_PAGE_CONTEXT[data.page] ?? "εφαρμογή Kids in Business";
 
-    const systemMsg = `Είσαι ο KidsInBusiness Buddy — φιλικός βοηθός για παιδιά 10-15 χρονών για χρήματα και επιχειρηματικότητα. Σελίδα: ${ctx}. Μιλάς ΠΑΝΤΑ στα ελληνικά, σύντομα (2-4 προτάσεις), χωρίς markdown.`;
-
-    const contents = [
-      { role: "user",  parts: [{ text: systemMsg }] },
-      { role: "model", parts: [{ text: "Εντάξει, είμαι έτοιμος να βοηθήσω!" }] },
-      ...data.messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
-    ];
+    // Earlier messages with swear words are left out of what Gemini sees, and
+    // the conversation must start with a user message.
+    const history = data.messages.filter((m) => !containsBadWords(m.text));
+    while (history.length && history[0].role !== "user") history.shift();
+    const contents = history.map((m) => ({ role: m.role, parts: [{ text: m.text }] }));
 
     const res = await geminiFetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
@@ -286,8 +300,10 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          systemInstruction: { parts: [{ text: `${BUDDY_RULES}\n\nΤο παιδί βλέπει τώρα: ${ctx}.` }] },
           contents,
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.75 },
+          safetySettings: GEMINI_SAFETY_SETTINGS,
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.5 },
         }),
       }
     );
@@ -298,9 +314,17 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
     }
 
     const json = await res.json();
-    const reply: string =
-      geminiText(json)?.trim() ??
-      "Δεν κατάλαβα. Μπορείς να ξαναρωτήσεις;";
+    const reply = geminiText(json)?.trim();
+    // No text means Google's safety filter blocked the question or the answer.
+    if (!reply) {
+      console.warn("Gemini gave no text", json?.promptFeedback, json?.candidates?.[0]?.finishReason);
+      return { reply: SAFE_REPLIES.offTopic };
+    }
+    // Last check on what Buddy says, whatever the model did.
+    if (containsBadWords(reply)) {
+      console.warn("Buddy reply blocked by word filter");
+      return { reply: SAFE_REPLIES.badWords };
+    }
 
     return { reply };
   });
