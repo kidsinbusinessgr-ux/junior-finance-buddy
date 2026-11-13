@@ -95,3 +95,17 @@ export const GEMINI_SAFETY_SETTINGS = [
   "HARM_CATEGORY_SEXUALLY_EXPLICIT",
   "HARM_CATEGORY_DANGEROUS_CONTENT",
 ].map((category) => ({ category, threshold: "BLOCK_LOW_AND_ABOVE" }));
+
+// Gemini's fast model sometimes slips letters from another alphabet into a
+// Greek word (seen live: "ερώτηება", with Georgian letters). Buddy only ever
+// writes Greek and Latin letters, so any other letter is a glitch. Numbers,
+// punctuation and emoji are not letters and are kept.
+const FOREIGN_LETTER = /(?=\p{L})[^\p{Script=Greek}\p{Script=Latin}]/gu;
+
+export function hasForeignLetters(text: string): boolean {
+  return new RegExp(FOREIGN_LETTER.source, "u").test(text);
+}
+
+export function stripForeignLetters(text: string): string {
+  return text.replace(FOREIGN_LETTER, "").replace(/[ \t]{2,}/g, " ").trim();
+}

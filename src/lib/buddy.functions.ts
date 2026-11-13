@@ -6,6 +6,8 @@ import {
   SAFE_REPLIES,
   containsBadWords,
   looksLikeDistress,
+  hasForeignLetters,
+  stripForeignLetters,
 } from "./buddy-safety";
 
 // Gemini models for every Buddy call (these names are NOT typos; as of Nov 2026
@@ -163,7 +165,7 @@ export const askBuddy = createServerFn({ method: "GET" })
 
     const json = await res.json();
     const message =
-      geminiText(json) ??
+      (geminiText(json) && stripForeignLetters(geminiText(json)!)) ||
       "Συγγνώμη, δεν μπόρεσα να αναλύσω τη μετοχή αυτή τη στιγμή. Δοκίμασε ξανά!";
 
     return { message, signal };
@@ -234,7 +236,7 @@ MESSAGE: <η συμβουλή σου>`;
     if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
 
     const json = await res.json();
-    const raw: string = geminiText(json) ?? "";
+    const raw: string = stripForeignLetters(geminiText(json) ?? "");
 
     const emojiMatch = raw.match(/EMOJI:\s*(.+)/);
     const msgMatch   = raw.match(/MESSAGE:\s*([\s\S]+)/);
@@ -294,31 +296,40 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
     while (history.length && history[0].role !== "user") history.shift();
     const contents = history.map((m) => ({ role: m.role, parts: [{ text: m.text }] }));
 
-    const res = await geminiFetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: `${BUDDY_RULES}\n\nΤο παιδί βλέπει τώρα: ${ctx}.` }] },
-          contents,
-          safetySettings: GEMINI_SAFETY_SETTINGS,
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.5 },
-        }),
+    const askGemini = async () => {
+      const res = await geminiFetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: `${BUDDY_RULES}\n\nΤο παιδί βλέπει τώρα: ${ctx}.` }] },
+            contents,
+            safetySettings: GEMINI_SAFETY_SETTINGS,
+            generationConfig: { maxOutputTokens: 2048, temperature: 0.5 },
+          }),
+        }
+      );
+      if (!res.ok) {
+        console.error("Gemini error", res.status, await res.text());
+        throw new Error("Buddy is unavailable right now");
       }
-    );
+      const json = await res.json();
+      const text = geminiText(json)?.trim();
+      // No text means Google's safety filter blocked the question or the answer.
+      if (!text) console.warn("Gemini gave no text", json?.promptFeedback, json?.candidates?.[0]?.finishReason);
+      return text;
+    };
 
-    if (!res.ok) {
-      console.error("Gemini error", res.status, await res.text());
-      throw new Error("Buddy is unavailable right now");
-    }
+    let reply = await askGemini();
+    if (!reply) return { reply: SAFE_REPLIES.offTopic };
 
-    const json = await res.json();
-    const reply = geminiText(json)?.trim();
-    // No text means Google's safety filter blocked the question or the answer.
-    if (!reply) {
-      console.warn("Gemini gave no text", json?.promptFeedback, json?.candidates?.[0]?.finishReason);
-      return { reply: SAFE_REPLIES.offTopic };
+    // Letters from another alphabet in the reply: ask once more, and if it
+    // happens again, remove those letters so the child never sees them.
+    if (hasForeignLetters(reply)) {
+      console.warn("Buddy reply had foreign letters; asking again");
+      reply = (await askGemini()) ?? reply;
+      if (hasForeignLetters(reply)) reply = stripForeignLetters(reply);
     }
     // Last check on what Buddy says, whatever the model did.
     if (containsBadWords(reply)) {
