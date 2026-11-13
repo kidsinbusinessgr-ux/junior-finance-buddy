@@ -14,7 +14,13 @@ function geminiModel() {
 async function geminiFetch(url: string, init: RequestInit): Promise<Response> {
   const started = Date.now();
   try {
-    const res = await fetch(url, init);
+    let res = await fetch(url, init);
+    // 503 "high demand" / 429 "busy" are usually momentary: retry once after a short pause.
+    if (res.status === 503 || res.status === 429) {
+      console.log(`Gemini ${geminiModel()} → ${res.status}, retrying once`);
+      await new Promise((r) => setTimeout(r, 1500));
+      res = await fetch(url, init);
+    }
     console.log(`Gemini ${geminiModel()} → ${res.status} in ${Date.now() - started}ms`);
     return res;
   } catch (err) {
