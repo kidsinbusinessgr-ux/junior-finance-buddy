@@ -9,24 +9,37 @@ function geminiModel() {
   return process.env["GEMINI_MODEL"] || "gemini-3.8-flash";
 }
 
-// fetch() for Gemini that logs how long each call takes and why it failed
-// (timeouts included), so problems show up in Vercel's runtime logs.
+// Backup model used when the main one is overloaded (503/429) or too slow.
+// Google's docs recommend 3.5 Flash-Lite alongside 3.8 Flash for new projects.
+// Override with GEMINI_FALLBACK_MODEL on Vercel.
+function geminiFallbackModel() {
+  return process.env["GEMINI_FALLBACK_MODEL"] || "gemini-3.5-flash-lite";
+}
+
+const ATTEMPT_TIMEOUT_MS = 12_000;
+
+// fetch() for Gemini: tries the main model, then the backup model if the main
+// one is busy or times out. Each attempt gets 12s, so a child never waits more
+// than ~25s. Every attempt is logged (status + duration) in Vercel's runtime logs.
 async function geminiFetch(url: string, init: RequestInit): Promise<Response> {
-  const started = Date.now();
-  try {
-    let res = await fetch(url, init);
-    // 503 "high demand" / 429 "busy" are usually momentary: retry once after a short pause.
-    if (res.status === 503 || res.status === 429) {
-      console.log(`Gemini ${geminiModel()} → ${res.status}, retrying once`);
-      await new Promise((r) => setTimeout(r, 1500));
-      res = await fetch(url, init);
+  const primary = geminiModel();
+  const models = [primary, geminiFallbackModel()].filter((m, i, all) => all.indexOf(m) === i);
+
+  let last: Response | null = null;
+  for (const model of models) {
+    const started = Date.now();
+    const modelUrl = url.replace(`/models/${primary}:`, `/models/${model}:`);
+    try {
+      const res = await fetch(modelUrl, { ...init, signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS) });
+      console.log(`Gemini ${model} → ${res.status} in ${Date.now() - started}ms`);
+      if (res.status !== 503 && res.status !== 429) return res;
+      last = res;
+    } catch (err) {
+      console.error(`Gemini ${model} failed after ${Date.now() - started}ms:`, (err as Error).name, (err as Error).message);
     }
-    console.log(`Gemini ${geminiModel()} → ${res.status} in ${Date.now() - started}ms`);
-    return res;
-  } catch (err) {
-    console.error(`Gemini ${geminiModel()} request failed after ${Date.now() - started}ms:`, (err as Error).name, (err as Error).message);
-    throw new Error("Buddy is unavailable right now");
   }
+  if (last) return last; // let the caller log Google's error body
+  throw new Error("Buddy is unavailable right now");
 }
 
 // Every Gemini call requires a signed-in user and counts against a daily cap
@@ -115,8 +128,6 @@ export const askBuddy = createServerFn({ method: "GET" })
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
-        // Never leave a child waiting: give up after 25s and show the friendly error.
-        signal: AbortSignal.timeout(25_000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
@@ -192,8 +203,6 @@ MESSAGE: <η συμβουλή σου>`;
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
-        // Never leave a child waiting: give up after 25s and show the friendly error.
-        signal: AbortSignal.timeout(25_000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
@@ -264,8 +273,6 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
       `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent?key=${key}`,
       {
         method: "POST",
-        // Never leave a child waiting: give up after 25s and show the friendly error.
-        signal: AbortSignal.timeout(25_000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents,

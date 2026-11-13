@@ -22,7 +22,8 @@ export const Route = createFileRoute("/api/cron/news-push")({
         if (!fmpKey || !vapidPublic || !vapidPrivate) return json({ error: "Missing env vars" }, 500);
 
         const { getAdminClient } = await import("@/lib/supabase-admin.server");
-        const { default: webpush } = await import("web-push");
+        // web-push only has named exports (no default), so use the module itself.
+        const webpush = await import("web-push");
         webpush.setVapidDetails("mailto:info@kidsinbusiness.gr", vapidPublic, vapidPrivate);
 
         const supabase = getAdminClient();
