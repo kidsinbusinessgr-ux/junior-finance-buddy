@@ -1,19 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-// Gemini model for every Buddy call. "gemini-3.8-flash" is NOT a typo: as of
-// Nov 2026 Google returns 404 for gemini-2.x ("no longer available to new users")
-// and names 3.8-flash as the replacement. Set GEMINI_MODEL on Vercel to change it
-// without a code edit.
+// Gemini models for every Buddy call (these names are NOT typos; as of Nov 2026
+// Google returns 404 for gemini-2.x). Main model: 3.5 Flash-Lite, which Google
+// recommends for new projects and which answered in ~2s while 3.8 Flash kept
+// returning 503 "high demand". Backup: 3.8 Flash, used if the main one is busy
+// or slow. Override either on Vercel with GEMINI_MODEL / GEMINI_FALLBACK_MODEL.
 function geminiModel() {
-  return process.env["GEMINI_MODEL"] || "gemini-3.8-flash";
+  return process.env["GEMINI_MODEL"] || "gemini-3.5-flash-lite";
 }
 
-// Backup model used when the main one is overloaded (503/429) or too slow.
-// Google's docs recommend 3.5 Flash-Lite alongside 3.8 Flash for new projects.
-// Override with GEMINI_FALLBACK_MODEL on Vercel.
 function geminiFallbackModel() {
-  return process.env["GEMINI_FALLBACK_MODEL"] || "gemini-3.5-flash-lite";
+  return process.env["GEMINI_FALLBACK_MODEL"] || "gemini-3.8-flash";
 }
 
 const ATTEMPT_TIMEOUT_MS = 12_000;
