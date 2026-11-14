@@ -1,144 +1,49 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-const ADMIN_PASSWORD = "kidsbiz2026";
+import { getAdminStats, type AdminStats } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-interface Stats {
-  totalParents: number;
-  totalChildren: number;
-  activeChildren7d: number;
-  activeChildren30d: number;
-  totalChoresApproved: number;
-  totalCoinsGiven: number;
-  waitlistCount: number;
-  bookRegistrations: number;
-  parentsWithChildren: number;
-  newParentsThisMonth: number;
-  newChildrenThisMonth: number;
-}
-
+// Access is checked on the server (ADMIN_EMAILS); the page only shows what it gets back.
 function AdminPage() {
-  const [password, setPassword] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
-  const [authError, setAuthError] = useState("");
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [denied, setDenied] = useState<"login" | "forbidden" | null>(null);
+  const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
-  function handleAuth(e: React.FormEvent) {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      setAuthError("");
-    } else {
-      setAuthError("Λάθος κωδικός.");
-    }
-  }
-
   useEffect(() => {
-    if (!authenticated) return;
-    async function fetchStats() {
-      setLoading(true);
-      setFetchError("");
-      try {
-        const now = new Date();
-        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    getAdminStats()
+      .then((res) => {
+        if (res.ok) setStats(res.stats);
+        else if (res.reason === "failed") setFetchError("Σφάλμα φόρτωσης δεδομένων.");
+        else setDenied(res.reason);
+      })
+      .catch(() => setFetchError("Σφάλμα φόρτωσης δεδομένων."))
+      .finally(() => setLoading(false));
+  }, []);
 
-        const [
-          parentsRes,
-          childrenRes,
-          active7Res,
-          active30Res,
-          choresRes,
-          coinsRes,
-          waitlistRes,
-          bookRes,
-          childrenParentRes,
-          newParentsRes,
-          newChildrenRes,
-        ] = await Promise.all([
-          supabase.from("jfb_parents").select("*", { count: "exact", head: true }),
-          supabase.from("jfb_children").select("*", { count: "exact", head: true }),
-          supabase.from("jfb_children").select("*", { count: "exact", head: true }).gte("last_login_date", sevenDaysAgo),
-          supabase.from("jfb_children").select("*", { count: "exact", head: true }).gte("last_login_date", thirtyDaysAgo),
-          supabase.from("jfb_chore_submissions").select("*", { count: "exact", head: true }).eq("status", "approved"),
-          supabase.from("jfb_transactions").select("amount").gt("amount", 0),
-          supabase.from("waitlist").select("*", { count: "exact", head: true }),
-          supabase.from("book_registrations").select("*", { count: "exact", head: true }),
-          supabase.from("jfb_children").select("parent_id"),
-          supabase.from("jfb_parents").select("*", { count: "exact", head: true }).gte("created_at", startOfMonth),
-          supabase.from("jfb_children").select("*", { count: "exact", head: true }).gte("created_at", startOfMonth),
-        ]);
-
-        const totalCoinsGiven = (coinsRes.data ?? []).reduce(
-          (sum: number, t: { amount: number }) => sum + t.amount,
-          0
-        );
-        const uniqueParentIds = new Set(
-          (childrenParentRes.data ?? []).map((c: { parent_id: string }) => c.parent_id)
-        );
-
-        setStats({
-          totalParents: parentsRes.count ?? 0,
-          totalChildren: childrenRes.count ?? 0,
-          activeChildren7d: active7Res.count ?? 0,
-          activeChildren30d: active30Res.count ?? 0,
-          totalChoresApproved: choresRes.count ?? 0,
-          totalCoinsGiven,
-          waitlistCount: waitlistRes.count ?? 0,
-          bookRegistrations: bookRes.count ?? 0,
-          parentsWithChildren: uniqueParentIds.size,
-          newParentsThisMonth: newParentsRes.count ?? 0,
-          newChildrenThisMonth: newChildrenRes.count ?? 0,
-        });
-      } catch {
-        setFetchError("Σφάλμα φόρτωσης δεδομένων.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, [authenticated]);
-
-  if (!authenticated) {
+  if (denied) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-xs bg-white rounded-2xl p-8 shadow-sm ring-1 ring-gray-200">
-          <div className="text-center mb-6">
-            <p className="text-3xl mb-2">🔐</p>
-            <h1 className="text-xl font-black text-gray-800">Founder Dashboard</h1>
-            <p className="text-sm text-gray-400 font-semibold mt-1">Kids in Business</p>
-          </div>
-          {authError && (
-            <div className="bg-red-50 text-red-600 text-sm font-semibold rounded-xl px-4 py-2 mb-4 text-center">
-              {authError}
-            </div>
-          )}
-          <form onSubmit={handleAuth} className="space-y-4">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Κωδικός πρόσβασης"
-              autoFocus
-              required
-              className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300"
-            />
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl font-black text-white transition-all hover:-v_translate-y-0.5 active:scale-95"
+        <div className="w-full max-w-xs bg-white rounded-2xl p-8 shadow-sm ring-1 ring-gray-200 text-center">
+          <p className="text-3xl mb-2">🔐</p>
+          <h1 className="text-xl font-black text-gray-800">Founder Dashboard</h1>
+          <p className="text-sm text-gray-500 font-semibold mt-3">
+            {denied === "login"
+              ? "Συνδέσου με τον λογαριασμό διαχειριστή για να δεις τα στατιστικά."
+              : "Αυτός ο λογαριασμός δεν έχει πρόσβαση σε αυτή τη σελίδα."}
+          </p>
+          {denied === "login" && (
+            <Link
+              to="/login"
+              className="mt-5 inline-block w-full py-3 rounded-xl font-black text-white"
               style={{ background: "oklch(0.57 0.23 292)" }}
             >
-              Είσοδος →
-            </button>
-          </form>
+              Σύνδεση →
+            </Link>
+          )}
         </div>
       </main>
     );
@@ -267,10 +172,6 @@ function AdminPage() {
               </div>
             </section>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800 font-semibold">
-              ⚠️ <strong>Σημείωση ασφάλειας:</strong> Ο πίνακας <code>jfb_achievements</code> έχει απενεργοποιημένο RLS.
-              Ενεργοποίησέ το στο Supabase dashboard πριν την κυκλοφορία στο κοινό.
-            </div>
           </>
         ) : null}
       </div>
