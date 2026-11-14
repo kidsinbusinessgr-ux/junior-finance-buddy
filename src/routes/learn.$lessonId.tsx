@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Award, CheckCircle2, Star, XCircle } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { completeLesson, useChild } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/learn/$lessonId")({
   component: LessonPage,
@@ -464,6 +465,11 @@ function LessonPage() {
   const [answered, setAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState<number[]>([]);
+  // XP is saved on the server once the quiz ends (best score per lesson counts).
+  const { child, refetch: refetchChild } = useChild();
+  const [reward, setReward] = useState<
+    { state: "idle" | "saving" | "error" | "guest" } | { state: "saved"; gain: number }
+  >({ state: "idle" });
 
   useEffect(() => {
     setPhase("intro");
@@ -473,7 +479,23 @@ function LessonPage() {
     setAnswered(false);
     setScore(0);
     setWrongAnswers([]);
+    setReward({ state: "idle" });
   }, [lessonId]);
+
+  useEffect(() => {
+    if (phase !== "result" || reward.state !== "idle" || !lesson) return;
+    if (!child) {
+      setReward({ state: "guest" });
+      return;
+    }
+    setReward({ state: "saving" });
+    completeLesson(child.id, lessonId, lesson.title, score, lesson.questions.length)
+      .then((gain) => {
+        setReward({ state: "saved", gain });
+        if (gain > 0) refetchChild();
+      })
+      .catch(() => setReward({ state: "error" }));
+  }, [phase, reward.state, child, lessonId, lesson, score, refetchChild]);
 
   if (!lesson) {
     return (
@@ -673,8 +695,16 @@ function LessonPage() {
         </p>
         <div className="mx-auto mt-8 max-w-xs rounded-2xl bg-[oklch(0.88_0.1_55)] px-6 py-5">
           <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.45_0.13_50)]">Κέρδισες</p>
-          <p className="mt-1 text-5xl font-black text-[oklch(0.35_0.12_35)]">+{earnedXP} XP</p>
-          <p className="mt-1 text-xs text-[oklch(0.5_0.12_45)]">{perfect ? "μέγιστη βαθμολογία! 🏆" : `από ${lesson.xp} δυνατά`}</p>
+          <p className="mt-1 text-5xl font-black text-[oklch(0.35_0.12_35)]">
+            +{reward.state === "saved" ? reward.gain : earnedXP} XP
+          </p>
+          <p className="mt-1 text-xs text-[oklch(0.5_0.12_45)]">
+            {reward.state === "saving" && "Αποθήκευση..."}
+            {reward.state === "saved" && reward.gain > 0 && (perfect ? "μέγιστη βαθμολογία! 🏆 Τα XP μπήκαν στον λογαριασμό σου." : `από ${lesson.xp} δυνατά · Τα XP μπήκαν στον λογαριασμό σου.`)}
+            {reward.state === "saved" && reward.gain === 0 && "Έχεις ήδη κερδίσει αυτά τα XP. Ξεπέρασε το καλύτερό σου σκορ για περισσότερα!"}
+            {reward.state === "guest" && "Συνδέσου ως παιδί για να κρατήσεις τα XP σου."}
+            {reward.state === "error" && "Δεν αποθηκεύτηκαν τα XP. Δοκίμασε ξανά αργότερα."}
+          </p>
         </div>
         <div className="mt-8 rounded-xl border bg-card p-5 text-left">
           {lesson.questions.map((q, i) => (
@@ -686,7 +716,7 @@ function LessonPage() {
         </div>
         <div className="mt-8 grid gap-3">
           {!perfect && (
-            <Button variant="outline" onClick={() => { setPhase("quiz"); setQuestionIdx(0); setSelected(null); setAnswered(false); setScore(0); setWrongAnswers([]); }} className="h-12 rounded-full">
+            <Button variant="outline" onClick={() => { setReward({ state: "idle" }); setPhase("quiz"); setQuestionIdx(0); setSelected(null); setAnswered(false); setScore(0); setWrongAnswers([]); }} className="h-12 rounded-full">
               Επανάλαβε το quiz
             </Button>
           )}

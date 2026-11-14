@@ -364,13 +364,23 @@ export function useLessonProgress(childId: string | null | undefined) {
   return { progress, loading };
 }
 
-export async function completeLesson(childId: string, lessonId: string, lessonTitle: string): Promise<void> {
-  // Records progress only. Rewards are not paid from the browser; add a
-  // server-side jfb_complete_lesson function if lessons should award coins/XP.
-  await supabase.from("jfb_lesson_progress").upsert(
-    { child_id: childId, lesson_id: lessonId, lesson_title: lessonTitle, xp_earned: 0, coins_earned: 0 },
-    { onConflict: "child_id,lesson_id", ignoreDuplicates: true }
-  );
+/**
+ * Saves a finished lesson quiz and awards XP for the child's best score
+ * (jfb_complete_lesson, which fixes the max XP per lesson). Returns the XP
+ * added now: 0 when this score doesn't beat an earlier attempt.
+ */
+export async function completeLesson(
+  childId: string, lessonId: string, lessonTitle: string, score: number, total: number,
+): Promise<number> {
+  const { data, error } = await (supabase.rpc as any)("jfb_complete_lesson", {
+    p_child_id: childId,
+    p_lesson_id: lessonId,
+    p_lesson_title: lessonTitle,
+    p_score: score,
+    p_total: total,
+  });
+  if (error) throw new Error(error.message);
+  return Number(data ?? 0);
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Stock holdings Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ

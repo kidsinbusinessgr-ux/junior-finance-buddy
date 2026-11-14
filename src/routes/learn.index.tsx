@@ -3,7 +3,7 @@ import { Award, BookOpenCheck, CircleHelp, Lock, Star } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { PaidGate } from "@/components/paid-gate";
-import { useSubscription } from "@/hooks/useJFB";
+import { useChild, useLessonProgress, useSubscription } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/learn/")({
   head: () => ({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/learn/")({
   component: LearnPage,
 });
 
-const module1 = [
+const MODULE_1 = [
   {
     id: 1,
     title: "Τι είναι τα χρήματα;",
@@ -80,7 +80,7 @@ const module1 = [
   },
 ];
 
-const module2 = [
+const MODULE_2 = [
   {
     id: 7,
     title: "Brainstorming: Βρες την ιδέα σου",
@@ -133,11 +133,19 @@ const module2 = [
   },
 ];
 
-const allLessons = [...module1, ...module2];
+const allLessons = [...MODULE_1, ...MODULE_2];
 
 function LearnPage() {
   const { isPaid, loading: subLoading } = useSubscription();
-  const totalXP = allLessons.filter((l) => l.completed).reduce((s, l) => s + l.xp, 0);
+  // Finished lessons and earned XP come from the child's saved progress.
+  const { child } = useChild();
+  const { progress } = useLessonProgress(child?.id);
+  const done = new Map(progress.map((p) => [p.lesson_id, p.xp_earned ?? 0]));
+  const withProgress = <T extends { id: number }>(list: T[]) =>
+    list.map((l) => ({ ...l, completed: done.has(String(l.id)) }));
+  const module1 = withProgress(MODULE_1);
+  const module2 = withProgress(MODULE_2);
+  const totalXP = [...done.values()].reduce((s, xp) => s + xp, 0);
   const totalAvailable = allLessons.length;
 
   return (
