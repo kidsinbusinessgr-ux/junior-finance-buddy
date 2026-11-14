@@ -115,8 +115,9 @@ function WalletPage() {
     return null;
   }
 
-  const freeChores = chores.filter((c) => !c.is_paid);
-  const paidChores = chores.filter((c) => c.is_paid);
+  // jfb_chores marks unpaid duties with is_obligatory; the rest pay coins.
+  const freeChores = chores.filter((c) => c.is_obligatory);
+  const paidChores = chores.filter((c) => !c.is_obligatory);
 
   // Map chore id → latest submission status
   const submissionMap: Record<string, "pending" | "approved" | "rejected"> = {};
