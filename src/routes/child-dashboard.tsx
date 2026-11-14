@@ -142,9 +142,9 @@ function ChildDashboard() {
                 className="relative grid h-10 w-10 place-items-center rounded-full bg-[oklch(0.46_0.18_292)] text-primary-foreground hover:bg-[oklch(0.42_0.18_292)] transition-colors"
               >
                 <Bell size={18} />
-                {(unreadCount > 0 || extraChores.length > 0) && (
+                {unreadCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-red-500 text-[10px] font-black text-white">
-                    {unreadCount + extraChores.length}
+                    {unreadCount}
                   </span>
                 )}
               </button>
