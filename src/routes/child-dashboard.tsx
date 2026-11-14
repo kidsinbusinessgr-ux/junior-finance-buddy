@@ -54,8 +54,8 @@ function ChildDashboard() {
 
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const { streak } = useStreak(child?.id ?? null);
-  const { spendingStats } = useSpendingAnalytics(child?.id);
+  const streak = useStreak(child?.id ?? null);
+  const { stats: spendingStats } = useSpendingAnalytics(child?.id);
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
 
   // Auth guard
@@ -504,7 +504,7 @@ function ChildDashboard() {
             {spendingStats.bySource.length > 0 && (
               <div className="mt-4 flex gap-2 flex-wrap">
                 {spendingStats.bySource.map((src) => (
-                  <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: src.color + '33', color: src.color }}>
+                  <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: `color-mix(in oklch, ${src.color} 20%, transparent)`, color: src.color }}>
                     <span className="h-2 w-2 rounded-full" style={{ background: src.color }} />
                     {src.label} €{src.amount.toFixed(2)}
                   </div>

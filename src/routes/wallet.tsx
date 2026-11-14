@@ -358,7 +358,7 @@ function WalletPage() {
               </div>
             ) : (
               rewards.map((reward) => {
-                const canAfford = child.coins >= reward.coins;
+                const canAfford = child.coins >= reward.cost;
                 const isPending = pendingRewardIds.has(reward.id);
                 const isApproved = approvedRewardIds.has(reward.id);
                 const isRequesting = requestingReward === reward.id;
@@ -374,7 +374,7 @@ function WalletPage() {
                     <span className="text-3xl">{reward.emoji ?? "🎁"}</span>
                     <div className="flex-1">
                       <p className="font-black">{reward.name}</p>
-                      <p className="text-sm font-bold text-muted-foreground">{reward.coins} 🪙</p>
+                      <p className="text-sm font-bold text-muted-foreground">{reward.cost} 🪙</p>
                     </div>
                     {isApproved ? (
                       <span className="flex items-center gap-1 text-xs font-black text-[oklch(0.2_0.08_175)]">
