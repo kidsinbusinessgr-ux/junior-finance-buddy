@@ -20,7 +20,6 @@ import {
   xpForNextLevel,
   LEVEL_NAMES,
   useChildNotifications,
-  markNotificationRead,
 } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/child-dashboard")({
@@ -49,7 +48,7 @@ function ChildDashboard() {
   const { chores } = useChores(child?.parent_id);
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id);
   const { earned: earnedBadges, all: allBadges } = useAchievements(child?.id);
-  const { notifications, unreadCount } = useChildNotifications(child?.id ?? null);
+  const { notifications, unreadCount, markRead } = useChildNotifications(child?.id ?? null);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
@@ -151,7 +150,14 @@ function ChildDashboard() {
               </button>
               {showNotifications && (
                 <div className="absolute right-0 top-12 z-50 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm text-gray-700">Ειδοποιήσεις</div>
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                    <span className="font-semibold text-sm text-gray-700">Ειδοποιήσεις</span>
+                    {unreadCount > 0 && (
+                      <button onClick={() => markRead()} className="text-xs font-bold text-[oklch(0.5_0.2_292)] hover:underline">
+                        Τα διάβασα όλα
+                      </button>
+                    )}
+                  </div>
                   <div className="max-h-64 overflow-y-auto divide-y divide-gray-50">
                     {notifications.length === 0 ? (
                       <p className="p-4 text-sm text-gray-400 text-center">Καμία ειδοποίηση</p>
@@ -159,8 +165,8 @@ function ChildDashboard() {
                       notifications.map((n) => (
                         <button
                           key={n.id}
-                          onClick={async () => { await markNotificationRead(n.id); setShowNotifications(false); }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50 font-medium" : "text-gray-600"}`}
+                          onClick={() => markRead(n.id)}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50 font-semibold text-gray-900" : "text-gray-500"}`}
                         >
                           {n.message}
                         </button>

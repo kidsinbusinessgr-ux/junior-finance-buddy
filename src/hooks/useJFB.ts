@@ -823,7 +823,19 @@ export function useChildNotifications(childId: string | null) {
   }, [childId]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  return { notifications, unreadCount };
+
+  // Mark one notification (or all, with no id) as read, and update the list right away.
+  const markRead = useCallback(
+    async (id?: string) => {
+      if (!childId) return;
+      setNotifications((prev) => prev.map((n) => (!id || n.id === id ? { ...n, read: true } : n)));
+      const q = supabase.from("jfb_notifications").update({ read: true }).eq("child_id", childId);
+      await (id ? q.eq("id", id) : q.eq("read", false));
+    },
+    [childId]
+  );
+
+  return { notifications, unreadCount, markRead };
 }
 
 export async function markNotificationRead(id: string) {
