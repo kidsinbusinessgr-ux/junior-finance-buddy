@@ -20,10 +20,13 @@ async function fetchPriceEur(ticker: string): Promise<number | null> {
   const key = process.env["FMP_API_KEY"];
   if (!key) return null;
   const [quoteRes, fxRes] = await Promise.all([
-    fetch(`https://financialmodelingprep.com/api/v3/quote/${ticker}?apikey=${key}`),
+    fetch(`https://financialmodelingprep.com/stable/quote?symbol=${ticker}&apikey=${key}`),
     fetch(`https://financialmodelingprep.com/stable/quote?symbol=EURUSD&apikey=${key}`),
   ]);
-  if (!quoteRes.ok) return null;
+  if (!quoteRes.ok) {
+    console.warn("FMP quote failed", ticker, quoteRes.status);
+    return null;
+  }
   const quote = (await quoteRes.json())?.[0];
   const usd = Number(quote?.price);
   if (!Number.isFinite(usd) || usd <= 0) return null;

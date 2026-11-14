@@ -85,28 +85,48 @@ async function getEurRate(key: string): Promise<number> {
   }
 }
 
+type FmpQuote = { symbol: string; price: number; change: number; changesPercentage?: number; changePercentage?: number; marketCap: number };
+
+// Live USD quotes from FMP's /stable API, keyed by ticker. Cached for 60s per
+// server instance so page loads don't burn through the FMP quota.
+let quoteCache: { at: number; map: Map<string, FmpQuote> } | null = null;
+
+export async function fetchStableQuotes(tickers: readonly string[], key: string): Promise<Map<string, FmpQuote>> {
+  if (quoteCache && Date.now() - quoteCache.at < 60_000 && tickers.every((t) => quoteCache!.map.has(t))) {
+    return quoteCache.map;
+  }
+  const map = new Map<string, FmpQuote>();
+  const add = (data: unknown) => {
+    if (!Array.isArray(data)) return;
+    for (const item of data) if (item?.symbol && Number(item.price) > 0) map.set(item.symbol, item);
+  };
+
+  const batch = await fetch(`${FMP_BASE}/batch-quote?symbols=${tickers.join(",")}&apikey=${key}`);
+  if (batch.ok) add(await batch.json());
+
+  const missing = tickers.filter((t) => !map.has(t));
+  if (missing.length) {
+    if (missing.length === tickers.length) console.warn("FMP batch-quote gave nothing, status", batch.status);
+    await Promise.all(
+      missing.map(async (t) => {
+        const res = await fetch(`${FMP_BASE}/quote?symbol=${t}&apikey=${key}`);
+        if (res.ok) add(await res.json());
+        else console.warn("FMP quote failed", t, res.status);
+      }),
+    );
+  }
+  if (map.size) quoteCache = { at: Date.now(), map: new Map([...(quoteCache?.map ?? []), ...map]) };
+  return map;
+}
+
 export const getStockQuotes = createServerFn({ method: "GET" }).handler(
   async () => {
     const key = getKey();
     const eurRate = await getEurRate(key);
 
-    // Batch call using FMP v3 path-based endpoint (supports comma-separated tickers)
-    const symbols = KID_STOCKS.map((s) => s.ticker).join(",");
-    const res = await fetch(
-      `https://financialmodelingprep.com/api/v3/quote/${symbols}?apikey=${key}`,
-      { headers: { Accept: "application/json" } }
-    );
-
-    // v3 /quote names the field `changesPercentage`; the /stable API uses `changePercentage`.
-    const quoteMap = new Map<string, { price: number; change: number; changesPercentage?: number; changePercentage?: number; marketCap: number }>();
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        for (const item of data) {
-          if (item.symbol && item.price) quoteMap.set(item.symbol, item);
-        }
-      }
-    }
+    // The old /api/v3 endpoints no longer answer, so use /stable. Try one
+    // batch call first; if the plan doesn't include it, ask per ticker.
+    const quoteMap = await fetchStableQuotes(KID_STOCKS.map((s) => s.ticker), key);
 
     const quotes: StockQuote[] = KID_STOCKS.map((meta) => {
       const fmp = quoteMap.get(meta.ticker);
