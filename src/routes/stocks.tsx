@@ -22,6 +22,17 @@ import {
   type StockNewsItem,
 } from "@/lib/stocks.functions";
 import { askBuddy, type BuddyResponse } from "@/lib/buddy.functions";
+import { tradeMarketStock, type MarketTradeResult } from "@/lib/market.functions";
+import { useChild } from "@/hooks/useJFB";
+import { supabase } from "@/integrations/supabase/client";
+
+const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], string> = {
+  login: "Συνδέσου για να επενδύσεις τα νομίσματά σου!",
+  no_child: "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει νομίσματα.",
+  no_price: "Δεν βρέθηκε τιμή για αυτή τη μετοχή τώρα. Δοκίμασε ξανά σε λίγο!",
+  not_enough: "Δεν έχεις αρκετά νομίσματα!",
+  failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά!",
+};
 
 export const Route = createFileRoute("/stocks")({
   head: () => ({
@@ -98,8 +109,29 @@ function StocksPage() {
   const [selectedTicker, setSelectedTicker] = useState<string>("AAPL");
   const [loadingQuotes, setLoadingQuotes] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  // Real coins and saved holdings (jfb_market_holdings); trades run on the server.
+  const { child, refetch: refetchChild } = useChild();
+  const coins = child?.coins ?? 0;
   const [portfolio, setPortfolio] = useState<Holding[]>([]);
-  const [coins, setCoins] = useState(500);
+  const [trading, setTrading] = useState<string | null>(null);
+
+  async function loadPortfolio(childId: string) {
+    const { data } = await (supabase.from as any)("jfb_market_holdings")
+      .select("ticker, shares, coins_invested, avg_buy_price_eur")
+      .eq("child_id", childId);
+    setPortfolio(
+      (data ?? []).map((h: any) => ({
+        ticker: h.ticker,
+        shares: Number(h.shares),
+        coinsInvested: h.coins_invested,
+        buyPrice: Number(h.avg_buy_price_eur),
+      })),
+    );
+  }
+
+  useEffect(() => {
+    if (child?.id) loadPortfolio(child.id);
+  }, [child?.id]);
   const [investInput, setInvestInput] = useState<Record<string, number>>({});
   const [toast, setToast] = useState("");
   const [buddy, setBuddy] = useState<BuddyResponse | null>(null);
@@ -211,50 +243,51 @@ function StocksPage() {
     }
   }
 
-  function handleInvest(ticker: string) {
-    const amount = investInput[ticker] ?? 0;
-    if (amount <= 0) return;
-    if (amount > coins) {
-      showToast("Δεν έχεις αρκετά νομίσματα!");
+  async function handleInvest(ticker: string) {
+    const amount = Math.floor(investInput[ticker] ?? 0);
+    if (amount <= 0 || trading) return;
+    if (!child) {
+      showToast(TRADE_ERRORS.no_child);
       return;
     }
-    const quote = quotes.find((q) => q.ticker === ticker);
-    if (!quote || quote.price <= 0) return;
-
-    const eurAmount = amount * COIN_TO_EUR;
-    const shares = eurAmount / quote.price;
-
-    setPortfolio((prev) => {
-      const existing = prev.find((h) => h.ticker === ticker);
-      if (existing) {
-        return prev.map((h) =>
-          h.ticker === ticker
-            ? {
-                ...h,
-                coinsInvested: h.coinsInvested + amount,
-                shares: h.shares + shares,
-                buyPrice: (h.buyPrice * h.shares + quote.price * shares) / (h.shares + shares),
-              }
-            : h
-        );
+    if (amount > coins) {
+      showToast(TRADE_ERRORS.not_enough);
+      return;
+    }
+    const name = quotes.find((q) => q.ticker === ticker)?.name ?? ticker;
+    setTrading(ticker);
+    try {
+      const res = await tradeMarketStock({ data: { side: "buy", ticker, coins: amount } });
+      if (!res.ok) {
+        showToast(TRADE_ERRORS[res.reason]);
+        return;
       }
-      return [...prev, { ticker, coinsInvested: amount, buyPrice: quote.price, shares }];
-    });
-    setCoins((c) => c - amount);
-    setInvestInput((prev) => ({ ...prev, [ticker]: 0 }));
-    showToast(`✅ Επένδυσες ${amount} 🪙 στην ${quote.name}!`);
+      setInvestInput((prev) => ({ ...prev, [ticker]: 0 }));
+      showToast(`✅ Επένδυσες ${amount} 🪙 στην ${name}!`);
+      await Promise.all([loadPortfolio(child.id), refetchChild()]);
+    } catch {
+      showToast(TRADE_ERRORS.failed);
+    } finally {
+      setTrading(null);
+    }
   }
 
-  function handleSell(ticker: string) {
-    const holding = portfolio.find((h) => h.ticker === ticker);
-    if (!holding) return;
-    const quote = quotes.find((q) => q.ticker === ticker);
-    const currentValue = quote
-      ? (holding.shares * quote.price) / COIN_TO_EUR
-      : holding.coinsInvested;
-    setCoins((c) => c + Math.round(currentValue));
-    setPortfolio((prev) => prev.filter((h) => h.ticker !== ticker));
-    showToast(`💰 Πούλησες τις μετοχές σου!`);
+  async function handleSell(ticker: string) {
+    if (!child || trading || !portfolio.some((h) => h.ticker === ticker)) return;
+    setTrading(ticker);
+    try {
+      const res = await tradeMarketStock({ data: { side: "sell", ticker } });
+      if (!res.ok) {
+        showToast(TRADE_ERRORS[res.reason]);
+        return;
+      }
+      showToast(`💰 Πούλησες τις μετοχές σου!`);
+      await Promise.all([loadPortfolio(child.id), refetchChild()]);
+    } catch {
+      showToast(TRADE_ERRORS.failed);
+    } finally {
+      setTrading(null);
+    }
   }
 
   function showToast(msg: string) {
@@ -452,10 +485,11 @@ function StocksPage() {
                           />
                           <Button
                             onClick={() => handleInvest(q.ticker)}
+                            disabled={trading !== null}
                             className="h-9 rounded-xl px-4 text-xs font-black"
                             style={{ background: "oklch(0.57 0.23 292)" }}
                           >
-                            Επένδυσε
+                            {trading === q.ticker ? "..." : "Επένδυσε"}
                           </Button>
                         </div>
 
@@ -879,10 +913,11 @@ function StocksPage() {
                       <div className="mt-4 flex gap-2">
                         <Button
                           onClick={() => handleSell(h.ticker)}
+                          disabled={trading !== null}
                           variant="outline"
                           className="h-8 rounded-xl px-4 text-xs font-black"
                         >
-                          Πώλησε
+                          {trading === h.ticker ? "..." : "Πώλησε"}
                         </Button>
                       </div>
                     </div>
