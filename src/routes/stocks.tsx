@@ -34,6 +34,17 @@ const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], s
   failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά!",
 };
 
+// Public half of the server's push key pair (VAPID_PUBLIC_KEY on Vercel); must match it.
+const VAPID_PUBLIC = "BJkiC8Pupl55Cio9Bc7lEctrtQum413E7eMmWCRkCuBDwclVSud9uvsuatBAq3EPMciO4EWpt-3MJA37pTYpk1k";
+
+// The server key a browser subscription was made with, in the same base64url form.
+function subscriptionKey(sub: PushSubscription): string {
+  const key = sub.options.applicationServerKey;
+  if (!key) return "";
+  return btoa(String.fromCharCode(...new Uint8Array(key)))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
 export const Route = createFileRoute("/stocks")({
   head: () => ({
     meta: [
@@ -142,16 +153,23 @@ function StocksPage() {
   const [pushStatus, setPushStatus] = useState<"idle" | "subscribed" | "denied" | "error" | "unsupported">("idle");
 
   useEffect(() => {
-    // Check if already subscribed
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      navigator.serviceWorker.ready.then((reg) => {
-        reg.pushManager.getSubscription().then((sub) => {
-          if (sub) setPushStatus("subscribed");
-        });
-      });
-    } else {
+    // Check if already subscribed. A subscription made with an older server key
+    // can never receive notifications, so it is replaced with a new one.
+    if (!("serviceWorker" in navigator && "PushManager" in window)) {
       setPushStatus("unsupported");
+      return;
     }
+    navigator.serviceWorker.getRegistration().then(async (reg) => {
+      const sub = await reg?.pushManager.getSubscription();
+      if (!sub) return;
+      if (subscriptionKey(sub) === VAPID_PUBLIC) {
+        setPushStatus("subscribed");
+        return;
+      }
+      await sub.unsubscribe();
+      if (Notification.permission === "granted") subscribeToPush();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function subscribeToPush() {
@@ -164,7 +182,6 @@ function StocksPage() {
       await navigator.serviceWorker.ready;
       const permission = await Notification.requestPermission();
       if (permission !== "granted") { setPushStatus("denied"); return; }
-      const VAPID_PUBLIC = "BBhsDB2hT8kLXkieWkOqyXTi1c2x4e40Q43kwtD92xRgjKnpXkPl-nchLSb2py5-Gt_vlFJL3qedinKRolQXGa0";
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: VAPID_PUBLIC,
