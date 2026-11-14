@@ -10,16 +10,21 @@ export const Route = createFileRoute("/api/cron/news-push")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        console.log("news-push: started");
         const cronSecret = process.env["CRON_SECRET"];
         // Fail closed: without a secret configured, nobody can trigger this.
         if (!cronSecret || request.headers.get("authorization") !== `Bearer ${cronSecret}`) {
+          console.warn("news-push: unauthorized", { hasSecret: Boolean(cronSecret), hasHeader: request.headers.has("authorization") });
           return new Response("Unauthorized", { status: 401 });
         }
 
         const fmpKey = process.env["FMP_API_KEY"];
         const vapidPublic = process.env["VAPID_PUBLIC_KEY"];
         const vapidPrivate = process.env["VAPID_PRIVATE_KEY"];
-        if (!fmpKey || !vapidPublic || !vapidPrivate) return json({ error: "Missing env vars" }, 500);
+        if (!fmpKey || !vapidPublic || !vapidPrivate) {
+          console.error("news-push: missing env vars");
+          return json({ error: "Missing env vars" }, 500);
+        }
 
         const { getAdminClient } = await import("@/lib/supabase-admin.server");
         // web-push only has named exports (no default), so use the module itself.
