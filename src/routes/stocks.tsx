@@ -138,7 +138,7 @@ function StocksPage() {
   const [loadingBuddy, setLoadingBuddy] = useState(false);
   const [news, setNews] = useState<StockNewsItem[]>([]);
   const [loadingNews, setLoadingNews] = useState(false);
-  const [pushStatus, setPushStatus] = useState<"idle" | "subscribed" | "denied" | "unsupported">("idle");
+  const [pushStatus, setPushStatus] = useState<"idle" | "subscribed" | "denied" | "error" | "unsupported">("idle");
 
   useEffect(() => {
     // Check if already subscribed
@@ -168,15 +168,17 @@ function StocksPage() {
         userVisibleOnly: true,
         applicationServerKey: VAPID_PUBLIC,
       });
-      await fetch("/api/push/subscribe", {
+      const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subscription: sub.toJSON(), ticker: selectedTicker }),
       });
+      if (!res.ok) throw new Error("subscribe failed: " + res.status);
       setPushStatus("subscribed");
     } catch (err) {
+      // Permission was given but something else failed; let the child try again.
       console.error("Push subscribe error:", err);
-      setPushStatus("denied");
+      setPushStatus(Notification.permission === "denied" ? "denied" : "error");
     }
   }
 
@@ -749,6 +751,12 @@ function StocksPage() {
                                   </span>
                                 </div>
                               ) : (
+                                <>
+                                {pushStatus === "error" && (
+                                  <p className="mb-2 text-xs font-bold text-red-600 dark:text-red-400">
+                                    Κάτι πήγε στραβά με τις ειδοποιήσεις. Δοκίμασε ξανά!
+                                  </p>
+                                )}
                                 <button
                                   onClick={subscribeToPush}
                                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-black hover:bg-muted/70 transition-colors"
@@ -756,6 +764,7 @@ function StocksPage() {
                                   <span>🔔</span>
                                   Ειδοποιήσου για νέα της {q.name}
                                 </button>
+                                </>
                               )}
                             </div>
                           )}
