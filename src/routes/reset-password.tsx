@@ -29,8 +29,8 @@ function ResetPasswordPage() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 6) {
-      setError("Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.");
+    if (password.length < 8) {
+      setError("Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες.");
       return;
     }
     if (password !== confirm) {
@@ -97,7 +97,7 @@ function ResetPasswordPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    minLength={6}
+                    minLength={8}
                     className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
                   />
                 </div>
