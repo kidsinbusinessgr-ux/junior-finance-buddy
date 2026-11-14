@@ -1,7 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const FMP_BASE = "https://financialmodelingprep.com/stable";
-
 export const KID_STOCKS = [
   { ticker: "AAPL", name: "Apple", emoji: "🍎", color: "#6E6E73", description: "Κατασκευάζει iPhone, iPad, Mac και AirPods. Μία από τις πιο πολύτιμες εταιρίες στον κόσμο — αν έχεις iPhone, έχεις ήδη χρησιμοποιήσει ένα Apple προϊόν!" },
   { ticker: "NVDA", name: "Nvidia", emoji: "🟢", color: "#76B900", description: "Φτιάχνει τις καλύτερες κάρτες γραφικών (GPU) για gaming και τεχνητή νοημοσύνη. Σχεδόν κάθε AI εφαρμογή (ChatGPT, Gemini) χρησιμοποιεί Nvidia chips!" },
@@ -62,149 +60,57 @@ export interface StockNewsItem {
   image?: string;
 }
 
-function getKey() {
-  const key = process.env.FMP_API_KEY;
-  if (!key) throw new Error("FMP_API_KEY is not set");
-  return key;
-}
+// Prices come from the shared store in market-data.server.ts (refreshed every
+// few hours to stay inside the free FMP plan). Stocks with no known price yet
+// are left out instead of showing €0.
+export const getStockQuotes = createServerFn({ method: "GET" }).handler(async () => {
+  const { getStoredQuotes, getEurPerUsd } = await import("./market-data.server");
+  const [{ quotes: stored, updatedAt }, eurRate] = await Promise.all([
+    getStoredQuotes(KID_STOCKS.map((s) => s.ticker)),
+    getEurPerUsd(),
+  ]);
 
+  const quotes: StockQuote[] = KID_STOCKS.flatMap((meta) => {
+    const q = stored[meta.ticker];
+    if (!q) return [];
+    return [{
+      ticker: meta.ticker,
+      name: meta.name,
+      emoji: meta.emoji,
+      color: meta.color,
+      description: meta.description,
+      price: q.price * eurRate,
+      change: q.change * eurRate,
+      changePercent: q.changePercent,
+      marketCap: q.marketCap,
+    }];
+  });
 
-async function getEurRate(key: string): Promise<number> {
-  try {
-    const res = await fetch(
-      `${FMP_BASE}/quote?symbol=EURUSD&apikey=${key}`,
-      { headers: { Accept: 'application/json' } }
-    );
-    if (!res.ok) return 0.92;
-    const data = await res.json();
-    const fmp = Array.isArray(data) ? data[0] : null;
-    if (!fmp || !fmp.price) return 0.92;
-    return 1 / fmp.price;
-  } catch {
-    return 0.92;
-  }
-}
-
-type FmpQuote = { symbol: string; price: number; change: number; changesPercentage?: number; changePercentage?: number; marketCap: number };
-
-// Live USD quotes from FMP's /stable API, keyed by ticker. Cached for 60s per
-// server instance so page loads don't burn through the FMP quota.
-let quoteCache: { at: number; map: Map<string, FmpQuote> } | null = null;
-
-export async function fetchStableQuotes(tickers: readonly string[], key: string): Promise<Map<string, FmpQuote>> {
-  if (quoteCache && Date.now() - quoteCache.at < 60_000 && tickers.every((t) => quoteCache!.map.has(t))) {
-    return quoteCache.map;
-  }
-  const map = new Map<string, FmpQuote>();
-  const add = (data: unknown) => {
-    if (!Array.isArray(data)) return;
-    for (const item of data) if (item?.symbol && Number(item.price) > 0) map.set(item.symbol, item);
+  return {
+    quotes,
+    fetchedAt: new Date().toISOString(),
+    pricesAt: updatedAt ? new Date(updatedAt).toISOString() : null,
   };
+});
 
-  const batch = await fetch(`${FMP_BASE}/batch-quote?symbols=${tickers.join(",")}&apikey=${key}`);
-  if (batch.ok) add(await batch.json());
-
-  const missing = tickers.filter((t) => !map.has(t));
-  if (missing.length) {
-    if (missing.length === tickers.length) console.warn("FMP batch-quote gave nothing, status", batch.status);
-    await Promise.all(
-      missing.map(async (t) => {
-        const res = await fetch(`${FMP_BASE}/quote?symbol=${t}&apikey=${key}`);
-        if (res.ok) add(await res.json());
-        else console.warn("FMP quote failed", t, res.status);
-      }),
-    );
+const tickerSchema = (ticker: unknown) => {
+  if (typeof ticker !== "string" || !KID_STOCKS.some((s) => s.ticker === ticker)) {
+    throw new Error("Unknown ticker");
   }
-  if (map.size) quoteCache = { at: Date.now(), map: new Map([...(quoteCache?.map ?? []), ...map]) };
-  return map;
-}
-
-export const getStockQuotes = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const key = getKey();
-    const eurRate = await getEurRate(key);
-
-    // The old /api/v3 endpoints no longer answer, so use /stable. Try one
-    // batch call first; if the plan doesn't include it, ask per ticker.
-    const quoteMap = await fetchStableQuotes(KID_STOCKS.map((s) => s.ticker), key);
-
-    const quotes: StockQuote[] = KID_STOCKS.map((meta) => {
-      const fmp = quoteMap.get(meta.ticker);
-      return {
-        ticker: meta.ticker,
-        name: meta.name,
-        emoji: meta.emoji,
-        color: meta.color,
-        description: meta.description,
-        price: fmp ? fmp.price * eurRate : 0,
-        change: fmp ? fmp.change * eurRate : 0,
-        changePercent: fmp?.changesPercentage ?? fmp?.changePercentage ?? 0,
-        marketCap: fmp?.marketCap ?? 0,
-      };
-    });
-
-    return { quotes, fetchedAt: new Date().toISOString() };
-  }
-);
+  return ticker;
+};
 
 export const getStockHistory = createServerFn({ method: "GET" })
-  .validator((ticker: string) => ticker)
-  .handler(async ({ data: ticker }) => {
-    const key = getKey();
-    const eurRate = await getEurRate(key);
-    const to = new Date().toISOString().slice(0, 10);
-    const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 10);
-
-    const res = await fetch(
-      `${FMP_BASE}/historical-price-eod/full?symbol=${ticker}&from=${from}&to=${to}&apikey=${key}`,
-      { headers: { Accept: "application/json" } }
-    );
-    if (!res.ok) throw new Error(`FMP history error: ${res.status}`);
-    const data = await res.json();
-
-    const history: { date: string; close: number }[] = (
-      Array.isArray(data) ? data : []
-    )
-      .slice(0, 30)
-      .reverse()
-      .map((d: { date: string; close: number }) => ({
-        date: d.date,
-        close: d.close * eurRate,
-      }));
-
-    return { ticker, history } as StockHistory;
+  .inputValidator(tickerSchema)
+  .handler(async ({ data: ticker }): Promise<StockHistory> => {
+    const { getStoredHistory, getEurPerUsd } = await import("./market-data.server");
+    const [history, eurRate] = await Promise.all([getStoredHistory(ticker), getEurPerUsd()]);
+    return { ticker, history: history.map((d) => ({ date: d.date, close: d.close * eurRate })) };
   });
 
 export const getStockNews = createServerFn({ method: "GET" })
-  .validator((ticker: string) => ticker)
-  .handler(async ({ data: ticker }) => {
-    const key = getKey();
-    const res = await fetch(
-      `${FMP_BASE}/news/stock?symbols=${ticker}&limit=5&apikey=${key}`,
-      { headers: { Accept: "application/json" } }
-    );
-    if (!res.ok) throw new Error(`FMP news error: ${res.status}`);
-    const data = await res.json();
-
-    const news: StockNewsItem[] = (Array.isArray(data) ? data : []).map(
-      (item: {
-        title?: string;
-        url?: string;
-        publishedDate?: string;
-        site?: string;
-        text?: string;
-        image?: string;
-      }) => ({
-        title: item.title ?? "",
-        url: item.url ?? "#",
-        publishedDate: item.publishedDate ?? "",
-        site: item.site ?? "",
-        text: item.text ? item.text.slice(0, 200) + "..." : "",
-        image: item.image,
-      })
-    );
-
-    return { ticker, news };
+  .inputValidator(tickerSchema)
+  .handler(async ({ data: ticker }): Promise<{ ticker: string; news: StockNewsItem[] }> => {
+    const { getStoredNews } = await import("./market-data.server");
+    return { ticker, news: await getStoredNews(ticker) };
   });

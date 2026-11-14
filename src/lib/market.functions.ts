@@ -3,8 +3,8 @@ import { z } from "zod";
 import { KID_STOCKS } from "./stocks.functions";
 
 // Trades on the real-market stock page (/stocks). The server finds the child
-// from the login and fetches the price itself, so the browser can't choose
-// either. Coins move only inside jfb_market_trade (service role only).
+// from the login and looks up the stored price itself, so the browser can't
+// choose either. Coins move only inside jfb_market_trade (service role only).
 
 export type MarketTradeResult =
   | { ok: true; coins: number; priceEur: number }
@@ -14,31 +14,6 @@ const tradeSchema = z.discriminatedUnion("side", [
   z.object({ side: z.literal("buy"), ticker: z.string().min(1).max(10), coins: z.number().int().min(1).max(10000) }),
   z.object({ side: z.literal("sell"), ticker: z.string().min(1).max(10) }),
 ]);
-
-// Live price in EUR for one ticker, or null if FMP gives no usable price.
-async function fetchPriceEur(ticker: string): Promise<number | null> {
-  const key = process.env["FMP_API_KEY"];
-  if (!key) return null;
-  const [quoteRes, fxRes] = await Promise.all([
-    fetch(`https://financialmodelingprep.com/stable/quote?symbol=${ticker}&apikey=${key}`),
-    fetch(`https://financialmodelingprep.com/stable/quote?symbol=EURUSD&apikey=${key}`),
-  ]);
-  if (!quoteRes.ok) {
-    console.warn("FMP quote failed", ticker, quoteRes.status);
-    return null;
-  }
-  const quote = (await quoteRes.json())?.[0];
-  const usd = Number(quote?.price);
-  if (!Number.isFinite(usd) || usd <= 0) return null;
-
-  // Same conversion as the quotes on the page (fallback 0.92 like getEurRate).
-  let eurPerUsd = 0.92;
-  if (fxRes.ok) {
-    const eurUsd = Number((await fxRes.json())?.[0]?.price);
-    if (Number.isFinite(eurUsd) && eurUsd > 0) eurPerUsd = 1 / eurUsd;
-  }
-  return usd * eurPerUsd;
-}
 
 export const tradeMarketStock = createServerFn({ method: "POST" })
   .inputValidator((data) => tradeSchema.parse(data))
@@ -59,7 +34,9 @@ export const tradeMarketStock = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!child) return { ok: false, reason: "no_child" };
 
-    const priceEur = await fetchPriceEur(meta.ticker);
+    // Same stored price the child sees on the page (refreshed every few hours).
+    const { getStoredPriceEur } = await import("./market-data.server");
+    const priceEur = await getStoredPriceEur(meta.ticker);
     if (!priceEur) return { ok: false, reason: "no_price" };
 
     const { data: coins, error } = await admin.rpc("jfb_market_trade" as never, {

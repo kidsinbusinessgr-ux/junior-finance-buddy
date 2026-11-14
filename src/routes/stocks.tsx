@@ -105,6 +105,7 @@ const COIN_TO_EUR = 0.1;
 function StocksPage() {
   const [tab, setTab] = useState<Tab>("📚 Μάθε");
   const [quotes, setQuotes] = useState<StockQuote[]>([]);
+  const [pricesAt, setPricesAt] = useState<string | null>(null);
   const [history, setHistory] = useState<StockHistory | null>(null);
   const [selectedTicker, setSelectedTicker] = useState<string>("AAPL");
   const [loadingQuotes, setLoadingQuotes] = useState(false);
@@ -196,6 +197,7 @@ function StocksPage() {
     try {
       const res = await getStockQuotes();
       setQuotes(res.quotes);
+      setPricesAt(res.pricesAt);
     } catch {
       // silently handle
     } finally {
@@ -404,7 +406,14 @@ function StocksPage() {
         {tab === "📊 Αγορά" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-black">Εταιρίες που ξέρεις</h2>
+              <div>
+                <h2 className="text-2xl font-black">Εταιρίες που ξέρεις</h2>
+                {pricesAt && (
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Τιμές από {new Date(pricesAt).toLocaleString("el-GR", { weekday: "short", hour: "2-digit", minute: "2-digit" })} · ανανεώνονται κάθε λίγες ώρες
+                  </p>
+                )}
+              </div>
               <button
                 onClick={fetchQuotes}
                 disabled={loadingQuotes}
@@ -419,6 +428,12 @@ function StocksPage() {
               <div className="flex justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-[oklch(0.57_0.23_292)] border-t-transparent" />
               </div>
+            )}
+
+            {!loadingQuotes && quotes.length === 0 && (
+              <p className="rounded-2xl bg-muted p-4 text-center text-sm font-semibold text-muted-foreground">
+                Οι τιμές δεν είναι διαθέσιμες αυτή τη στιγμή. Δοκίμασε ξανά σε λίγο!
+              </p>
             )}
 
             <div className="grid gap-3 sm:grid-cols-2">
