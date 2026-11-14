@@ -474,8 +474,7 @@ export async function createParentProfile(userId: string, name: string): Promise
     .single();
   if (error || !data) return null;
 
-  // Seed default chores
-  await supabase.rpc("jfb_seed_default_chores", { p_parent_id: data.id });
+  // Default chores are added by the database (trigger on jfb_parents).
   return data;
 }
 
