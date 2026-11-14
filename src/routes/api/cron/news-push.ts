@@ -40,18 +40,38 @@ export const Route = createFileRoute("/api/cron/news-push")({
         }
 
         const tickers = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL", "META", "AMZN"];
+        let top: { symbol?: string; title?: string } | null = null;
         const newsRes = await fetch(
           `${FMP_BASE}/news/stock?symbols=${tickers.join(",")}&limit=3&apikey=${fmpKey}`,
           { headers: { Accept: "application/json" } },
         );
-        if (!newsRes.ok) {
+        if (newsRes.ok) {
+          const newsData = await newsRes.json();
+          if (Array.isArray(newsData) && newsData.length) top = newsData[0];
+        } else {
           console.error("news-push: FMP news failed", newsRes.status);
-          return json({ error: "FMP news failed" }, 502);
         }
-        const newsData = await newsRes.json();
-        if (!Array.isArray(newsData) || newsData.length === 0) return json({ sent: 0, reason: "no news" });
+        // If FMP gives nothing (e.g. the free plan's daily limit is used up),
+        // use the newest article already stored for the stocks page.
+        if (!top) {
+          const { data: rows } = await supabase
+            .from("jfb_market_cache" as never)
+            .select("key, data")
+            .like("key", "news:%");
+          let newest = "";
+          for (const row of (rows ?? []) as { key: string; data: { news?: { title: string; publishedDate: string }[] } }[]) {
+            const item = row.data?.news?.[0];
+            if (item?.title && item.publishedDate > newest) {
+              newest = item.publishedDate;
+              top = { symbol: row.key.slice(5), title: item.title };
+            }
+          }
+        }
+        if (!top) {
+          console.log("news-push: no news to send");
+          return json({ sent: 0, reason: "no news" });
+        }
 
-        const top = newsData[0];
         const payload = JSON.stringify({
           title: `📰 ${top.symbol || "Αγορά"} — Νέο άρθρο`,
           body: top.title?.slice(0, 120) || "Δες τα τελευταία νέα της αγοράς!",
