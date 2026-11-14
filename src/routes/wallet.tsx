@@ -312,11 +312,6 @@ function WalletPage() {
                         </button>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-bold">{chore.name}</p>
-                          {subStatus && isAvailable === false && (
-                            <div className="mt-1">
-                              <StatusBadge status={subStatus} />
-                            </div>
-                          )}
                           {subStatus && (
                             <div className="mt-1">
                               <StatusBadge status={subStatus} />
