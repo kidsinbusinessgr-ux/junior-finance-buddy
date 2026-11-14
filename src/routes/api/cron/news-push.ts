@@ -29,14 +29,20 @@ export const Route = createFileRoute("/api/cron/news-push")({
         const supabase = getAdminClient();
         const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth");
         if (error) return json({ error: error.message }, 500);
-        if (!subs || subs.length === 0) return json({ sent: 0 });
+        if (!subs || subs.length === 0) {
+          console.log("news-push: no subscribers");
+          return json({ sent: 0 });
+        }
 
         const tickers = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL", "META", "AMZN"];
         const newsRes = await fetch(
           `${FMP_BASE}/news/stock?symbols=${tickers.join(",")}&limit=3&apikey=${fmpKey}`,
           { headers: { Accept: "application/json" } },
         );
-        if (!newsRes.ok) return json({ error: "FMP news failed" }, 502);
+        if (!newsRes.ok) {
+          console.error("news-push: FMP news failed", newsRes.status);
+          return json({ error: "FMP news failed" }, 502);
+        }
         const newsData = await newsRes.json();
         if (!Array.isArray(newsData) || newsData.length === 0) return json({ sent: 0, reason: "no news" });
 
@@ -72,6 +78,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
           }
         }
 
+        console.log("news-push:", JSON.stringify({ subscribers: subs.length, sent, removed, failed, symbol: top.symbol }));
         return json({ sent, removed, failed });
       },
     },
