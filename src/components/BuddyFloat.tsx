@@ -14,7 +14,8 @@ export function BuddyFloat() {
   const [open, setOpen]         = useState(false);
   const [input, setInput]       = useState("");
   const [loading, setLoading]   = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // "failed" marks Buddy's "too busy" bubble; it is never sent back to Gemini.
+  const [messages, setMessages] = useState<(ChatMessage & { failed?: boolean })[]>([]);
 
   const isHidden =
     PUBLIC_ROUTES.has(path) ||
@@ -23,26 +24,31 @@ export function BuddyFloat() {
     path.startsWith("/dashboard") ||
     path.startsWith("/onboarding");
 
-  const send = useCallback(async (text?: string) => {
+  const send = useCallback(async (text?: string, retry = false) => {
     // The server accepts up to 500 characters per message and uses the last 12 messages.
     const userText = (text ?? input).trim().slice(0, 500);
     if (!userText || loading) return;
-    setInput("");
+    if (!retry) setInput("");
 
-    const newMessages: ChatMessage[] = [...messages, { role: "user", text: userText }];
+    // Drop "too busy" bubbles; on a retry also drop the question being resent.
+    let base: ChatMessage[] = messages.filter((m) => !m.failed).map(({ role, text }) => ({ role, text }));
+    if (retry && base.at(-1)?.role === "user") base = base.slice(0, -1);
+    const newMessages: ChatMessage[] = [...base, { role: "user", text: userText }];
     setMessages(newMessages);
     setLoading(true);
 
     try {
-      const { reply } = await chatWithBuddy({ data: { messages: newMessages.slice(-12), page: path } });
-      setMessages([...newMessages, { role: "model", text: reply }]);
+      const { reply, busy } = await chatWithBuddy({ data: { messages: newMessages.slice(-12), page: path } });
+      setMessages([...newMessages, { role: "model", text: reply, ...(busy ? { failed: true } : {}) }]);
     } catch (e) {
       console.error("Buddy error:", e);
-      setMessages([...newMessages, { role: "model", text: "Ουπς! Κάτι πήγε στραβά. Δοκίμασε ξανά 😊" }]);
+      setMessages([...newMessages, { role: "model", text: "Ουπς! Κάτι πήγε στραβά. Πάτα «Ξαναστείλε» 😊", failed: true }]);
     } finally {
       setLoading(false);
     }
   }, [input, loading, messages, path]);
+
+  const lastUserText = [...messages].reverse().find((m) => m.role === "user")?.text;
 
   if (isHidden) return null;
 
@@ -129,6 +135,18 @@ export function BuddyFloat() {
                 boxShadow: "0 2px 6px rgba(0,0,0,.08)",
               }}>
                 {m.text}
+                {m.failed && i === messages.length - 1 && lastUserText && !loading && (
+                  <button
+                    onClick={() => send(lastUserText, true)}
+                    style={{
+                      display: "block", marginTop: "8px", fontSize: "12px", fontWeight: 700,
+                      padding: "5px 12px", borderRadius: "20px", cursor: "pointer",
+                      background: "linear-gradient(135deg,#7c3aed,#a855f7)", color: "#fff", border: "none",
+                    }}
+                  >
+                    🔄 Ξαναστείλε
+                  </button>
+                )}
               </div>
             ))}
             {loading && (

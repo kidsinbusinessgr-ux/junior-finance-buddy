@@ -26,14 +26,17 @@ function geminiFallbackModel() {
 const ATTEMPT_TIMEOUT_MS = 12_000;
 
 // fetch() for Gemini: tries the main model, then the backup model if the main
-// one is busy or times out. Each attempt gets 12s, so a child never waits more
-// than ~25s. Every attempt is logged (status + duration) in Vercel's runtime logs.
+// one is busy or times out, then the main model once more after a short pause
+// (Google's "high demand" spikes are usually brief). A child waits at most ~35s.
+// Every attempt is logged (status + duration) in Vercel's runtime logs.
 async function geminiFetch(url: string, init: RequestInit): Promise<Response> {
   const primary = geminiModel();
   const models = [primary, geminiFallbackModel()].filter((m, i, all) => all.indexOf(m) === i);
+  models.push(primary);
 
   let last: Response | null = null;
-  for (const model of models) {
+  for (const [i, model] of models.entries()) {
+    if (i === models.length - 1) await new Promise((r) => setTimeout(r, 2000));
     const started = Date.now();
     const modelUrl = url.replace(`/models/${primary}:`, `/models/${model}:`);
     try {
@@ -258,6 +261,8 @@ export interface ChatInput {
 
 export interface ChatOutput {
   reply: string;
+  // True when Google was too busy to answer; the chat offers to send again.
+  busy?: boolean;
 }
 
 const CHAT_PAGE_CONTEXT: Record<string, string> = {
@@ -321,14 +326,19 @@ export const chatWithBuddy = createServerFn({ method: "POST" })
       return text;
     };
 
-    let reply = await askGemini();
+    let reply: string | undefined;
+    try {
+      reply = await askGemini();
+    } catch {
+      return { reply: SAFE_REPLIES.busy, busy: true };
+    }
     if (!reply) return { reply: SAFE_REPLIES.offTopic };
 
     // Letters from another alphabet in the reply: ask once more, and if it
     // happens again, remove those letters so the child never sees them.
     if (hasForeignLetters(reply)) {
       console.warn("Buddy reply had foreign letters; asking again");
-      reply = (await askGemini()) ?? reply;
+      reply = (await askGemini().catch(() => undefined)) ?? reply;
       if (hasForeignLetters(reply)) reply = stripForeignLetters(reply);
     }
     // Last check on what Buddy says, whatever the model did.
