@@ -230,11 +230,12 @@ export function useChoreSubmissions(childId: string | null | undefined) {
 }
 
 export async function submitChore(choreId: string, childId: string): Promise<void> {
-  await supabase.from("jfb_chore_submissions").insert({
+  const { error } = await supabase.from("jfb_chore_submissions").insert({
     chore_id: choreId,
     child_id: childId,
     status: "pending",
   });
+  if (error) throw new Error(error.message);
 }
 
 export async function reviewChore(

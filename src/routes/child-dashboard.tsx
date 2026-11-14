@@ -101,10 +101,15 @@ function ChildDashboard() {
   async function handleSubmitChores() {
     if (!child || selectedChores.length === 0) return;
     setSubmitting(true);
-    await Promise.all(selectedChores.map((id) => submitChore(id, child.id)));
-    setSelectedChores([]);
-    await refetchSubmissions();
-    setSubmitting(false);
+    try {
+      await Promise.all(selectedChores.map((id) => submitChore(id, child.id)));
+      setSelectedChores([]);
+    } catch (e) {
+      console.error("chore submit failed", e);
+    } finally {
+      await refetchSubmissions();
+      setSubmitting(false);
+    }
   }
 
   // Recent transactions (last 3)

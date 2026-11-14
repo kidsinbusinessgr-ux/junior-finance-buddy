@@ -82,6 +82,7 @@ function WalletPage() {
   const [tab, setTab] = useState<Tab>("history");
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [choreMessage, setChoreMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [requestingReward, setRequestingReward] = useState<string | null>(null);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ function WalletPage() {
 
   const { child, loading: childLoading } = useChild(userId);
   const { chores } = useChores(child?.parent_id ?? null);
-  const { submissions } = useChoreSubmissions(child?.id ?? null);
+  const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id ?? null);
   const { transactions } = useTransactions(child?.id ?? null);
   const { rewards } = useRewards(child?.parent_id ?? null);
   const { requests: rewardRequests, refetch: refetchRequests } = useRewardRequests(child?.id ?? null);
@@ -119,10 +120,10 @@ function WalletPage() {
   const freeChores = chores.filter((c) => c.is_obligatory);
   const paidChores = chores.filter((c) => !c.is_obligatory);
 
-  // Map chore id → latest submission status
+  // Map chore id → latest submission status (submissions come newest first).
   const submissionMap: Record<string, "pending" | "approved" | "rejected"> = {};
   submissions.forEach((s) => {
-    if (!submissionMap[s.chore_id] || s.created_at > (submissions.find(x => x.chore_id === s.chore_id && submissionMap[s.chore_id])?.created_at ?? "")) {
+    if (!submissionMap[s.chore_id]) {
       submissionMap[s.chore_id] = s.status as "pending" | "approved" | "rejected";
     }
   });
@@ -144,11 +145,20 @@ function WalletPage() {
   async function handleSubmitChores() {
     if (!child || selectedChores.length === 0) return;
     setSubmitting(true);
-    for (const choreId of selectedChores) {
-      await submitChore(child.id, choreId);
+    setChoreMessage(null);
+    const count = selectedChores.length;
+    try {
+      for (const choreId of selectedChores) {
+        await submitChore(choreId, child.id);
+      }
+      setSelectedChores([]);
+      setChoreMessage({ ok: true, text: `✅ Στάλθηκ${count === 1 ? "ε" : "αν"} στον γονέα σου για έγκριση!` });
+    } catch {
+      setChoreMessage({ ok: false, text: "Δεν στάλθηκε. Δοκίμασε ξανά!" });
+    } finally {
+      await refetchSubmissions();
+      setSubmitting(false);
     }
-    setSelectedChores([]);
-    setSubmitting(false);
   }
 
   async function handleRequestReward(rewardId: string) {
@@ -331,6 +341,11 @@ function WalletPage() {
                     `Στείλε για έγκριση (${selectedChores.length} δουλειές)`
                   )}
                 </Button>
+              )}
+              {choreMessage && (
+                <p className={`mt-3 px-1 text-center text-sm font-bold ${choreMessage.ok ? "text-[oklch(0.55_0.17_173)]" : "text-destructive"}`}>
+                  {choreMessage.text}
+                </p>
               )}
             </div>
           </div>
