@@ -482,11 +482,11 @@ function ChildDashboard() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[oklch(0.9_0.08_170)] p-3">
                 <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">Έσοδα</p>
-                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">€{spendingStats.totalIn.toFixed(2)}</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_170)]">{spendingStats.totalIn} 🪙</p>
               </div>
               <div className="rounded-xl bg-[oklch(0.9_0.08_22)] p-3">
                 <p className="text-[10px] font-bold text-[oklch(0.4_0.15_22)] uppercase">Έξοδα</p>
-                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">€{spendingStats.totalOut.toFixed(2)}</p>
+                <p className="text-xl font-black text-[oklch(0.4_0.15_22)]">{spendingStats.totalOut} 🪙</p>
               </div>
             </div>
             <div className="mt-4">
@@ -506,7 +506,7 @@ function ChildDashboard() {
                 {spendingStats.bySource.map((src) => (
                   <div key={src.label} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: `color-mix(in oklch, ${src.color} 20%, transparent)`, color: src.color }}>
                     <span className="h-2 w-2 rounded-full" style={{ background: src.color }} />
-                    {src.label} €{src.amount.toFixed(2)}
+                    {src.label} {src.amount} 🪙
                   </div>
                 ))}
               </div>

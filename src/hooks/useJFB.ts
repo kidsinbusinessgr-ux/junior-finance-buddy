@@ -631,12 +631,15 @@ export function useSpendingAnalytics(childId: string | null | undefined) {
     const sources: Record<string, number> = { allowance: 0, chore: 0, other_in: 0 };
 
     for (const t of data) {
+      // Buying or selling stocks moves coins into or out of investments;
+      // it is not income or spending.
+      if (t.type === "investment") continue;
       if (t.amount > 0) {
         totalIn += t.amount;
         const desc = (t.description ?? "").toLowerCase();
         if (t.type === "allowance" || desc.includes("χαρτζιλίκι") || desc.includes("allowance")) {
           sources.allowance += t.amount;
-        } else if (t.type === "chore_payment") {
+        } else if (t.type === "chore" || t.type === "chore_payment") {
           sources.chore += t.amount;
         } else {
           sources.other_in += t.amount;
