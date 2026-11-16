@@ -32,10 +32,17 @@ export const Route = createFileRoute("/api/cron/news-push")({
         webpush.setVapidDetails("mailto:info@kidsinbusiness.gr", vapidPublic, vapidPrivate);
 
         const supabase = getAdminClient();
+        // Keep the last run's result in the database (Vercel keeps logs for 1 hour only).
+        const record = async (result: Record<string, unknown>) => {
+          await supabase
+            .from("jfb_market_cache" as never)
+            .upsert({ key: "cron:news-push", data: { ...result, at: new Date().toISOString() }, updated_at: new Date().toISOString() } as never, { onConflict: "key" });
+        };
         const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth");
         if (error) return json({ error: error.message }, 500);
         if (!subs || subs.length === 0) {
           console.log("news-push: no subscribers");
+          await record({ subscribers: 0, sent: 0 });
           return json({ sent: 0 });
         }
 
@@ -69,6 +76,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
         }
         if (!top) {
           console.log("news-push: no news to send");
+          await record({ subscribers: subs.length, sent: 0, reason: "no news" });
           return json({ sent: 0, reason: "no news" });
         }
 
@@ -104,6 +112,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
         }
 
         console.log("news-push:", JSON.stringify({ subscribers: subs.length, sent, removed, failed, symbol: top.symbol }));
+        await record({ subscribers: subs.length, sent, removed, failed, symbol: top.symbol ?? null, title: top.title ?? null });
         return json({ sent, removed, failed });
       },
     },

@@ -23,9 +23,10 @@ type QuotesData = {
   blocked: Record<string, string>;
 };
 
-// Extra tickers asked once, to learn which ones the free plan includes.
-// They're stored but not shown on the page.
-export const PROBE_TICKERS = ["KO", "PEP", "SONY", "MAT", "HAS", "ADBE", "AMD", "COST", "MDLZ", "HSY"] as const;
+// Extra tickers to ask once, to learn whether the free plan includes them
+// (stored but not shown). Checked on 2026-11-16; add candidates here when
+// looking for more stocks.
+export const PROBE_TICKERS: readonly string[] = [];
 
 function fmpKey(): string | null {
   return process.env["FMP_API_KEY"] ?? null;
