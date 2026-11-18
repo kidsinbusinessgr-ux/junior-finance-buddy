@@ -367,6 +367,10 @@ export function pickDailyCard(
   customers: number,
   recentCardIds: string[],
 ): DecisionCard {
+  // A company without customers first has to find some.
+  if (customers === 0 && !recentCardIds.includes("first-customers")) {
+    return DECISION_CARDS.find((c) => c.id === "first-customers")!;
+  }
   const fits = DECISION_CARDS.filter((c) => (c.minCustomers ?? 0) <= customers);
   const fresh = fits.filter((c) => !recentCardIds.includes(c.id));
   const pool = fresh.length ? fresh : fits;
