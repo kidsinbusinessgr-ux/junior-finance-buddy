@@ -15,11 +15,9 @@ import { BrightlyNav } from "@/components/brightly-nav";
 import {
   getStockQuotes,
   getStockHistory,
-  getStockNews,
   KID_STOCKS,
   type StockQuote,
   type StockHistory,
-  type StockNewsItem,
 } from "@/lib/stocks.functions";
 import { askBuddy, type BuddyResponse } from "@/lib/buddy.functions";
 import { tradeMarketStock, type MarketTradeResult } from "@/lib/market.functions";
@@ -33,6 +31,8 @@ const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], s
   not_enough: "Δεν έχεις αρκετά νομίσματα!",
   failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά!",
 };
+
+const FOLLOWED_KEY = "jfb-push-ticker";
 
 // Public half of the server's push key pair (VAPID_PUBLIC_KEY on Vercel); must match it.
 const VAPID_PUBLIC = "BJkiC8Pupl55Cio9Bc7lEctrtQum413E7eMmWCRkCuBDwclVSud9uvsuatBAq3EPMciO4EWpt-3MJA37pTYpk1k";
@@ -148,9 +148,9 @@ function StocksPage() {
   const [toast, setToast] = useState("");
   const [buddy, setBuddy] = useState<BuddyResponse | null>(null);
   const [loadingBuddy, setLoadingBuddy] = useState(false);
-  const [news, setNews] = useState<StockNewsItem[]>([]);
-  const [loadingNews, setLoadingNews] = useState(false);
   const [pushStatus, setPushStatus] = useState<"idle" | "subscribed" | "denied" | "error" | "unsupported">("idle");
+  // The stock this browser gets the daily notification about (remembered on this device).
+  const [followedTicker, setFollowedTicker] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if already subscribed. A subscription made with an older server key
@@ -159,6 +159,9 @@ function StocksPage() {
       setPushStatus("unsupported");
       return;
     }
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(FOLLOWED_KEY); } catch { /* storage blocked */ }
+    setFollowedTicker(saved);
     navigator.serviceWorker.getRegistration().then(async (reg) => {
       const sub = await reg?.pushManager.getSubscription();
       if (!sub) return;
@@ -167,12 +170,13 @@ function StocksPage() {
         return;
       }
       await sub.unsubscribe();
-      if (Notification.permission === "granted") subscribeToPush();
+      if (Notification.permission === "granted") subscribeToPush(saved ?? "AAPL");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function subscribeToPush() {
+  // Subscribes this browser (or updates which stock it follows) for the daily note.
+  async function subscribeToPush(ticker: string) {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
       setPushStatus("unsupported");
       return;
@@ -189,10 +193,12 @@ function StocksPage() {
       const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscription: sub.toJSON(), ticker: selectedTicker }),
+        body: JSON.stringify({ subscription: sub.toJSON(), ticker }),
       });
       if (!res.ok) throw new Error("subscribe failed: " + res.status);
       setPushStatus("subscribed");
+      setFollowedTicker(ticker);
+      try { localStorage.setItem(FOLLOWED_KEY, ticker); } catch { /* storage blocked */ }
     } catch (err) {
       // Permission was given but something else failed; let the child try again.
       console.error("Push subscribe error:", err);
@@ -225,12 +231,6 @@ function StocksPage() {
   async function fetchHistory(ticker: string) {
     setLoadingHistory(true);
     setBuddy(null);
-    setNews([]);
-    setLoadingNews(true);
-    // Fetch news in parallel
-    getStockNews({ data: ticker }).then((res) => {
-      setNews(res.news);
-    }).catch(() => {}).finally(() => setLoadingNews(false));
     try {
       const res = await getStockHistory({ data: ticker });
       setHistory(res);
@@ -729,52 +729,26 @@ function StocksPage() {
                             )
                           )}
 
-                          {/* News */}
-                          {(loadingNews || news.length > 0) && (
-                            <div className="mt-4">
-                              <p className="mb-2 text-xs font-black uppercase tracking-widest text-muted-foreground">
-                                📰 Τελευταία Νέα
-                              </p>
-                              {loadingNews ? (
-                                <div className="flex items-center gap-2 py-2">
-                                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-[oklch(0.57_0.23_292)] border-t-transparent" />
-                                  <span className="text-xs text-muted-foreground">Φορτώνω νέα...</span>
-                                </div>
-                              ) : (
-                                <div className="space-y-2">
-                                  {news.map((item, i) => (
-                                    <a
-                                      key={i}
-                                      href={item.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="block rounded-xl bg-muted p-3 hover:bg-muted/80 transition-colors"
-                                    >
-                                      <p className="text-xs font-black leading-snug line-clamp-2">{item.title}</p>
-                                      <div className="mt-1 flex items-center gap-2">
-                                        <span className="text-[10px] text-muted-foreground">{item.site}</span>
-                                        <span className="text-[10px] text-muted-foreground">·</span>
-                                        <span className="text-[10px] text-muted-foreground">
-                                          {new Date(item.publishedDate).toLocaleDateString("el-GR", { day: "numeric", month: "short" })}
-                                        </span>
-                                      </div>
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
                           {/* Push Notifications */}
                           {pushStatus !== "unsupported" && (
                             <div className="mt-4">
-                              {pushStatus === "subscribed" ? (
+                              {pushStatus === "subscribed" && followedTicker === q.ticker ? (
                                 <div className="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-950/30 px-3 py-2">
                                   <span className="text-sm">🔔</span>
                                   <span className="text-xs font-black text-green-700 dark:text-green-400">
-                                    Ενεργοποιημένες ειδοποιήσεις νέων!
+                                    Κάθε πρωί θα μαθαίνεις πώς πήγε η {q.name}!
                                   </span>
                                 </div>
+                              ) : pushStatus === "subscribed" ? (
+                                <button
+                                  onClick={() => subscribeToPush(q.ticker)}
+                                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-50 dark:bg-green-950/30 px-3 py-2 text-xs font-black text-green-700 dark:text-green-400 hover:bg-green-100 transition-colors"
+                                >
+                                  <span>🔔</span>
+                                  {followedTicker
+                                    ? `Ακολουθείς την ${KID_STOCKS.find((s) => s.ticker === followedTicker)?.name ?? followedTicker}. Ακολούθησε την ${q.name} αντί γι' αυτήν`
+                                    : `Μάθαινε κάθε πρωί πώς πήγε η ${q.name}`}
+                                </button>
                               ) : pushStatus === "denied" ? (
                                 <div className="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/30 px-3 py-2">
                                   <span className="text-sm">🔕</span>
@@ -790,11 +764,11 @@ function StocksPage() {
                                   </p>
                                 )}
                                 <button
-                                  onClick={subscribeToPush}
+                                  onClick={() => subscribeToPush(q.ticker)}
                                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-black hover:bg-muted/70 transition-colors"
                                 >
                                   <span>🔔</span>
-                                  Ειδοποιήσου για νέα της {q.name}
+                                  Μάθαινε κάθε πρωί πώς πήγε η {q.name}
                                 </button>
                                 </>
                               )}

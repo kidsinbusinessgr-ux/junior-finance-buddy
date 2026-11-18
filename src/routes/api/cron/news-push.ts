@@ -1,11 +1,42 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const FMP_BASE = "https://financialmodelingprep.com/stable";
+import { KID_STOCKS } from "@/lib/stocks.functions";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-// Daily job (see vercel.json). Vercel sends `Authorization: Bearer $CRON_SECRET`.
+const fmtNumber = (n: number, digits: number) => n.toFixed(digits).replace(".", ",");
+
+// The Greek notification about how the stock a child follows did on the last
+// trading day. (FMP news isn't part of the free plan, so prices are used.)
+function priceMessage(
+  name: string,
+  changePercent: number,
+  priceEur: number,
+  when: string,
+): { title: string; body: string } {
+  const pct = fmtNumber(Math.abs(changePercent), 1);
+  const price = `€${fmtNumber(priceEur, 2)}`;
+  if (changePercent >= 0.1) {
+    return {
+      title: `📈 Η ${name} ανέβηκε ${pct}% ${when}!`,
+      body: `Μία μετοχή κοστίζει τώρα ${price}. Δες στις Μετοχές τι σημαίνει αυτό για τις επενδύσεις σου!`,
+    };
+  }
+  if (changePercent <= -0.1) {
+    return {
+      title: `📉 Η ${name} έπεσε ${pct}% ${when}`,
+      body: `Μία μετοχή κοστίζει τώρα ${price}. Οι τιμές ανεβοκατεβαίνουν, είναι φυσιολογικό! Μάθε γιατί στις Μετοχές.`,
+    };
+  }
+  return {
+    title: `➖ Η ${name} έμεινε σχεδόν ίδια ${when}`,
+    body: `Μία μετοχή κοστίζει ${price}. Οι ήρεμες μέρες είναι κι αυτές μέρος του χρηματιστηρίου!`,
+  };
+}
+
+// Daily job (see vercel.json; Tuesday–Saturday, after each US trading day).
+// Every subscribed browser gets a note about the stock it follows.
+// Vercel sends `Authorization: Bearer $CRON_SECRET`.
 export const Route = createFileRoute("/api/cron/news-push")({
   server: {
     handlers: {
@@ -18,15 +49,15 @@ export const Route = createFileRoute("/api/cron/news-push")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const fmpKey = process.env["FMP_API_KEY"];
         const vapidPublic = process.env["VAPID_PUBLIC_KEY"];
         const vapidPrivate = process.env["VAPID_PRIVATE_KEY"];
-        if (!fmpKey || !vapidPublic || !vapidPrivate) {
+        if (!vapidPublic || !vapidPrivate) {
           console.error("news-push: missing env vars");
           return json({ error: "Missing env vars" }, 500);
         }
 
         const { getAdminClient } = await import("@/lib/supabase-admin.server");
+        const { getStoredQuotes, getEurPerUsd } = await import("@/lib/market-data.server");
         // web-push only has named exports (no default), so use the module itself.
         const webpush = await import("web-push");
         webpush.setVapidDetails("mailto:info@kidsinbusiness.gr", vapidPublic, vapidPrivate);
@@ -38,7 +69,8 @@ export const Route = createFileRoute("/api/cron/news-push")({
             .from("jfb_market_cache" as never)
             .upsert({ key: "cron:news-push", data: { ...result, at: new Date().toISOString() }, updated_at: new Date().toISOString() } as never, { onConflict: "key" });
         };
-        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth");
+
+        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers");
         if (error) return json({ error: error.message }, 500);
         if (!subs || subs.length === 0) {
           console.log("news-push: no subscribers");
@@ -46,54 +78,33 @@ export const Route = createFileRoute("/api/cron/news-push")({
           return json({ sent: 0 });
         }
 
-        const tickers = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL", "META", "AMZN"];
-        let top: { symbol?: string; title?: string } | null = null;
-        const newsRes = await fetch(
-          `${FMP_BASE}/news/stock?symbols=${tickers.join(",")}&limit=3&apikey=${fmpKey}`,
-          { headers: { Accept: "application/json" } },
-        );
-        if (newsRes.ok) {
-          const newsData = await newsRes.json();
-          if (Array.isArray(newsData) && newsData.length) top = newsData[0];
-        } else {
-          console.error("news-push: FMP news failed", newsRes.status);
-        }
-        // If FMP gives nothing (e.g. the free plan's daily limit is used up),
-        // use the newest article already stored for the stocks page.
-        if (!top) {
-          const { data: rows } = await supabase
-            .from("jfb_market_cache" as never)
-            .select("key, data")
-            .like("key", "news:%");
-          let newest = "";
-          for (const row of (rows ?? []) as { key: string; data: { news?: { title: string; publishedDate: string }[] } }[]) {
-            const item = row.data?.news?.[0];
-            if (item?.title && item.publishedDate > newest) {
-              newest = item.publishedDate;
-              top = { symbol: row.key.slice(5), title: item.title };
-            }
-          }
-        }
-        if (!top) {
-          console.log("news-push: no news to send");
-          await record({ subscribers: subs.length, sent: 0, reason: "no news" });
-          return json({ sent: 0, reason: "no news" });
-        }
-
-        const payload = JSON.stringify({
-          title: `📰 ${top.symbol || "Αγορά"} — Νέο άρθρο`,
-          body: top.title?.slice(0, 120) || "Δες τα τελευταία νέα της αγοράς!",
-          url: "/stocks",
-        });
+        const [{ quotes }, eurPerUsd] = await Promise.all([
+          getStoredQuotes(KID_STOCKS.map((s) => s.ticker)),
+          getEurPerUsd(),
+        ]);
+        // Sunday and Monday runs (only when started by hand) talk about Friday.
+        const day = new Date().getUTCDay();
+        const when = day === 0 || day === 1 ? "την Παρασκευή" : "χθες";
 
         let sent = 0;
         let removed = 0;
         let failed = 0;
+        let skipped = 0;
         for (const sub of subs) {
+          // The stock the child chose; older subscriptions without one follow Apple.
+          const ticker = sub.tickers?.find((t: string) => KID_STOCKS.some((s) => s.ticker === t)) ?? "AAPL";
+          const meta = KID_STOCKS.find((s) => s.ticker === ticker)!;
+          const quote = quotes[ticker];
+          if (!quote) {
+            skipped++;
+            continue;
+          }
+          const { title, body } = priceMessage(meta.name, quote.changePercent, quote.price * eurPerUsd, when);
+          const payload = JSON.stringify({ title, body, url: "/stocks" });
           try {
             // web-push encrypts the payload (aes128gcm) and signs the VAPID JWT.
             await webpush.sendNotification(
-              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh ?? "", auth: sub.auth ?? "" } },
               payload,
               { TTL: 86400 },
             );
@@ -111,9 +122,10 @@ export const Route = createFileRoute("/api/cron/news-push")({
           }
         }
 
-        console.log("news-push:", JSON.stringify({ subscribers: subs.length, sent, removed, failed, symbol: top.symbol }));
-        await record({ subscribers: subs.length, sent, removed, failed, symbol: top.symbol ?? null, title: top.title ?? null });
-        return json({ sent, removed, failed });
+        const result = { subscribers: subs.length, sent, removed, failed, skipped };
+        console.log("news-push:", JSON.stringify(result));
+        await record(result);
+        return json(result);
       },
     },
   },

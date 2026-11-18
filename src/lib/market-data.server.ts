@@ -1,4 +1,5 @@
-// Market data from FMP, stored in jfb_market_cache and shared by everyone.
+// Market data from FMP (prices, exchange rate, history), stored in
+// jfb_market_cache and shared by everyone. FMP news isn't in the free plan.
 // The free FMP plan allows about 250 calls a day, so each entry is refreshed
 // at most every few hours (only one server request refreshes at a time), and
 // when a refresh fails the last known values are kept instead of showing 0.
@@ -211,39 +212,4 @@ export async function getStoredHistory(ticker: string): Promise<{ date: string; 
     },
   );
   return data?.history ?? [];
-}
-
-export type StoredNewsItem = {
-  title: string;
-  url: string;
-  publishedDate: string;
-  site: string;
-  text: string;
-  image?: string;
-};
-
-// Latest 5 news items for a ticker. Refreshed every 6 hours.
-export async function getStoredNews(ticker: string): Promise<StoredNewsItem[]> {
-  const { data } = await cached<{ news: StoredNewsItem[] }>(`news:${ticker}`, 6 * HOUR, async () => {
-    const key = fmpKey();
-    if (!key) return null;
-    const res = await fetch(`${FMP_BASE}/news/stock?symbols=${encodeURIComponent(ticker)}&limit=5&apikey=${key}`);
-    if (!res.ok) {
-      console.warn("FMP news failed", ticker, res.status);
-      return null;
-    }
-    const rows = await res.json();
-    const news: StoredNewsItem[] = (Array.isArray(rows) ? rows : []).map(
-      (item: { title?: string; url?: string; publishedDate?: string; site?: string; text?: string; image?: string }) => ({
-        title: item.title ?? "",
-        url: item.url ?? "#",
-        publishedDate: item.publishedDate ?? "",
-        site: item.site ?? "",
-        text: item.text ? item.text.slice(0, 200) + "..." : "",
-        ...(item.image ? { image: item.image } : {}),
-      }),
-    );
-    return { news };
-  });
-  return data?.news ?? [];
 }

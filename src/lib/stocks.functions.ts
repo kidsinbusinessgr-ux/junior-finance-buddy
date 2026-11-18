@@ -47,15 +47,6 @@ export interface StockHistory {
   history: { date: string; close: number }[];
 }
 
-export interface StockNewsItem {
-  title: string;
-  url: string;
-  publishedDate: string;
-  site: string;
-  text: string;
-  image?: string;
-}
-
 // Prices come from the shared store in market-data.server.ts (refreshed every
 // few hours to stay inside the free FMP plan). Stocks with no known price yet
 // are left out instead of showing €0.
@@ -102,11 +93,4 @@ export const getStockHistory = createServerFn({ method: "GET" })
     const { getStoredHistory, getEurPerUsd } = await import("./market-data.server");
     const [history, eurRate] = await Promise.all([getStoredHistory(ticker), getEurPerUsd()]);
     return { ticker, history: history.map((d) => ({ date: d.date, close: d.close * eurRate })) };
-  });
-
-export const getStockNews = createServerFn({ method: "GET" })
-  .inputValidator(tickerSchema)
-  .handler(async ({ data: ticker }): Promise<{ ticker: string; news: StockNewsItem[] }> => {
-    const { getStoredNews } = await import("./market-data.server");
-    return { ticker, news: await getStoredNews(ticker) };
   });
