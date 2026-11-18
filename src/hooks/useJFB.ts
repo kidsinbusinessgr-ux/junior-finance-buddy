@@ -730,13 +730,23 @@ export function useParent() {
   return parent;
 }
 
-export interface ParentChild { id: string; name: string; avatar: string; coins: number; xp: number; level: number; current_streak: number; }
+export interface ParentChild {
+  id: string;
+  name: string;
+  avatar: string | null;
+  coins: number;
+  xp: number;
+  level: number;
+  current_streak: number;
+  invite_code: string;
+  invest_capital: number;
+}
 
 export function useParentChildren(parentId: string | null | undefined) {
   const [children, setChildren] = useState<ParentChild[]>([]);
   const refresh = useCallback(async () => {
     if (!parentId) return;
-    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak").eq("parent_id", parentId).order("name");
+    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak, invite_code, invest_capital").eq("parent_id", parentId).order("name");
     setChildren(data ?? []);
   }, [parentId]);
   useEffect(() => { refresh(); }, [refresh]);
@@ -773,6 +783,11 @@ export async function rejectChoreSubmission(subId: string, childId: string, chor
 
 export async function sendAllowanceCoins(childId: string, coins: number, note: string) {
   await callRpc("jfb_parent_give_coins", { p_child_id: childId, p_amount: coins, p_note: note });
+}
+
+// Investment capital: coins the child can only invest in startups.
+export async function giveInvestCapital(childId: string, amount: number) {
+  await callRpc("jfb_parent_give_invest_capital", { p_child_id: childId, p_amount: amount });
 }
 
 // ── Notifications ─────────────────────────────────────────────────────────────────────────────────

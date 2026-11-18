@@ -7,6 +7,7 @@ import {
   approveChoreSubmission,
   rejectChoreSubmission,
   sendAllowanceCoins,
+  giveInvestCapital,
   type PendingSubmission,
 } from "@/hooks/useJFB";
 
@@ -26,6 +27,24 @@ function ParentDashboard() {
   const [sending, setSending] = useState(false);
   const [sendDone, setSendDone] = useState(false);
   const [acting, setActing] = useState<string | null>(null);
+  const [capitalChild, setCapitalChild] = useState<string>("");
+  const [capitalAmount, setCapitalAmount] = useState<number>(50);
+  const [capitalState, setCapitalState] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  async function handleGiveCapital() {
+    if (!capitalChild || capitalAmount <= 0) return;
+    setCapitalState("sending");
+    try {
+      await giveInvestCapital(capitalChild, capitalAmount);
+    } catch (err) {
+      console.error("Investment capital failed:", err);
+      setCapitalState("error");
+      return;
+    }
+    await refreshChildren();
+    setCapitalState("done");
+    setTimeout(() => setCapitalState("idle"), 2500);
+  }
 
   async function handleApprove(sub: PendingSubmission) {
     setActing(sub.id);
@@ -109,10 +128,11 @@ function ParentDashboard() {
                   <p className="font-semibold text-[oklch(0.3_0.08_250)]">{c.name}</p>
                   <p className="text-sm text-[oklch(0.5_0.04_250)]">
                     🪙 {c.coins} · 🔥 {c.current_streak} · {levelEmoji(c.level)} Lv {c.level}
+                    {c.invest_capital > 0 && <> · 🚀 {c.invest_capital} επενδυτικά</>}
                   </p>
-                  {(c as any).invite_code && (
+                  {c.invite_code && (
                     <p className="text-xs mt-1 font-mono font-bold tracking-widest text-purple-600 bg-purple-50 rounded-lg px-2 py-0.5 inline-block">
-                      🔑 {(c as any).invite_code}
+                      🔑 {c.invite_code}
                     </p>
                   )}
                 </div>
@@ -216,6 +236,47 @@ function ParentDashboard() {
           className="w-full rounded-2xl bg-[oklch(0.55_0.18_250)] py-3 font-bold text-white disabled:opacity-50"
         >
           {sendDone ? "✅ Στάλθηκε!" : sending ? "Αποστολή…" : "Στείλε χαρτζιλίκι"}
+        </button>
+      </section>
+
+      {/* Investment capital */}
+      <section className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-[oklch(0.35_0.08_250)]">
+          🚀 Δώσε επενδυτικό κεφάλαιο
+        </h2>
+        <p className="mb-4 mt-1 text-sm text-[oklch(0.5_0.04_250)]">
+          Μια ανταμοιβή που μπορεί να χρησιμοποιηθεί μόνο για επενδύσεις σε startups άλλων παιδιών.
+          Αν η επένδυση πάει καλά, το παιδί κερδίζει κανονικά coins. Αν πάει άσχημα, μαθαίνει τι σημαίνει ρίσκο.
+        </p>
+        <select
+          value={capitalChild}
+          onChange={(e) => setCapitalChild(e.target.value)}
+          className="mb-3 w-full rounded-xl border border-[oklch(0.85_0.04_250)] p-3 text-[oklch(0.3_0.08_250)]"
+        >
+          <option value="">Επίλεξε παιδί…</option>
+          {children.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.avatar} {c.name}{c.invest_capital > 0 ? ` (έχει 🚀 ${c.invest_capital})` : ""}
+            </option>
+          ))}
+        </select>
+        <div className="mb-4 flex gap-2">
+          {[25, 50, 100, 200].map((amt) => (
+            <button
+              key={amt}
+              onClick={() => setCapitalAmount(amt)}
+              className={`flex-1 rounded-xl py-2 text-sm font-bold transition ${capitalAmount === amt ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-[oklch(0.95_0.03_292)] text-[oklch(0.4_0.12_292)]"}`}
+            >
+              🚀 {amt}
+            </button>
+          ))}
+        </div>
+        <button
+          disabled={!capitalChild || capitalState === "sending"}
+          onClick={handleGiveCapital}
+          className="w-full rounded-2xl bg-[oklch(0.57_0.23_292)] py-3 font-bold text-white disabled:opacity-50"
+        >
+          {capitalState === "done" ? "✅ Δόθηκε!" : capitalState === "sending" ? "Αποστολή…" : capitalState === "error" ? "Κάτι πήγε στραβά, δοκίμασε ξανά" : `Δώσε 🚀 ${capitalAmount} επενδυτικά coins`}
         </button>
       </section>
     </div>

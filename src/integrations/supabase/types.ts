@@ -764,6 +764,7 @@ export type Database = {
       }
       jfb_children: {
         Row: {
+          invest_capital: number
           avatar: string | null
           coins: number
           created_at: string | null
@@ -778,6 +779,7 @@ export type Database = {
           xp: number
         }
         Insert: {
+          invest_capital?: number
           avatar?: string | null
           coins?: number
           created_at?: string | null
@@ -792,6 +794,7 @@ export type Database = {
           xp?: number
         }
         Update: {
+          invest_capital?: number
           avatar?: string | null
           coins?: number
           created_at?: string | null

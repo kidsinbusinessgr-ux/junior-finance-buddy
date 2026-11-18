@@ -242,7 +242,7 @@ export default function StartupPage() {
             <>
               {child && (
                 <p className="mt-3 text-sm font-bold text-muted-foreground">
-                  Έχεις 🪙 {child.coins} · Έχεις επενδύσει εδώ {myInvested}/{INVEST_LIMIT}
+                  Έχεις 🪙 {child.coins}{child.invest_capital > 0 && <> + 🚀 {child.invest_capital} επενδυτικά</>} · Έχεις επενδύσει εδώ {myInvested}/{INVEST_LIMIT}
                 </p>
               )}
               <Button
@@ -259,7 +259,7 @@ export default function StartupPage() {
                 <label className="mb-2 block text-sm font-bold">Πόσα coins;</label>
                 <div className="flex gap-2">
                   {COIN_OPTIONS.map((c) => {
-                    const tooMuch = c > (child?.coins ?? 0) || myInvested + c > INVEST_LIMIT;
+                    const tooMuch = c > (child?.coins ?? 0) + (child?.invest_capital ?? 0) || myInvested + c > INVEST_LIMIT;
                     return (
                       <button key={c}
                         disabled={tooMuch}
@@ -279,7 +279,9 @@ export default function StartupPage() {
                   Η αξία του μεριδίου σου θα ανεβαίνει ή θα πέφτει ανάλογα με το πώς πάει η εταιρία.
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Τα coins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup!
+                  {(child?.invest_capital ?? 0) > 0
+                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά coins, μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup!"
+                    : "Τα coins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup!"}
                 </p>
               </div>
               {investError && (
@@ -289,7 +291,7 @@ export default function StartupPage() {
                 <Button variant="outline" className="flex-1 rounded-full" onClick={() => setInvesting(false)}>Ακύρωση</Button>
                 <Button
                   className="flex-1 rounded-full bg-[oklch(0.55_0.17_173)] font-black text-white"
-                  disabled={submitting || selectedCoins > (child?.coins ?? 0) || myInvested + selectedCoins > INVEST_LIMIT}
+                  disabled={submitting || selectedCoins > (child?.coins ?? 0) + (child?.invest_capital ?? 0) || myInvested + selectedCoins > INVEST_LIMIT}
                   onClick={handleInvest}
                 >
                   {submitting ? "…" : `Επένδυσε 🪙 ${selectedCoins}`}
