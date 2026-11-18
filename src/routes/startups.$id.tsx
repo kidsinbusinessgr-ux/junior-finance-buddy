@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Award } from "lucide-react";
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
+import { CompanyStats, FounderDecision, FounderReminder } from "@/components/startup-company";
 
 // Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
 const INVEST_LIMIT = 200;
@@ -39,6 +40,12 @@ type Startup = {
   coins_raised: number;
   created_at: string;
   child_id: string | null;
+  customers: number;
+  cash: number;
+  reputation: number;
+  team: number;
+  valuation: number;
+  ceo_streak: number;
 };
 
 type Investment = {
@@ -168,6 +175,17 @@ export default function StartupPage() {
             </div>
           </div>
         )}
+
+        {/* The company: founder's daily decision, then its numbers */}
+        <div className="mb-8 space-y-4">
+          {child && startup.child_id === child.id && (
+            <>
+              <FounderDecision startupId={startup.id} streak={startup.ceo_streak} onDone={fetchData} />
+              <FounderReminder />
+            </>
+          )}
+          <CompanyStats company={startup} />
+        </div>
 
         {/* Pitch content */}
         <div className="space-y-6">

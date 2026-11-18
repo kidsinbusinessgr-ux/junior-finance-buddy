@@ -70,3 +70,121 @@ export const createStartup = createServerFn({ method: "POST" })
     }
     return { ok: true, id: (row as { id: string }).id };
   });
+
+// ── Decision of the day (phase 2) ─────────────────────────────────────────────
+
+type OwnedStartup = { id: string; name: string; customers: number; child_id: string | null };
+
+// The startup if the signed-in child owns it, otherwise the reason it's refused.
+async function ownStartup(startupId: string) {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const { getAdminClient, getUserFromRequest } = await import("./supabase-admin.server");
+  const user = await getUserFromRequest(getRequest());
+  if (!user) return { error: "login" as const };
+  const admin = getAdminClient();
+  const [{ data: child }, { data: startup }] = await Promise.all([
+    admin.from("jfb_children").select("id").eq("user_id", user.id).maybeSingle(),
+    admin.from("startups").select("id, name, customers, child_id").eq("id", startupId).maybeSingle(),
+  ]);
+  const s = startup as OwnedStartup | null;
+  if (!child || !s || s.child_id !== child.id) return { error: "not_owner" as const };
+  return { admin, startup: s };
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+export type DecisionView = {
+  card: { id: string; emoji: string; title: string; text: string; choices: string[] };
+  decided: null | {
+    choice: number;
+    result: string;
+    lesson: string;
+    effects: Record<string, number>;
+  };
+};
+
+export type FounderTodayResult = { ok: true; today: DecisionView } | { ok: false; reason: "login" | "not_owner" };
+
+const idSchema = z.object({ startupId: z.string().uuid() });
+
+export const getFounderToday = createServerFn({ method: "POST" })
+  .inputValidator((data: { startupId: string }) => idSchema.parse(data))
+  .handler(async ({ data }): Promise<FounderTodayResult> => {
+    const owned = await ownStartup(data.startupId);
+    if ("error" in owned) return { ok: false, reason: owned.error! };
+    const { DECISION_CARDS, pickDailyCard } = await import("./startup-decisions");
+
+    const { data: rows } = await owned.admin
+      .from("jfb_startup_decisions" as never)
+      .select("day, card_id, choice, effects")
+      .eq("startup_id", data.startupId)
+      .order("day", { ascending: false })
+      .limit(20);
+    const recent = (rows ?? []) as { day: string; card_id: string; choice: number; effects: Record<string, number> }[];
+    const done = recent.find((r) => r.day === today());
+
+    const card = done
+      ? DECISION_CARDS.find((c) => c.id === done.card_id)
+      : pickDailyCard(data.startupId, today(), owned.startup.customers, recent.map((r) => r.card_id));
+    if (!card) return { ok: false, reason: "not_owner" };
+
+    const chosen = done ? card.choices[done.choice] : undefined;
+    return {
+      ok: true,
+      today: {
+        card: { id: card.id, emoji: card.emoji, title: card.title, text: card.text, choices: card.choices.map((c) => c.label) },
+        decided: done && chosen
+          ? { choice: done.choice, result: chosen.result, lesson: chosen.lesson, effects: done.effects }
+          : null,
+      },
+    };
+  });
+
+const answerSchema = z.object({
+  startupId: z.string().uuid(),
+  cardId: z.string().min(1).max(40),
+  choice: z.number().int().min(0).max(5),
+});
+
+export type AnswerResult =
+  | { ok: true; result: string; lesson: string; effects: Record<string, number> }
+  | { ok: false; reason: "login" | "not_owner" | "stale" | "already" | "failed" };
+
+export const answerDecision = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof answerSchema>) => answerSchema.parse(data))
+  .handler(async ({ data }): Promise<AnswerResult> => {
+    const owned = await ownStartup(data.startupId);
+    if ("error" in owned) return { ok: false, reason: owned.error! };
+    const { pickDailyCard } = await import("./startup-decisions");
+
+    const { data: rows } = await owned.admin
+      .from("jfb_startup_decisions" as never)
+      .select("day, card_id")
+      .eq("startup_id", data.startupId)
+      .order("day", { ascending: false })
+      .limit(20);
+    const recent = (rows ?? []) as { day: string; card_id: string }[];
+    if (recent.some((r) => r.day === today())) return { ok: false, reason: "already" };
+
+    // The card must be today's card; its effects come from here, not the browser.
+    const card = pickDailyCard(data.startupId, today(), owned.startup.customers, recent.map((r) => r.card_id));
+    const choice = card.choices[data.choice];
+    if (card.id !== data.cardId || !choice) return { ok: false, reason: "stale" };
+
+    const { data: effects, error } = await owned.admin.rpc("jfb_apply_startup_decision" as never, {
+      p_startup_id: data.startupId,
+      p_day: today(),
+      p_card_id: card.id,
+      p_choice: data.choice,
+      p_customers: choice.effects.customers,
+      p_cash: choice.effects.cash,
+      p_reputation: choice.effects.reputation,
+      p_team: choice.effects.team,
+    } as never);
+    if (error) {
+      if (error.message.includes("Already decided")) return { ok: false, reason: "already" };
+      console.error("startup decision failed", error.message);
+      return { ok: false, reason: "failed" };
+    }
+    return { ok: true, result: choice.result, lesson: choice.lesson, effects: effects as unknown as Record<string, number> };
+  });

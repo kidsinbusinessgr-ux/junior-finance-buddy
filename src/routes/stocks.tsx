@@ -23,6 +23,7 @@ import { askBuddy, type BuddyResponse } from "@/lib/buddy.functions";
 import { tradeMarketStock, type MarketTradeResult } from "@/lib/market.functions";
 import { useChild } from "@/hooks/useJFB";
 import { supabase } from "@/integrations/supabase/client";
+import { VAPID_PUBLIC, saveSubscription, subscriptionKey } from "@/lib/push-client";
 
 const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], string> = {
   login: "Συνδέσου για να επενδύσεις τα νομίσματά σου!",
@@ -33,17 +34,6 @@ const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], s
 };
 
 const FOLLOWED_KEY = "jfb-push-ticker";
-
-// Public half of the server's push key pair (VAPID_PUBLIC_KEY on Vercel); must match it.
-const VAPID_PUBLIC = "BJkiC8Pupl55Cio9Bc7lEctrtQum413E7eMmWCRkCuBDwclVSud9uvsuatBAq3EPMciO4EWpt-3MJA37pTYpk1k";
-
-// The server key a browser subscription was made with, in the same base64url form.
-function subscriptionKey(sub: PushSubscription): string {
-  const key = sub.options.applicationServerKey;
-  if (!key) return "";
-  return btoa(String.fromCharCode(...new Uint8Array(key)))
-    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
 
 export const Route = createFileRoute("/stocks")({
   head: () => ({
@@ -190,12 +180,7 @@ function StocksPage() {
         userVisibleOnly: true,
         applicationServerKey: VAPID_PUBLIC,
       });
-      const res = await fetch("/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscription: sub.toJSON(), ticker }),
-      });
-      if (!res.ok) throw new Error("subscribe failed: " + res.status);
+      await saveSubscription(sub, ticker);
       setPushStatus("subscribed");
       setFollowedTicker(ticker);
       try { localStorage.setItem(FOLLOWED_KEY, ticker); } catch { /* storage blocked */ }

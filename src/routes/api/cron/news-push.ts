@@ -34,8 +34,9 @@ function priceMessage(
   };
 }
 
-// Daily job (see vercel.json; Tuesday–Saturday, after each US trading day).
-// Every subscribed browser gets a note about the stock it follows.
+// Daily job (see vercel.json, every day at 09:00 UTC). A founder whose startup
+// still waits for today's decision gets a reminder; otherwise, Tuesday–Saturday
+// (after each US trading day), a note about the stock the browser follows.
 // Vercel sends `Authorization: Bearer $CRON_SECRET`.
 export const Route = createFileRoute("/api/cron/news-push")({
   server: {
@@ -70,7 +71,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
             .upsert({ key: "cron:news-push", data: { ...result, at: new Date().toISOString() }, updated_at: new Date().toISOString() } as never, { onConflict: "key" });
         };
 
-        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers");
+        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers, child_id");
         if (error) return json({ error: error.message }, 500);
         if (!subs || subs.length === 0) {
           console.log("news-push: no subscribers");
@@ -82,25 +83,56 @@ export const Route = createFileRoute("/api/cron/news-push")({
           getStoredQuotes(KID_STOCKS.map((s) => s.ticker)),
           getEurPerUsd(),
         ]);
-        // Sunday and Monday runs (only when started by hand) talk about Friday.
+        // Sunday and Monday have no new US trading day, so no stock note then
+        // (a run started by hand on those days talks about Friday).
         const day = new Date().getUTCDay();
+        const tradingNote = day >= 2 && day <= 6;
         const when = day === 0 || day === 1 ? "την Παρασκευή" : "χθες";
+
+        // Startups of subscribed children that still wait for today's decision.
+        const today = new Date().toISOString().slice(0, 10);
+        const childIds = [...new Set(subs.map((s) => s.child_id).filter((id): id is string => Boolean(id)))];
+        const waiting = new Map<string, { id: string; name: string; ceo_streak: number }>();
+        if (childIds.length) {
+          const { data: startups } = await supabase
+            .from("startups")
+            .select("id, name, child_id, ceo_streak, last_decision_date")
+            .in("child_id", childIds);
+          for (const st of startups ?? []) {
+            if (!st.child_id || st.last_decision_date === today || waiting.has(st.child_id)) continue;
+            waiting.set(st.child_id, { id: st.id, name: st.name, ceo_streak: st.ceo_streak });
+          }
+        }
+        let reminders = 0;
 
         let sent = 0;
         let removed = 0;
         let failed = 0;
         let skipped = 0;
         for (const sub of subs) {
-          // The stock the child chose; older subscriptions without one follow Apple.
-          const ticker = sub.tickers?.find((t: string) => KID_STOCKS.some((s) => s.ticker === t)) ?? "AAPL";
-          const meta = KID_STOCKS.find((s) => s.ticker === ticker)!;
-          const quote = quotes[ticker];
-          if (!quote) {
-            skipped++;
-            continue;
+          let payload: string;
+          const startup = sub.child_id ? waiting.get(sub.child_id) : undefined;
+          if (startup) {
+            payload = JSON.stringify({
+              title: `📣 Η ${startup.name} σε χρειάζεται!`,
+              body: startup.ceo_streak > 0
+                ? `Η απόφαση της ημέρας σε περιμένει. Κράτα το σερί σου: 🔥 ${startup.ceo_streak}!`
+                : "Η απόφαση της ημέρας σε περιμένει. Δες πώς πάει η εταιρία σου!",
+              url: `/startups/${startup.id}`,
+            });
+            reminders++;
+          } else {
+            // The stock the child chose; older subscriptions without one follow Apple.
+            const ticker = sub.tickers?.find((t: string) => KID_STOCKS.some((s) => s.ticker === t)) ?? "AAPL";
+            const meta = KID_STOCKS.find((s) => s.ticker === ticker)!;
+            const quote = quotes[ticker];
+            if (!tradingNote || !quote) {
+              skipped++;
+              continue;
+            }
+            const { title, body } = priceMessage(meta.name, quote.changePercent, quote.price * eurPerUsd, when);
+            payload = JSON.stringify({ title, body, url: "/stocks" });
           }
-          const { title, body } = priceMessage(meta.name, quote.changePercent, quote.price * eurPerUsd, when);
-          const payload = JSON.stringify({ title, body, url: "/stocks" });
           try {
             // web-push encrypts the payload (aes128gcm) and signs the VAPID JWT.
             await webpush.sendNotification(
@@ -122,7 +154,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
           }
         }
 
-        const result = { subscribers: subs.length, sent, removed, failed, skipped };
+        const result = { subscribers: subs.length, sent, reminders, removed, failed, skipped };
         console.log("news-push:", JSON.stringify(result));
         await record(result);
         return json(result);

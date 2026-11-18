@@ -1291,6 +1291,7 @@ export type Database = {
       }
       push_subscriptions: {
         Row: {
+          child_id: string | null
           auth: string | null
           created_at: string | null
           endpoint: string
@@ -1300,6 +1301,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          child_id?: string | null
           auth?: string | null
           created_at?: string | null
           endpoint: string
@@ -1309,6 +1311,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          child_id?: string | null
           auth?: string | null
           created_at?: string | null
           endpoint?: string
@@ -1356,6 +1359,13 @@ export type Database = {
       }
       startups: {
         Row: {
+          cash: number
+          ceo_streak: number
+          customers: number
+          last_decision_date: string | null
+          reputation: number
+          team: number
+          valuation: number
           child_id: string | null
           coins_raised: number
           created_at: string
@@ -1369,6 +1379,13 @@ export type Database = {
           solution: string
         }
         Insert: {
+          cash?: number
+          ceo_streak?: number
+          customers?: number
+          last_decision_date?: string | null
+          reputation?: number
+          team?: number
+          valuation?: number
           child_id?: string | null
           coins_raised?: number
           created_at?: string
@@ -1382,6 +1399,13 @@ export type Database = {
           solution: string
         }
         Update: {
+          cash?: number
+          ceo_streak?: number
+          customers?: number
+          last_decision_date?: string | null
+          reputation?: number
+          team?: number
+          valuation?: number
           child_id?: string | null
           coins_raised?: number
           created_at?: string

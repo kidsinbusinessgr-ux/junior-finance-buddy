@@ -25,11 +25,20 @@ export const Route = createFileRoute("/api/push/subscribe")({
         const ticker = typeof body.ticker === "string" && /^[A-Z.]{1,10}$/.test(body.ticker) ? body.ticker : null;
 
         try {
-          const { getAdminClient } = await import("@/lib/supabase-admin.server");
-          const { error } = await getAdminClient().from("push_subscriptions").upsert(
-            { endpoint, p256dh, auth, tickers: ticker ? [ticker] : [], updated_at: new Date().toISOString() },
-            { onConflict: "endpoint" },
-          );
+          const { getAdminClient, getUserFromRequest } = await import("@/lib/supabase-admin.server");
+          const admin = getAdminClient();
+          // A signed-in child's browser is linked to them (founder reminders).
+          const user = await getUserFromRequest(request);
+          const { data: child } = user
+            ? await admin.from("jfb_children").select("id").eq("user_id", user.id).maybeSingle()
+            : { data: null };
+          // Columns left out keep their saved value (e.g. the followed stock).
+          const row = {
+            endpoint, p256dh, auth, updated_at: new Date().toISOString(),
+            ...(ticker ? { tickers: [ticker] } : {}),
+            ...(child ? { child_id: child.id } : {}),
+          };
+          const { error } = await admin.from("push_subscriptions").upsert(row, { onConflict: "endpoint" });
           if (error) throw error;
           return json({ ok: true });
         } catch (err) {
