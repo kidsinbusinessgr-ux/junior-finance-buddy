@@ -121,6 +121,7 @@ function ChildDashboard() {
     reward: "🎁",
     deposit: "💰",
     withdrawal: "🎯",
+    dividend: "💰",
   };
 
   return (

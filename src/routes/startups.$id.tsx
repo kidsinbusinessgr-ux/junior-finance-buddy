@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Award } from "lucide-react";
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
 import { CompanyStats, FounderDecision, FounderReminder } from "@/components/startup-company";
+import { FounderMoneyTools, MyStake, SharesInfo, sharePrice } from "@/components/startup-investors";
 
 // Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
 const INVEST_LIMIT = 200;
@@ -46,6 +47,12 @@ type Startup = {
   team: number;
   valuation: number;
   ceo_streak: number;
+  total_shares: number;
+  round_goal: number | null;
+  round_raised: number;
+  round_ends_at: string | null;
+  rounds_won: number;
+  last_dividend_at: string | null;
 };
 
 type Investment = {
@@ -185,6 +192,13 @@ export default function StartupPage() {
             </>
           )}
           <CompanyStats company={startup} />
+          <SharesInfo startup={startup} />
+          {child && startup.child_id === child.id && (
+            <FounderMoneyTools startup={startup} onChanged={fetchData} />
+          )}
+          {child && startup.child_id !== child.id && (
+            <MyStake startup={startup} childId={child.id} onChanged={() => { fetchData(); fetchMine(); refetchChild(); }} />
+          )}
         </div>
 
         {/* Pitch content */}
@@ -256,6 +270,10 @@ export default function StartupPage() {
                   })}
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
+                  Με 🪙 {selectedCoins} παίρνεις περίπου {((selectedCoins / sharePrice(startup)) / (Number(startup.total_shares) + selectedCoins / sharePrice(startup)) * 100).toLocaleString("el-GR", { maximumFractionDigits: 1 })}% της εταιρίας.
+                  Η αξία του μεριδίου σου θα ανεβαίνει ή θα πέφτει ανάλογα με το πώς πάει η εταιρία.
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
                   Τα coins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup!
                 </p>
               </div>

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useChild } from "@/hooks/useJFB";
+import { MyStartupInvestments } from "@/components/startup-investors";
+import { stageFor } from "@/lib/startup-stages";
 
 export const Route = createFileRoute("/startups/")({
   head: () => ({
@@ -23,17 +26,19 @@ type Startup = {
   creator_name: string;
   coins_raised: number;
   created_at: string;
+  valuation: number;
 };
 
 export default function StartupsPage() {
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
+  const { child } = useChild();
 
   useEffect(() => {
     supabase
       .from("startups")
-      .select("id, name, emoji, problem, solution, creator_name, coins_raised, created_at")
-      .order("coins_raised", { ascending: false })
+      .select("id, name, emoji, problem, solution, creator_name, coins_raised, created_at, valuation")
+      .order("valuation", { ascending: false })
       .then(({ data }) => {
         setStartups(data ?? []);
         setLoading(false);
@@ -65,6 +70,7 @@ export default function StartupsPage() {
       </section>
 
       <section className="mx-auto max-w-4xl px-6 py-12">
+        {child && <MyStartupInvestments childId={child.id} />}
         {loading && (
           <div className="py-20 text-center text-muted-foreground">Φορτώνει…</div>
         )}
@@ -100,7 +106,7 @@ export default function StartupsPage() {
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{s.solution}</p>
                     <div className="mt-3 flex items-center gap-2">
                       <span className="text-lg">🪙</span>
-                      <span className="text-sm font-black">{s.coins_raised.toLocaleString()} coins</span>
+                      <span className="text-sm font-black">{s.valuation.toLocaleString("el-GR")} αξία · {stageFor(s.valuation).stage.emoji} {stageFor(s.valuation).stage.name}</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">by {s.creator_name}</p>
                   </div>
@@ -124,7 +130,7 @@ export default function StartupsPage() {
                         <h3 className="font-black">{s.name}</h3>
                         <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{s.solution}</p>
                         <div className="mt-2 flex items-center gap-3 text-xs">
-                          <span className="font-bold text-[oklch(0.55_0.17_173)]">🪙 {s.coins_raised.toLocaleString()}</span>
+                          <span className="font-bold text-[oklch(0.55_0.17_173)]">🪙 {s.valuation.toLocaleString("el-GR")} · {stageFor(s.valuation).stage.emoji} {stageFor(s.valuation).stage.name}</span>
                           <span className="text-muted-foreground">by {s.creator_name}</span>
                         </div>
                       </div>

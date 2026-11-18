@@ -1324,6 +1324,7 @@ export type Database = {
       }
       startup_investments: {
         Row: {
+          shares: number | null
           child_id: string | null
           coins: number
           created_at: string
@@ -1332,6 +1333,7 @@ export type Database = {
           startup_id: string
         }
         Insert: {
+          shares?: number | null
           child_id?: string | null
           coins?: number
           created_at?: string
@@ -1340,6 +1342,7 @@ export type Database = {
           startup_id: string
         }
         Update: {
+          shares?: number | null
           child_id?: string | null
           coins?: number
           created_at?: string
@@ -1359,6 +1362,12 @@ export type Database = {
       }
       startups: {
         Row: {
+          last_dividend_at: string | null
+          round_ends_at: string | null
+          round_goal: number | null
+          round_raised: number
+          rounds_won: number
+          total_shares: number
           cash: number
           ceo_streak: number
           customers: number
@@ -1379,6 +1388,12 @@ export type Database = {
           solution: string
         }
         Insert: {
+          last_dividend_at?: string | null
+          round_ends_at?: string | null
+          round_goal?: number | null
+          round_raised?: number
+          rounds_won?: number
+          total_shares?: number
           cash?: number
           ceo_streak?: number
           customers?: number
@@ -1399,6 +1414,12 @@ export type Database = {
           solution: string
         }
         Update: {
+          last_dividend_at?: string | null
+          round_ends_at?: string | null
+          round_goal?: number | null
+          round_raised?: number
+          rounds_won?: number
+          total_shares?: number
           cash?: number
           ceo_streak?: number
           customers?: number
