@@ -71,6 +71,13 @@ export const Route = createFileRoute("/api/cron/news-push")({
             .upsert({ key: "cron:news-push", data: { ...result, at: new Date().toISOString() }, updated_at: new Date().toISOString() } as never, { onConflict: "key" });
         };
 
+        // Close last month's startup season (prizes, badges); does nothing if already closed.
+        const now = new Date();
+        const lastSeason = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)).toISOString().slice(0, 10);
+        const { data: winners, error: seasonError } = await supabase.rpc("jfb_finalize_startup_season" as never, { p_season: lastSeason } as never);
+        if (seasonError) console.error("news-push: season close failed", seasonError.message);
+        else if (Number(winners) > 0) console.log("news-push: season closed", lastSeason, winners);
+
         const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers, child_id");
         if (error) return json({ error: error.message }, 500);
         if (!subs || subs.length === 0) {
