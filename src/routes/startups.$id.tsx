@@ -7,6 +7,7 @@ import { Award } from "lucide-react";
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
 import { CompanyStats, FounderDecision, FounderReminder } from "@/components/startup-company";
 import { FounderMoneyTools, MyStake, SharesInfo, sharePrice } from "@/components/startup-investors";
+import { StartupReactions } from "@/components/startup-community";
 
 // Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
 const INVEST_LIMIT = 200;
@@ -199,6 +200,10 @@ export default function StartupPage() {
           {child && startup.child_id !== child.id && (
             <MyStake startup={startup} childId={child.id} onChanged={() => { fetchData(); fetchMine(); refetchChild(); }} />
           )}
+        </div>
+
+        <div className="mb-8">
+          <StartupReactions startupId={startup.id} canReact={Boolean(child)} />
         </div>
 
         {/* Pitch content */}

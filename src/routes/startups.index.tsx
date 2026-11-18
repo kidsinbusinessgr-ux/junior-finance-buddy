@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useChild } from "@/hooks/useJFB";
 import { MyStartupInvestments } from "@/components/startup-investors";
+import { StartupLeaderboard } from "@/components/startup-community";
 import { stageFor } from "@/lib/startup-stages";
 
 export const Route = createFileRoute("/startups/")({
@@ -71,6 +72,7 @@ export default function StartupsPage() {
 
       <section className="mx-auto max-w-4xl px-6 py-12">
         {child && <MyStartupInvestments childId={child.id} />}
+        <StartupLeaderboard />
         {loading && (
           <div className="py-20 text-center text-muted-foreground">Φορτώνει…</div>
         )}

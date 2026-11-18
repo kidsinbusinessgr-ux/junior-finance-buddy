@@ -68,6 +68,8 @@ export const createStartup = createServerFn({ method: "POST" })
       console.error("create startup failed", error?.message);
       return { ok: false, reason: "failed" };
     }
+    // First startup: founder badge (with a bell message).
+    await admin.rpc("jfb_give_badge" as never, { p_child_id: child.id, p_key: "startup_founder" } as never);
     return { ok: true, id: (row as { id: string }).id };
   });
 
