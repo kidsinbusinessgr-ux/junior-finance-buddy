@@ -4,6 +4,19 @@ import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Award } from "lucide-react";
+import { useChild, useCurrentUser } from "@/hooks/useJFB";
+
+// Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
+const INVEST_LIMIT = 200;
+
+// Database error messages from jfb_invest_in_startup → what the child sees.
+function investErrorText(message: string): string {
+  if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά coins!";
+  if (message.includes("Own startup")) return "Δεν μπορείς να επενδύσεις στο δικό σου startup.";
+  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} coins σε αυτό το startup. Μοίρασε τα coins σου και σε άλλα!`;
+  if (message.includes("child account")) return "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.";
+  return "Κάτι πήγε στραβά. Δοκίμασε ξανά.";
+}
 
 export const Route = createFileRoute("/startups/$id")({
   head: () => ({
@@ -25,6 +38,7 @@ type Startup = {
   creator_name: string;
   coins_raised: number;
   created_at: string;
+  child_id: string | null;
 };
 
 type Investment = {
@@ -44,7 +58,10 @@ export default function StartupPage() {
   const [notFound, setNotFound] = useState(false);
 
   const [investing, setInvesting] = useState(false);
-  const [investorName, setInvestorName] = useState("");
+  const [investError, setInvestError] = useState<string | null>(null);
+  const [myInvested, setMyInvested] = useState(0);
+  const { userId, loading: userLoading } = useCurrentUser();
+  const { child, loading: childLoading } = useChild();
   const [selectedCoins, setSelectedCoins] = useState(10);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -63,28 +80,34 @@ export default function StartupPage() {
 
   useEffect(() => { fetchData(); }, [id]);
 
+  // How much this child has already put into this startup (for the limit).
+  const fetchMine = async () => {
+    if (!child) return;
+    const { data } = await supabase
+      .from("startup_investments")
+      .select("coins")
+      .eq("startup_id", id)
+      .eq("child_id" as never, child.id as never);
+    setMyInvested(((data ?? []) as { coins: number }[]).reduce((sum, r) => sum + r.coins, 0));
+  };
+  useEffect(() => { fetchMine(); }, [id, child?.id]);
+
   const handleInvest = async () => {
-    if (!investorName.trim() || !startup) return;
+    if (!startup) return;
     setSubmitting(true);
-
-    const { error } = await supabase.from("startup_investments").insert([{
-      startup_id: startup.id,
-      investor_name: investorName.trim(),
-      coins: selectedCoins,
-    }]);
-
-    if (!error) {
-      // Update coins_raised
-      await supabase.from("startups").update({
-        coins_raised: startup.coins_raised + selectedCoins,
-      }).eq("id", startup.id);
-
-      setSuccess(true);
-      setInvesting(false);
-      setInvestorName("");
-      await fetchData();
-    }
+    setInvestError(null);
+    const { error } = await supabase.rpc("jfb_invest_in_startup" as never, {
+      p_startup_id: startup.id,
+      p_coins: selectedCoins,
+    } as never);
     setSubmitting(false);
+    if (error) {
+      setInvestError(investErrorText(error.message));
+      return;
+    }
+    setSuccess(true);
+    setInvesting(false);
+    await Promise.all([fetchData(), fetchMine()]);
   };
 
   if (loading) return (
@@ -166,46 +189,66 @@ export default function StartupPage() {
           <h3 className="text-xl font-black">Πιστεύεις σε αυτή την ιδέα;</h3>
           <p className="mt-1 text-muted-foreground">Επένδυσε virtual coins και δείξε την υποστήριξή σου!</p>
 
-          {!investing ? (
-            <Button
-              className="mt-4 h-12 w-full rounded-full bg-[oklch(0.55_0.17_173)] font-black text-white hover:bg-[oklch(0.48_0.17_173)]"
-              onClick={() => { setInvesting(true); setSuccess(false); }}
-            >
-              🪙 Επένδυσε Coins
-            </Button>
+          {!userLoading && !userId ? (
+            <Link to="/login">
+              <Button className="mt-4 h-12 w-full rounded-full bg-[oklch(0.55_0.17_173)] font-black text-white hover:bg-[oklch(0.48_0.17_173)]">
+                Συνδέσου για να επενδύσεις →
+              </Button>
+            </Link>
+          ) : userId && !childLoading && !child ? (
+            <p className="mt-4 text-sm font-bold text-muted-foreground">Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.</p>
+          ) : child && startup.child_id === child.id ? (
+            <p className="mt-4 rounded-xl bg-white/70 px-4 py-3 text-sm font-bold">
+              🌟 Αυτό είναι το δικό σου startup! Δείξ' το στους φίλους σου για να επενδύσουν.
+            </p>
+          ) : !investing ? (
+            <>
+              {child && (
+                <p className="mt-3 text-sm font-bold text-muted-foreground">
+                  Έχεις 🪙 {child.coins} · Έχεις επενδύσει εδώ {myInvested}/{INVEST_LIMIT}
+                </p>
+              )}
+              <Button
+                className="mt-4 h-12 w-full rounded-full bg-[oklch(0.55_0.17_173)] font-black text-white hover:bg-[oklch(0.48_0.17_173)]"
+                disabled={!child || myInvested >= INVEST_LIMIT}
+                onClick={() => { setInvesting(true); setSuccess(false); setInvestError(null); }}
+              >
+                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτό το startup" : "🪙 Επένδυσε Coins"}
+              </Button>
+            </>
           ) : (
             <div className="mt-4 space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-bold">Το όνομά σου</label>
-                <input
-                  className="w-full rounded-xl border bg-background px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[oklch(0.55_0.17_173)]"
-                  placeholder="Όνομα ή ψευδώνυμο"
-                  value={investorName}
-                  onChange={(e) => setInvestorName(e.target.value)}
-                  maxLength={40}
-                />
-              </div>
-              <div>
                 <label className="mb-2 block text-sm font-bold">Πόσα coins;</label>
                 <div className="flex gap-2">
-                  {COIN_OPTIONS.map((c) => (
-                    <button key={c}
-                      onClick={() => setSelectedCoins(c)}
-                      className={`flex-1 rounded-xl py-3 text-sm font-black transition-all ${
-                        selectedCoins === c
-                          ? "bg-[oklch(0.55_0.17_173)] text-white"
-                          : "border bg-background hover:bg-muted"
-                      }`}>
-                      🪙 {c}
-                    </button>
-                  ))}
+                  {COIN_OPTIONS.map((c) => {
+                    const tooMuch = c > (child?.coins ?? 0) || myInvested + c > INVEST_LIMIT;
+                    return (
+                      <button key={c}
+                        disabled={tooMuch}
+                        onClick={() => setSelectedCoins(c)}
+                        className={`flex-1 rounded-xl py-3 text-sm font-black transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
+                          selectedCoins === c
+                            ? "bg-[oklch(0.55_0.17_173)] text-white"
+                            : "border bg-background hover:bg-muted"
+                        }`}>
+                        🪙 {c}
+                      </button>
+                    );
+                  })}
                 </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Τα coins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup!
+                </p>
               </div>
+              {investError && (
+                <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm font-bold text-destructive">{investError}</p>
+              )}
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1 rounded-full" onClick={() => setInvesting(false)}>Ακύρωση</Button>
                 <Button
                   className="flex-1 rounded-full bg-[oklch(0.55_0.17_173)] font-black text-white"
-                  disabled={!investorName.trim() || submitting}
+                  disabled={submitting || selectedCoins > (child?.coins ?? 0) || myInvested + selectedCoins > INVEST_LIMIT}
                   onClick={handleInvest}
                 >
                   {submitting ? "…" : `Επένδυσε 🪙 ${selectedCoins}`}

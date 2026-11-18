@@ -1,8 +1,17 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { createStartup, type CreateStartupResult } from "@/lib/startups.functions";
+import { useChild, useCurrentUser } from "@/hooks/useJFB";
+
+const CREATE_ERRORS: Record<Exclude<CreateStartupResult, { ok: true }>["reason"], string> = {
+  login: "Συνδέσου για να φτιάξεις το startup σου!",
+  no_child: "Μόνο ο λογαριασμός παιδιού μπορεί να φτιάξει startup.",
+  bad_words: "Ας κρατήσουμε τα κείμενα ευγενικά 😊 Άλλαξε τις λέξεις που δεν ταιριάζουν και δοκίμασε ξανά.",
+  too_many: "Έχεις ήδη 3 startups! Εστίασε σε αυτά που έχεις 💪",
+  failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
+};
 
 export const Route = createFileRoute("/build")({
   head: () => ({
@@ -26,6 +35,8 @@ const EMOJIS = ["🚀","💡","🎯","🌱","⚡","🎮","📱","🍕","🎨","�
 
 export default function BuildPage() {
   const navigate = useNavigate();
+  const { userId, loading: userLoading } = useCurrentUser();
+  const { child, loading: childLoading } = useChild();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +44,6 @@ export default function BuildPage() {
   const [form, setForm] = useState({
     name: "",
     emoji: "🚀",
-    creator_name: "",
     problem: "",
     solution: "",
     customer: "",
@@ -43,7 +53,7 @@ export default function BuildPage() {
   const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   const canNext = () => {
-    if (step === 0) return form.name.trim().length >= 2 && form.creator_name.trim().length >= 2;
+    if (step === 0) return form.name.trim().length >= 2;
     if (step === 1) return form.problem.trim().length >= 10;
     if (step === 2) return form.solution.trim().length >= 10;
     if (step === 3) return form.customer.trim().length >= 10;
@@ -54,28 +64,36 @@ export default function BuildPage() {
   const handleSubmit = async () => {
     setSubmitting(true);
     setError(null);
-    const { data, error: err } = await supabase
-      .from("startups")
-      .insert([{
-        name: form.name.trim(),
-        emoji: form.emoji,
-        creator_name: form.creator_name.trim(),
-        problem: form.problem.trim(),
-        solution: form.solution.trim(),
-        customer: form.customer.trim(),
-        model: form.model.trim(),
-        coins_raised: 0,
-      }])
-      .select("id")
-      .single();
-
-    setSubmitting(false);
-    if (err || !data) {
-      setError("Κάτι πήγε στραβά. Δοκίμασε ξανά.");
-      return;
+    try {
+      const res = await createStartup({
+        data: {
+          name: form.name.trim(),
+          emoji: form.emoji,
+          problem: form.problem.trim(),
+          solution: form.solution.trim(),
+          customer: form.customer.trim(),
+          model: form.model.trim(),
+        },
+      });
+      if (res.ok) {
+        navigate({ to: "/startups/$id", params: { id: res.id } });
+        return;
+      }
+      setError(CREATE_ERRORS[res.reason]);
+    } catch {
+      setError(CREATE_ERRORS.failed);
+    } finally {
+      setSubmitting(false);
     }
-    navigate({ to: "/startups/$id", params: { id: data.id } });
   };
+
+  // Only signed-in children can create a startup.
+  const blocked =
+    !userLoading && !userId
+      ? "login"
+      : userId && !childLoading && !child
+        ? "no_child"
+        : null;
 
   return (
     <main className="min-h-screen bg-background">
@@ -91,6 +109,19 @@ export default function BuildPage() {
         </div>
       </section>
 
+      {blocked && (
+        <section className="mx-auto max-w-xl px-6 py-16 text-center">
+          <div className="text-6xl">🔐</div>
+          <p className="mt-4 text-xl font-black">{CREATE_ERRORS[blocked]}</p>
+          {blocked === "login" && (
+            <Link to="/login">
+              <Button className="mt-6 h-12 rounded-full px-8 font-black">Σύνδεση →</Button>
+            </Link>
+          )}
+        </section>
+      )}
+
+      {!blocked && (<>
       {/* Progress */}
       <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center gap-1 px-6 py-3">
@@ -142,16 +173,11 @@ export default function BuildPage() {
               />
             </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-bold">Το όνομά σου (ιδρυτής) <span className="text-destructive">*</span></label>
-              <input
-                className="w-full rounded-xl border bg-background px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[oklch(0.57_0.23_292)]"
-                placeholder="Το όνομά σου ή ψευδώνυμο"
-                value={form.creator_name}
-                onChange={(e) => set("creator_name", e.target.value)}
-                maxLength={40}
-              />
-            </div>
+            {child && (
+              <p className="rounded-xl bg-muted/50 px-4 py-3 text-sm font-bold">
+                👤 Ιδρυτής: <span className="font-black">{child.name}</span>
+              </p>
+            )}
           </div>
         )}
 
@@ -285,6 +311,7 @@ export default function BuildPage() {
           )}
         </div>
       </section>
+      </>)}
     </main>
   );
 }

@@ -1321,6 +1321,7 @@ export type Database = {
       }
       startup_investments: {
         Row: {
+          child_id: string | null
           coins: number
           created_at: string
           id: string
@@ -1328,6 +1329,7 @@ export type Database = {
           startup_id: string
         }
         Insert: {
+          child_id?: string | null
           coins?: number
           created_at?: string
           id?: string
@@ -1335,6 +1337,7 @@ export type Database = {
           startup_id: string
         }
         Update: {
+          child_id?: string | null
           coins?: number
           created_at?: string
           id?: string
@@ -1353,6 +1356,7 @@ export type Database = {
       }
       startups: {
         Row: {
+          child_id: string | null
           coins_raised: number
           created_at: string
           creator_name: string
@@ -1365,6 +1369,7 @@ export type Database = {
           solution: string
         }
         Insert: {
+          child_id?: string | null
           coins_raised?: number
           created_at?: string
           creator_name?: string
@@ -1377,6 +1382,7 @@ export type Database = {
           solution: string
         }
         Update: {
+          child_id?: string | null
           coins_raised?: number
           created_at?: string
           creator_name?: string
@@ -1497,6 +1503,10 @@ export type Database = {
         Args: { p_amount: number; p_goal_id: string }
         Returns: undefined
       }
+      jfb_invest_in_startup: {
+        Args: { p_coins: number; p_startup_id: string }
+        Returns: number
+      }
       jfb_insert_default_chores: {
         Args: { p_parent_id: string }
         Returns: undefined
@@ -1534,6 +1544,7 @@ export type Database = {
         Returns: undefined
       }
       jfb_startup_price: { Args: { p_name: string }; Returns: number }
+      jfb_startup_invest_limit: { Args: never; Returns: number }
       jfb_stock_price: { Args: { p_ticker: string }; Returns: number }
       jfb_trade_stock: {
         Args: {
