@@ -61,7 +61,7 @@ export default function StartupPage() {
   const [investError, setInvestError] = useState<string | null>(null);
   const [myInvested, setMyInvested] = useState(0);
   const { userId, loading: userLoading } = useCurrentUser();
-  const { child, loading: childLoading } = useChild();
+  const { child, loading: childLoading, refetch: refetchChild } = useChild();
   const [selectedCoins, setSelectedCoins] = useState(10);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -107,7 +107,7 @@ export default function StartupPage() {
     }
     setSuccess(true);
     setInvesting(false);
-    await Promise.all([fetchData(), fetchMine()]);
+    await Promise.all([fetchData(), fetchMine(), refetchChild()]);
   };
 
   if (loading) return (
