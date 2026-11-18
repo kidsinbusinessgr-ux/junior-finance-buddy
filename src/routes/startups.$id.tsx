@@ -75,6 +75,7 @@ export default function StartupPage() {
   const [investing, setInvesting] = useState(false);
   const [investError, setInvestError] = useState<string | null>(null);
   const [myInvested, setMyInvested] = useState(0);
+  const [myPledged, setMyPledged] = useState(0);
   const { userId, loading: userLoading } = useCurrentUser();
   const { child, loading: childLoading, refetch: refetchChild } = useChild();
   const [selectedCoins, setSelectedCoins] = useState(10);
@@ -96,14 +97,16 @@ export default function StartupPage() {
   useEffect(() => { fetchData(); }, [id]);
 
   // How much this child has already put into this startup (for the limit).
+  // What this child has in this startup now: shares bought plus coins held in an open round.
   const fetchMine = async () => {
     if (!child) return;
-    const { data } = await supabase
-      .from("startup_investments")
-      .select("coins")
-      .eq("startup_id", id)
-      .eq("child_id" as never, child.id as never);
-    setMyInvested(((data ?? []) as { coins: number }[]).reduce((sum, r) => sum + r.coins, 0));
+    const [{ data: holding }, { data: pledges }] = await Promise.all([
+      supabase.from("jfb_startup_holdings" as never).select("invested").eq("child_id", child.id).eq("startup_id", id).maybeSingle(),
+      supabase.from("jfb_round_pledges" as never).select("coins").eq("child_id", child.id).eq("startup_id", id).eq("status", "pending"),
+    ]);
+    const pledged = ((pledges ?? []) as { coins: number }[]).reduce((sum, r) => sum + r.coins, 0);
+    setMyPledged(pledged);
+    setMyInvested(((holding as { invested: number } | null)?.invested ?? 0) + pledged);
   };
   useEffect(() => { fetchMine(); }, [id, child?.id]);
 
@@ -148,6 +151,7 @@ export default function StartupPage() {
   );
 
   const totalInvestors = investments.length;
+  const roundIsOpen = startup.round_goal !== null && startup.round_ends_at !== null && new Date(startup.round_ends_at) > new Date();
 
   return (
     <main className="min-h-screen bg-background">
@@ -196,6 +200,11 @@ export default function StartupPage() {
           <SharesInfo startup={startup} />
           {child && startup.child_id === child.id && (
             <FounderMoneyTools startup={startup} onChanged={fetchData} />
+          )}
+          {child && startup.child_id !== child.id && myPledged > 0 && (
+            <p className="rounded-2xl border-2 border-dashed border-[oklch(0.75_0.17_70)] bg-[oklch(0.98_0.03_80)] px-5 py-4 text-sm font-bold">
+              ⏳ Έχεις δεσμεύσει 🪙 {myPledged} στον γύρο χρηματοδότησης. Αν πιάσει τον στόχο, θα γίνουν μερίδια· αν όχι, θα σου επιστραφούν.
+            </p>
           )}
           {child && startup.child_id !== child.id && (
             <MyStake startup={startup} childId={child.id} onChanged={() => { fetchData(); fetchMine(); refetchChild(); }} />
@@ -274,6 +283,12 @@ export default function StartupPage() {
                     );
                   })}
                 </div>
+                {roundIsOpen && (
+                  <p className="mt-2 rounded-xl bg-[oklch(0.96_0.05_70)] px-3 py-2 text-xs font-bold">
+                    🎯 Τώρα τρέχει γύρος χρηματοδότησης («όλα ή τίποτα»). Τα coins σου φυλάγονται μέχρι να κλείσει:
+                    αν ο γύρος πιάσει τον στόχο, γίνονται μερίδια· αν όχι, σου επιστρέφονται όλα.
+                  </p>
+                )}
                 <p className="mt-2 text-xs text-muted-foreground">
                   Με 🪙 {selectedCoins} παίρνεις περίπου {((selectedCoins / sharePrice(startup)) / (Number(startup.total_shares) + selectedCoins / sharePrice(startup)) * 100).toLocaleString("el-GR", { maximumFractionDigits: 1 })}% της εταιρίας.
                   Η αξία του μεριδίου σου θα ανεβαίνει ή θα πέφτει ανάλογα με το πώς πάει η εταιρία.

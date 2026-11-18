@@ -78,6 +78,11 @@ export const Route = createFileRoute("/api/cron/news-push")({
         if (seasonError) console.error("news-push: season close failed", seasonError.message);
         else if (Number(winners) > 0) console.log("news-push: season closed", lastSeason, winners);
 
+        // Give back pledges of funding rounds that ended without reaching their goal.
+        const { data: refunds, error: roundError } = await supabase.rpc("jfb_settle_startup_rounds" as never, { p_startup_id: null } as never);
+        if (roundError) console.error("news-push: round refunds failed", roundError.message);
+        else if (Number(refunds) > 0) console.log("news-push: round pledges refunded", refunds);
+
         const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers, child_id");
         if (error) return json({ error: error.message }, 500);
         if (!subs || subs.length === 0) {
