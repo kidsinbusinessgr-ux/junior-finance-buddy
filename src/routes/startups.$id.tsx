@@ -212,7 +212,11 @@ export default function StartupPage() {
         </div>
 
         <div className="mb-8">
-          <StartupReactions startupId={startup.id} canReact={Boolean(child)} />
+          <StartupReactions
+            startupId={startup.id}
+            canReact={Boolean(child) && startup.child_id !== child?.id}
+            isFounder={Boolean(child) && startup.child_id === child?.id}
+          />
         </div>
 
         {/* Pitch content */}

@@ -18,7 +18,8 @@ const EMOJI_LABELS: Record<(typeof EMOJIS)[number], string> = {
 
 type Count = { emoji: string; total: number; mine: boolean };
 
-export function StartupReactions({ startupId, canReact }: { startupId: string; canReact: boolean }) {
+// Only other children react: the founder sees the counts but can't vote for their own idea.
+export function StartupReactions({ startupId, canReact, isFounder = false }: { startupId: string; canReact: boolean; isFounder?: boolean }) {
   const [counts, setCounts] = useState<Count[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -42,7 +43,7 @@ export function StartupReactions({ startupId, canReact }: { startupId: string; c
 
   return (
     <div className="rounded-2xl border bg-card p-5">
-      <p className="text-sm font-black">Τι λες για αυτή την ιδέα;</p>
+      <p className="text-sm font-black">{isFounder ? "Τι λένε οι άλλοι για την ιδέα σου" : "Τι λες για αυτή την ιδέα;"}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {EMOJIS.map((e) => {
           const c = counts.find((x) => x.emoji === e);
@@ -62,7 +63,9 @@ export function StartupReactions({ startupId, canReact }: { startupId: string; c
           );
         })}
       </div>
-      {!canReact && <p className="mt-2 text-xs text-muted-foreground">Συνδέσου ως παιδί για να αντιδράσεις.</p>}
+      {isFounder ? (
+        <p className="mt-2 text-xs text-muted-foreground">Τις αντιδράσεις τις δίνουν τα άλλα παιδιά. Δείξε το startup σου στους φίλους σου!</p>
+      ) : !canReact && <p className="mt-2 text-xs text-muted-foreground">Συνδέσου ως παιδί για να αντιδράσεις.</p>}
     </div>
   );
 }
