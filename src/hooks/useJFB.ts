@@ -2,6 +2,7 @@
  * Junior Finance Buddy — Supabase data hooks
  * Import from "@/hooks/useJFB"
  */
+import { freeLaunchActive } from "@/lib/launch";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
@@ -792,6 +793,8 @@ export async function markNotificationRead(id: string) {
 export function useSubscription() {
   const [isPaid, setIsPaid] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Free launch period (src/lib/launch.ts): everything is open to everyone.
+  const freeLaunch = freeLaunchActive();
 
   useEffect(() => {
     // app_metadata can only be set server-side (see activatePremium), unlike user_metadata.
@@ -807,5 +810,5 @@ export function useSubscription() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  return { isPaid, loading };
+  return { isPaid: isPaid || freeLaunch, loading: freeLaunch ? false : loading };
 }

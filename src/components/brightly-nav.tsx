@@ -1,3 +1,4 @@
+import { freeLaunchActive } from "@/lib/launch";
 import { useState, useEffect } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { LayoutDashboard, LogOut, Menu, X } from "lucide-react";
@@ -12,7 +13,7 @@ type BrightlyNavProps = {
 
 const navigation = [
   { label: "Αρχική", to: "/" as const, key: "home" },
-  { label: "Πλάνα", to: "/pricing" as const, key: "pricing" },
+  ...(freeLaunchActive() ? [] : [{ label: "Πλάνα", to: "/pricing" as const, key: "pricing" }]),
   { label: "Κέρδη", to: "/earn" as const, key: "earn" },
   { label: "Δαπάνες", to: "/spend" as const, key: "spend" },
   { label: "Αποταμίευση", to: "/save" as const, key: "save" },

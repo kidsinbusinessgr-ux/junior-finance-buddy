@@ -1,3 +1,4 @@
+import { freeLaunchActive, freeLaunchUntil } from "@/lib/launch";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Award, BookOpenCheck, CircleHelp, Lock, Star } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
@@ -157,6 +158,11 @@ function LearnPage() {
             <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">2 Modules · 11 Μαθήματα</p>
             <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Μάθε. Σκέψου. Δράσε.</h1>
             <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Χρηματοοικονομική παιδεία & Startup Mindset — real case studies, mental models, XP.</p>
+            {freeLaunchActive() && (
+              <p className="mx-auto mt-5 inline-block rounded-full bg-white/15 px-5 py-2 text-sm font-black">
+                🎉 Είσαι από τους πρώτους! Όλα τα μαθήματα είναι ανοιχτά δωρεάν {freeLaunchUntil()}.
+              </p>
+            )}
 
             {/* Progress bar */}
             <div className="mx-auto mt-8 max-w-sm rounded-xl bg-[oklch(0.45_0.18_292)] p-5">

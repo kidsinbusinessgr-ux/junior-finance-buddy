@@ -1,3 +1,4 @@
+import { freeLaunchActive, freeLaunchUntil } from "@/lib/launch";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -63,6 +64,7 @@ function PricingPage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
   }, []);
+  const free = freeLaunchActive();
   const checkoutHref = (href: string) =>
     userId ? `${href}?client_reference_id=${encodeURIComponent(userId)}` : href;
 
@@ -76,7 +78,9 @@ function PricingPage() {
             <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Πακέτα & τιμές</p>
             <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Μια πιο έξυπνη αρχή.</h1>
             <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">
-              14 μέρες δωρεάν δοκιμή — χωρίς χρεωστική κάρτα. Ακύρωση οποιαδήποτε στιγμή.
+              {free
+                ? `🎉 Τώρα όλα είναι δωρεάν ${freeLaunchUntil()}. Δε χρειάζεται κάρτα ούτε συνδρομή.`
+                : "14 μέρες δωρεάν δοκιμή — χωρίς χρεωστική κάρτα. Ακύρωση οποιαδήποτε στιγμή."}
             </p>
           </div>
         </div>
@@ -106,6 +110,7 @@ function PricingPage() {
                 </p>
 
                 <div className="mt-3 flex items-end gap-1">
+                  {free && <span className="mb-1.5 mr-1 text-sm font-black">Αργότερα</span>}
                   <span className="text-5xl font-black">€{plan.price}</span>
                   <span className={`mb-1.5 text-sm font-semibold ${plan.highlight ? "text-[oklch(0.86_0.1_292)]" : "text-muted-foreground"}`}>/μήνα</span>
                 </div>
@@ -126,16 +131,29 @@ function PricingPage() {
                   ))}
                 </ul>
 
-                <a
-                  href={checkoutHref(plan.href)}
-                  className={`mt-8 block rounded-xl py-3.5 text-center text-sm font-black transition-all hover:-translate-y-0.5 active:scale-95 ${
-                    plan.highlight
-                      ? "bg-white text-[oklch(0.57_0.23_292)]"
-                      : "bg-[oklch(0.57_0.23_292)] text-white"
-                  }`}
-                >
-                  {plan.cta} →
-                </a>
+                {free ? (
+                  <Link
+                    to="/signup"
+                    className={`mt-8 block rounded-xl py-3.5 text-center text-sm font-black transition-all hover:-translate-y-0.5 active:scale-95 ${
+                      plan.highlight
+                        ? "bg-white text-[oklch(0.57_0.23_292)]"
+                        : "bg-[oklch(0.57_0.23_292)] text-white"
+                    }`}
+                  >
+                    Ξεκίνα δωρεάν τώρα →
+                  </Link>
+                ) : (
+                  <a
+                    href={checkoutHref(plan.href)}
+                    className={`mt-8 block rounded-xl py-3.5 text-center text-sm font-black transition-all hover:-translate-y-0.5 active:scale-95 ${
+                      plan.highlight
+                        ? "bg-white text-[oklch(0.57_0.23_292)]"
+                        : "bg-[oklch(0.57_0.23_292)] text-white"
+                    }`}
+                  >
+                    {plan.cta} →
+                  </a>
+                )}
 
                 <p className={`mt-3 text-center text-xs font-semibold ${plan.highlight ? "text-[oklch(0.86_0.1_292)]" : "text-muted-foreground"}`}>
                   14 μέρες δωρεάν · Ακύρωση οποιαδήποτε στιγμή
@@ -205,7 +223,7 @@ function PricingPage() {
       <section className="px-6 py-20 text-center">
         <div className="mx-auto max-w-xl">
           <h2 className="text-4xl font-black sm:text-5xl">Έτοιμος να ξεκινήσεις;</h2>
-          <p className="mt-4 text-lg text-muted-foreground">14 μέρες δωρεάν, χωρίς δέσμευση.</p>
+          <p className="mt-4 text-lg text-muted-foreground">{free ? `Όλα δωρεάν ${freeLaunchUntil()}.` : "14 μέρες δωρεάν, χωρίς δέσμευση."}</p>
           <Link
             to="/signup"
             className="mt-8 inline-flex h-14 items-center justify-center rounded-full px-10 text-base font-black text-white transition-all hover:-translate-y-0.5 active:scale-95"
