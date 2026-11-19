@@ -25,6 +25,7 @@ import { Route as ParentDashboardRouteImport } from './routes/parent-dashboard'
 import { Route as PaymentCancelRouteImport } from './routes/payment-cancel'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SaveRouteImport } from './routes/save'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -119,6 +120,11 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/payment-cancel': typeof PaymentCancelRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
@@ -232,6 +239,7 @@ export interface FileRoutesByTo {
   '/payment-cancel': typeof PaymentCancelRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
@@ -264,6 +272,7 @@ export interface FileRoutesById {
   '/payment-cancel': typeof PaymentCancelRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/payment-cancel'
     | '/payment-success'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
     | '/save'
     | '/signup'
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
     | '/payment-cancel'
     | '/payment-success'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
     | '/save'
     | '/signup'
@@ -358,6 +369,7 @@ export interface FileRouteTypes {
     | '/payment-cancel'
     | '/payment-success'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
     | '/save'
     | '/signup'
@@ -390,6 +402,7 @@ export interface RootRouteChildren {
   PaymentCancelRoute: typeof PaymentCancelRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SaveRoute: typeof SaveRoute
   SignupRoute: typeof SignupRoute
@@ -517,6 +530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -640,6 +660,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentCancelRoute: PaymentCancelRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SaveRoute: SaveRoute,
   SignupRoute: SignupRoute,

@@ -4,7 +4,7 @@ import { chatWithBuddy, type ChatMessage } from "@/lib/buddy.functions";
 
 const PUBLIC_ROUTES = new Set([
   "/", "/login", "/signup", "/forgot-password",
-  "/reset-password", "/pricing", "/payment-success", "/payment-cancel",
+  "/reset-password", "/pricing", "/payment-success", "/payment-cancel", "/privacy",
 ]);
 
 export function BuddyFloat() {

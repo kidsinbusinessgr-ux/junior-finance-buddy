@@ -1,3 +1,4 @@
+import { PRIVACY_VERSION } from "@/routes/privacy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
@@ -89,17 +90,27 @@ function ParentSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
+  // Parent/guardian consent (GDPR, children under 15). Saved with the account.
+  const [consent, setConsent] = useState(false);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (!consent) { setError("Για να συνεχίσεις, επιβεβαίωσε ότι είσαι γονιός ή κηδεμόνας και ότι συμφωνείς με την Πολιτική Απορρήτου."); return; }
     if (password.length < 8) { setError("Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες."); return; }
     if (password !== confirm) { setError("Οι κωδικοί δεν ταιριάζουν."); return; }
     setLoading(true);
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/onboarding`,
+        data: {
+          role: "parent",
+          privacy_consent_at: new Date().toISOString(),
+          privacy_version: PRIVACY_VERSION,
+        },
+      },
     });
     if (authError) { setError(authError.message); setLoading(false); return; }
     setConfirmationEmail(email);
@@ -155,13 +166,24 @@ function ParentSignup() {
             </button>
           </div>
         </div>
-        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl font-black text-white disabled:opacity-60 transition-all hover:-translate-y-0.5 active:scale-95" style={{ background: "oklch(0.57 0.23 292)" }}>
+        <label htmlFor="parent-consent" className="flex items-start gap-3 rounded-xl bg-gray-50 p-3 text-sm text-gray-700">
+          <input
+            id="parent-consent"
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 accent-[oklch(0.57_0.23_292)]"
+          />
+          <span>
+            Είμαι γονιός ή κηδεμόνας, και συμφωνώ με την{" "}
+            <Link to="/privacy" target="_blank" className="font-bold underline">Πολιτική Απορρήτου</Link>{" "}
+            για τη χρήση της εφαρμογής από το παιδί μου.
+          </span>
+        </label>
+        <button type="submit" disabled={loading || !consent} className="w-full py-3 rounded-xl font-black text-white disabled:opacity-60 transition-all hover:-translate-y-0.5 active:scale-95" style={{ background: "oklch(0.57 0.23 292)" }}>
           {loading ? "Δημιουργία…" : "Ξεκίνα δωρεάν →"}
         </button>
       </form>
-      <p className="text-center text-xs text-gray-400 font-semibold mt-4">
-        Με την εγγραφή αποδέχεσαι τους <span className="underline">Όρους Χρήσης</span>
-      </p>
     </div>
   );
 }
@@ -210,7 +232,7 @@ function ChildSignup() {
       options: {
         emailRedirectTo: `${window.location.origin}/child-dashboard`,
         // Kept so the account can be linked after email confirmation (claimPendingInvite).
-        data: { invite_code: code },
+        data: { invite_code: code, privacy_version: PRIVACY_VERSION },
       },
     });
 

@@ -174,6 +174,10 @@ function Index() {
         </div>
       </section>
       )}
+      <footer className="px-6 pb-10 text-center text-sm text-muted-foreground">
+        © 2026 Kids in Business ·{" "}
+        <Link to="/privacy" className="font-bold underline">Πολιτική Απορρήτου</Link>
+      </footer>
     </main>
   );
 }
