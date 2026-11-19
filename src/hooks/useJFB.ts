@@ -384,82 +384,8 @@ export async function completeLesson(
   return Number(data ?? 0);
 }
 
-// ── Stock holdings ──────────────────────────────────────────────
-export function useStockHoldings(childId: string | null | undefined) {
-  const [holdings, setHoldings] = useState<JFBStockHolding[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetch = useCallback(async () => {
-    if (!childId) return;
-    const { data } = await supabase
-      .from("jfb_stock_holdings")
-      .select("*")
-      .eq("child_id", childId);
-    setHoldings(data ?? []);
-    setLoading(false);
-  }, [childId]);
-
-  useEffect(() => { fetch(); }, [fetch]);
-
-  return { holdings, loading, refetch: fetch };
-}
-
-export async function buyStock(
-  childId: string,
-  ticker: string,
-  companyName: string,
-  emoji: string,
-  quantity: number
-): Promise<void> {
-  await callRpc("jfb_trade_stock", {
-    p_child_id: childId, p_ticker: ticker, p_company: companyName,
-    p_emoji: emoji, p_quantity: quantity, p_side: "buy",
-  });
-}
-
-export async function sellStock(
-  childId: string,
-  ticker: string,
-  companyName: string,
-  emoji: string,
-  quantity: number
-): Promise<void> {
-  await callRpc("jfb_trade_stock", {
-    p_child_id: childId, p_ticker: ticker, p_company: companyName,
-    p_emoji: emoji, p_quantity: quantity, p_side: "sell",
-  });
-}
-
-// ── Startup investments ─────────────────────────────────────────
-export function useStartupInvestments(childId: string | null | undefined) {
-  const [investments, setInvestments] = useState<JFBStartupInvestment[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetch = useCallback(async () => {
-    if (!childId) return;
-    const { data } = await supabase
-      .from("jfb_startup_investments")
-      .select("*")
-      .eq("child_id", childId);
-    setInvestments(data ?? []);
-    setLoading(false);
-  }, [childId]);
-
-  useEffect(() => { fetch(); }, [fetch]);
-
-  return { investments, loading, refetch: fetch };
-}
-
-export async function investInStartup(
-  childId: string,
-  startupName: string,
-  emoji: string,
-  quantity: number
-): Promise<void> {
-  await callRpc("jfb_invest_startup", {
-    p_child_id: childId, p_startup_name: startupName, p_emoji: emoji, p_quantity: quantity,
-  });
-}
+// The old made-up stocks and startups (jfb_stock_holdings, jfb_startup_investments)
+// were retired on 2026-11-19; real ones live on /stocks and /startups.
 
 // ── Parent load coins manually ──────────────────────────────────
 export async function parentLoadCoins(childId: string, amount: number): Promise<void> {
