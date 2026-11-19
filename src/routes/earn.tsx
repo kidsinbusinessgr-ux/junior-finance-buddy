@@ -4,6 +4,7 @@ import { CheckCircle2, Circle } from "lucide-react";
 import earnHero from "@/assets/earn-girl.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { useChild } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/earn")({
   head: () => ({
@@ -58,6 +59,8 @@ const initialTasks = taskGroups.flatMap((g) =>
 
 function EarnPage() {
   const [tasks, setTasks] = useState(initialTasks);
+  // A signed-in child sees a way to their real chores (sent to the parent for approval).
+  const { child } = useChild();
 
   const toggle = (id: number) =>
     setTasks((prev) =>
@@ -80,9 +83,15 @@ function EarnPage() {
               <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Κέρδισε</p>
               <h1 className="text-5xl font-black leading-tight sm:text-6xl">Μετάτρεψε τη δουλειά σε αξία.</h1>
               <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Τα παιδιά μαθαίνουν την αξία της εργασίας ολοκληρώνοντας δουλειές και κερδίζοντας τα πρώτα τους χρήματα.</p>
-              <Link to="/signup">
-                <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
-              </Link>
+              {child ? (
+                <Link to="/wallet">
+                  <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Οι δουλειές μου →</Button>
+                </Link>
+              ) : (
+                <Link to="/signup">
+                  <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
+                </Link>
+              )}
             </div>
             <div className="relative mx-auto w-full max-w-[500px]">
               <div className="hero-orb absolute inset-[10%] rounded-full" />
@@ -98,6 +107,12 @@ function EarnPage() {
           <div className="mx-auto max-w-xl text-center">
             <p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Δουλειές που αποδίδουν</p>
             <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Σήμερα στη λίστα</h2>
+            {child && (
+              <p className="mt-4 rounded-2xl bg-[oklch(0.95_0.05_173)] px-5 py-3 text-sm font-bold text-[oklch(0.35_0.1_173)]">
+                Αυτές είναι ιδέες για δουλειές. Τις δικές σου δουλειές, που σου δίνουν coins, τις βρίσκεις στο{" "}
+                <Link to="/wallet" className="underline">Πορτοφόλι</Link> και τις στέλνεις στον γονιό σου για έγκριση.
+              </p>
+            )}
             <p className="mt-4 text-lg text-muted-foreground">Κάνε κλικ για να επισημάνεις τις δουλειές που ολοκλήρωσες.</p>
           </div>
           <div className="mx-auto mt-10 max-w-2xl space-y-6">

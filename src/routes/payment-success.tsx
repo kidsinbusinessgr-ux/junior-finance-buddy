@@ -115,7 +115,7 @@ function PaymentSuccessPage() {
             Ξεκίνα τα μαθήματα →
           </Button>
         </Link>
-        <Link to="/dashboard">
+        <Link to="/parent-dashboard">
           <Button variant="outline" className="h-12 rounded-full px-10 font-black">
             Dashboard γονέα
           </Button>
