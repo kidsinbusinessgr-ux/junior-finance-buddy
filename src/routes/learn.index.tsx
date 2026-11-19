@@ -1,4 +1,4 @@
-import { freeLaunchActive, freeLaunchUntil } from "@/lib/launch";
+import { FREE_LAUNCH, freeLaunchActive, freeLaunchUntil } from "@/lib/launch";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Award, BookOpenCheck, CircleHelp, Lock, Star } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
@@ -160,7 +160,7 @@ function LearnPage() {
             <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Χρηματοοικονομική παιδεία & Startup Mindset — real case studies, mental models, XP.</p>
             {freeLaunchActive() && (
               <p className="mx-auto mt-5 inline-block rounded-full bg-white/15 px-5 py-2 text-sm font-black">
-                🎉 Είσαι από τους πρώτους! Όλα τα μαθήματα είναι ανοιχτά δωρεάν {freeLaunchUntil()}.
+                🎉 Είσαι από τους πρώτους! Όλα τα μαθήματα είναι ανοιχτά δωρεάν{FREE_LAUNCH.endsOn ? ` ${freeLaunchUntil()}` : ""}.
               </p>
             )}
 
