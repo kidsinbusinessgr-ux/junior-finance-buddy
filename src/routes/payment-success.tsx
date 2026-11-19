@@ -25,7 +25,7 @@ function PaymentSuccessPage() {
   useEffect(() => {
     if (!session_id) {
       setStatus("error");
-      setErrorMsg("Δεν βρέθηκε ID συνεδρίας. Παρακαλώ επικοινωνήστε μαζί μας.");
+      setErrorMsg("Δε βρέθηκε ID συνεδρίας. Παρακαλώ επικοινωνήστε μαζί μας.");
       return;
     }
 

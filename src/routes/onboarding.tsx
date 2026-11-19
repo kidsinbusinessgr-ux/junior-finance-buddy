@@ -32,7 +32,7 @@ function Onboarding() {
     setError("");
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Δεν βρέθηκε χρήστης");
+      if (!user) throw new Error("Δε βρέθηκε χρήστης");
       const profile = await createParentProfile(user.id, parentName.trim());
       setParentId(profile.id);
       setStep(2);

@@ -154,7 +154,7 @@ function WalletPage() {
       setSelectedChores([]);
       setChoreMessage({ ok: true, text: `✅ Στάλθηκ${count === 1 ? "ε" : "αν"} στον γονέα σου για έγκριση!` });
     } catch {
-      setChoreMessage({ ok: false, text: "Δεν στάλθηκε. Δοκίμασε ξανά!" });
+      setChoreMessage({ ok: false, text: "Δε στάλθηκε. Δοκίμασε ξανά!" });
     } finally {
       await refetchSubmissions();
       setSubmitting(false);

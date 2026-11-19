@@ -41,7 +41,7 @@ export function CompanyStats({ company }: { company: CompanyNumbers }) {
     <div className="rounded-2xl border bg-card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Αξία εταιρίας</p>
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Αξία εταιρείας</p>
           <p className="text-3xl font-black">🪙 {fmt(company.valuation)}</p>
         </div>
         <div className="rounded-full bg-[oklch(0.94_0.05_292)] px-4 py-2 text-sm font-black text-[oklch(0.4_0.18_292)]">
@@ -93,7 +93,7 @@ function ValueChart({ points }: { points: number[] }) {
     .join(" ");
   const up = points[points.length - 1]! >= points[0]!;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 h-16 w-full" preserveAspectRatio="none" aria-label="Η αξία της εταιρίας τις τελευταίες μέρες">
+    <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 h-16 w-full" preserveAspectRatio="none" aria-label="Η αξία της εταιρείας τις τελευταίες μέρες">
       <path d={d} fill="none" stroke={up ? "oklch(0.6 0.17 150)" : "oklch(0.6 0.2 25)"} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -122,8 +122,8 @@ export function FounderDecision({
 
   const load = () =>
     getFounderToday({ data: { startupId } })
-      .then((res) => (res.ok ? setView(res.today) : setError("Δεν βρέθηκε η απόφαση της ημέρας.")))
-      .catch(() => setError("Δεν βρέθηκε η απόφαση της ημέρας. Δοκίμασε ξανά σε λίγο."));
+      .then((res) => (res.ok ? setView(res.today) : setError("Δε βρέθηκε η απόφαση της ημέρας.")))
+      .catch(() => setError("Δε βρέθηκε η απόφαση της ημέρας. Δοκίμασε ξανά σε λίγο."));
 
   useEffect(() => {
     load();
@@ -208,7 +208,7 @@ export function FounderDecision({
           )}
           {(fx["missed"] ?? 0) > 0 && (
             <p className="text-xs font-bold text-[oklch(0.5_0.18_40)]">
-              Έλειψες {fx["missed"]} {fx["missed"] === 1 ? "μέρα" : "μέρες"} και η εταιρία έχασε λίγη φήμη και πελάτες. Έλα κάθε μέρα!
+              Έλειψες {fx["missed"]} {fx["missed"] === 1 ? "μέρα" : "μέρες"} και η εταιρεία έχασε λίγη φήμη και πελάτες. Έλα κάθε μέρα!
             </p>
           )}
           <div className="rounded-xl bg-[oklch(0.95_0.05_170)] px-4 py-3 text-sm">

@@ -19,7 +19,7 @@ function PaymentCancelPage() {
       <div>
         <h1 className="text-4xl font-black sm:text-5xl">Η πληρωμή ακυρώθηκε</h1>
         <p className="mt-4 max-w-sm text-lg text-muted-foreground">
-          Δεν χρεώθηκες τίποτα. Μπορείς να επιστρέψεις στις τιμές οποιαδήποτε στιγμή.
+          Δε χρεώθηκες τίποτα. Μπορείς να επιστρέψεις στις τιμές οποιαδήποτε στιγμή.
         </p>
       </div>
 

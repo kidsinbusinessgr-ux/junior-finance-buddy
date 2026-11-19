@@ -19,7 +19,7 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Η σελίδα δεν βρέθηκε</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Η σελίδα δε βρέθηκε</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Η σελίδα που ψάχνεις δεν υπάρχει ή έχει μετακινηθεί.
         </p>
@@ -47,7 +47,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Η σελίδα δεν φορτώθηκε
+          Η σελίδα δε φορτώθηκε
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Κάτι πήγε στραβά. Δοκίμασε να ανανεώσεις ή επέστρεψε στην αρχική.

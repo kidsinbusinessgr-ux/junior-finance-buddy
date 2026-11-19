@@ -61,12 +61,12 @@ export function SharesInfo({ startup }: { startup: ShareNumbers }) {
             <div className="h-full rounded-full bg-[oklch(0.7_0.17_70)]" style={{ width: `${Math.min(100, (startup.round_raised / goal) * 100)}%` }} />
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Λήγει σε {daysLeft(startup.round_ends_at!)} {daysLeft(startup.round_ends_at!) === 1 ? "μέρα" : "μέρες"}. «Όλα ή τίποτα»: αν πιάσει τον στόχο, τα coins γίνονται μερίδια και η εταιρία κερδίζει φήμη· αν όχι, επιστρέφονται σε όσους επένδυσαν.
+            Λήγει σε {daysLeft(startup.round_ends_at!)} {daysLeft(startup.round_ends_at!) === 1 ? "μέρα" : "μέρες"}. «Όλα ή τίποτα»: αν πιάσει τον στόχο, τα coins γίνονται μερίδια και η εταιρεία κερδίζει φήμη· αν όχι, επιστρέφονται σε όσους επένδυσαν.
           </p>
         </div>
       )}
       <p className="mt-3 text-xs text-muted-foreground">
-        💡 Όταν κάποιος επενδύει, η εταιρία βγάζει νέα μερίδια, οπότε το ποσοστό του ιδρυτή μικραίνει. Αυτό λέγεται «αραίωση».
+        💡 Όταν κάποιος επενδύει, η εταιρεία βγάζει νέα μερίδια, οπότε το ποσοστό του ιδρυτή μικραίνει. Αυτό λέγεται «αραίωση».
       </p>
     </div>
   );
@@ -118,7 +118,7 @@ export function MyStake({
     if (error) {
       setMessage(
         error.message.includes("no cash")
-          ? "Η εταιρία δεν έχει αρκετά μετρητά για να αγοράσει το μερίδιό σου τώρα. Δοκίμασε αργότερα! (Αυτό λέγεται ρευστότητα.)"
+          ? "Η εταιρεία δεν έχει αρκετά μετρητά για να αγοράσει το μερίδιό σου τώρα. Δοκίμασε αργότερα! (Αυτό λέγεται ρευστότητα.)"
           : "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
       );
       return;
@@ -158,7 +158,7 @@ export function MyStake({
         </button>
       ) : (
         <div className="mt-4 space-y-2">
-          <p className="text-center text-sm font-bold">Θα πάρεις 🪙 {fmt(value)} και δεν θα έχεις πια μερίδιο. Σίγουρα;</p>
+          <p className="text-center text-sm font-bold">Θα πάρεις 🪙 {fmt(value)} και δε θα έχεις πια μερίδιο. Σίγουρα;</p>
           <div className="flex gap-2">
             <button onClick={() => setConfirming(false)} className="flex-1 rounded-full border-2 bg-white py-2 text-sm font-black">Όχι</button>
             <button onClick={sell} disabled={busy} className="flex-1 rounded-full bg-[oklch(0.55_0.17_173)] py-2 text-sm font-black text-white disabled:opacity-60">
@@ -215,7 +215,7 @@ export function FounderMoneyTools({ startup, onChanged }: { startup: ShareNumber
           <p className="mt-1 text-sm text-muted-foreground">Ο γύρος σου είναι ανοιχτός. Δείξε το startup σου στους φίλους σου!</p>
         ) : (
           <>
-            <p className="mt-1 text-xs text-muted-foreground">Βάλε στόχο για 7 μέρες. «Όλα ή τίποτα»: αν τον πιάσεις, τα coins μπαίνουν στο ταμείο και η εταιρία κερδίζει +10 φήμη και ένα 🏆· αν όχι, επιστρέφονται στους επενδυτές.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Βάλε στόχο για 7 μέρες. «Όλα ή τίποτα»: αν τον πιάσεις, τα coins μπαίνουν στο ταμείο και η εταιρεία κερδίζει +10 φήμη και ένα 🏆· αν όχι, επιστρέφονται στους επενδυτές.</p>
             <div className="mt-2 flex gap-2">
               {GOALS.map((g) => (
                 <button key={g} disabled={busy}
@@ -232,7 +232,7 @@ export function FounderMoneyTools({ startup, onChanged }: { startup: ShareNumber
       <div className="mt-5">
         <p className="text-sm font-black">💰 Μέρισμα στους επενδυτές</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Μοιράζεις μέρος από το ταμείο στους {investors} επενδυτές σου, ανάλογα με το μερίδιο του καθενός. Η εταιρία κερδίζει +3 φήμη. Μία φορά την εβδομάδα.
+          Μοιράζεις μέρος από το ταμείο στους {investors} επενδυτές σου, ανάλογα με το μερίδιο του καθενός. Η εταιρεία κερδίζει +3 φήμη. Μία φορά την εβδομάδα.
         </p>
         {dividendReady ? (
           <div className="mt-2 flex gap-2">

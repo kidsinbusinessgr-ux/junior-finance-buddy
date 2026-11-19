@@ -144,7 +144,7 @@ export default function StartupPage() {
       </section>
       <div className="py-24 text-center">
         <div className="text-6xl">😕</div>
-        <p className="mt-4 text-xl font-black">Το startup δεν βρέθηκε</p>
+        <p className="mt-4 text-xl font-black">Το startup δε βρέθηκε</p>
         <Link to="/startups"><Button className="mt-6 rounded-full">← Πίσω στα Startups</Button></Link>
       </div>
     </main>
@@ -290,8 +290,8 @@ export default function StartupPage() {
                   </p>
                 )}
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Με 🪙 {selectedCoins} παίρνεις περίπου {((selectedCoins / sharePrice(startup)) / (Number(startup.total_shares) + selectedCoins / sharePrice(startup)) * 100).toLocaleString("el-GR", { maximumFractionDigits: 1 })}% της εταιρίας.
-                  Η αξία του μεριδίου σου θα ανεβαίνει ή θα πέφτει ανάλογα με το πώς πάει η εταιρία.
+                  Με 🪙 {selectedCoins} παίρνεις περίπου {((selectedCoins / sharePrice(startup)) / (Number(startup.total_shares) + selectedCoins / sharePrice(startup)) * 100).toLocaleString("el-GR", { maximumFractionDigits: 1 })}% της εταιρείας.
+                  Η αξία του μεριδίου σου θα ανεβαίνει ή θα πέφτει ανάλογα με το πώς πάει η εταιρεία.
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {(child?.invest_capital ?? 0) > 0

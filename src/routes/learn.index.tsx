@@ -280,7 +280,7 @@ function LearnPage() {
                   </div>
                 </div>
                 <p className="mt-4 max-w-xl text-[oklch(0.9_0.03_260)] leading-relaxed">
-                  Μάθε τι είναι μετοχές, δες <strong>πραγματικές τιμές</strong> από Apple, Netflix, Roblox και άλλες εταιρίες που ξέρεις — και χρησιμοποίησε τα εικονικά νομίσματά σου για να εξασκηθείς στο να επενδύεις!
+                  Μάθε τι είναι μετοχές, δες <strong>πραγματικές τιμές</strong> από Apple, Netflix, Roblox και άλλες εταιρείες που ξέρεις — και χρησιμοποίησε τα εικονικά νομίσματά σου για να εξασκηθείς στο να επενδύεις!
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">📊 Γραφήματα 30 ημερών</span>

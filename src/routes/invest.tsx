@@ -50,7 +50,7 @@ function InvestPage() {
               {
                 Icon: Compass,
                 title: "Διαφοροποίηση",
-                copy: "Μάθε γιατί οι έξυπνοι επενδυτές δεν βάζουν ποτέ όλα τα αυγά στο ίδιο καλάθι.",
+                copy: "Μάθε γιατί οι έξυπνοι επενδυτές δε βάζουν ποτέ όλα τα αυγά στο ίδιο καλάθι.",
               },
             ].map(({ Icon, title, copy }) => (
               <div key={title} className="rounded-xl border bg-card p-8 shadow-sm">

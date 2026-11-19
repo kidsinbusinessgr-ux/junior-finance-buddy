@@ -186,7 +186,7 @@ function ChildSignup() {
     // Checked by a database function, since a logged-out child can't read the table.
     const name = await checkInviteCode(inviteCode.trim().toUpperCase());
     if (!name) {
-      setError("Ο κωδικός δεν βρέθηκε ή έχει ήδη χρησιμοποιηθεί. Ρώτα τον γονέα σου.");
+      setError("Ο κωδικός δε βρέθηκε ή έχει ήδη χρησιμοποιηθεί. Ρώτα τον γονέα σου.");
       setLoading(false);
       return;
     }

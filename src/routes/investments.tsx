@@ -458,7 +458,7 @@ function InvestmentsPage() {
                       ) : canAfford ? (
                         `Γίνε μέτοχος · ${cost} 🪙`
                       ) : (
-                        "Δεν φτάνουν τα coins"
+                        "Δε φτάνουν τα coins"
                       )}
                     </Button>
                   </div>

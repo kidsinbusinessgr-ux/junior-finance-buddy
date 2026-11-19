@@ -129,7 +129,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
               title: `📣 Η ${startup.name} σε χρειάζεται!`,
               body: startup.ceo_streak > 0
                 ? `Η απόφαση της ημέρας σε περιμένει. Κράτα το σερί σου: 🔥 ${startup.ceo_streak}!`
-                : "Η απόφαση της ημέρας σε περιμένει. Δες πώς πάει η εταιρία σου!",
+                : "Η απόφαση της ημέρας σε περιμένει. Δες πώς πάει η εταιρεία σου!",
               url: `/startups/${startup.id}`,
             });
             reminders++;
