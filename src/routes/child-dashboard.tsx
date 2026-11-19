@@ -340,7 +340,7 @@ function ChildDashboard() {
           >
             <BookOpen size={22} className="text-primary" />
             <p className="font-black text-foreground">Μάθε</p>
-            <p className="text-xs text-muted-foreground">6 μαθήματα · +XP</p>
+            <p className="text-xs text-muted-foreground">11 μαθήματα · +XP</p>
           </Link>
           <Link
             to="/investments"
