@@ -8,10 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Τιμές & πακέτα — Kids in Business" },
-      { name: "description", content: "Επέλεξε το πακέτο που ταιριάζει στην οικογένειά σου και ξεκίνα με 14 μέρες δωρεάν δοκιμή." },
-      { property: "og:title", content: "Τιμές & πακέτα — Kids in Business" },
-      { property: "og:description", content: "Επέλεξε το πακέτο που ταιριάζει στην οικογένειά σου και ξεκίνα με 14 μέρες δωρεάν δοκιμή." },
+      { title: "Τι περιλαμβάνει — Kids in Business" },
+      { name: "description", content: "Τι περιλαμβάνει η εφαρμογή Kids in Business Finance Buddy. Δωρεάν στη δοκιμαστική περίοδο." },
+      { property: "og:title", content: "Τι περιλαμβάνει — Kids in Business" },
+      { property: "og:description", content: "Τι περιλαμβάνει η εφαρμογή Kids in Business Finance Buddy. Δωρεάν στη δοκιμαστική περίοδο." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -75,7 +75,7 @@ function PricingPage() {
         <div className="mx-auto max-w-[1440px]">
           <BrightlyNav active="pricing" />
           <div className="mx-auto max-w-2xl pb-3 pt-20 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Πακέτα & τιμές</p>
+            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">{free ? "Δοκιμαστική περίοδος" : "Πακέτα & τιμές"}</p>
             <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Μια πιο έξυπνη αρχή.</h1>
             <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">
               {free
@@ -89,7 +89,8 @@ function PricingPage() {
       {/* Pricing cards */}
       <section className="px-6 py-20 lg:px-16">
         <div className="mx-auto max-w-4xl">
-          <div className="grid gap-6 sm:grid-cols-2">
+          {/* Prices stay hidden during the free launch (no company yet); see src/lib/launch.ts. */}
+          {!free && <div className="mb-16 grid gap-6 sm:grid-cols-2">
             {PLANS.map((plan) => (
               <article
                 key={plan.key}
@@ -160,11 +161,11 @@ function PricingPage() {
                 </p>
               </article>
             ))}
-          </div>
+          </div>}
 
-          {/* What's included in both */}
-          <div className="mt-16 rounded-2xl bg-card p-8 ring-1 ring-border">
-            <h2 className="text-center text-2xl font-black">Συμπεριλαμβάνεται σε κάθε πακέτο</h2>
+          {/* What's included */}
+          <div className="rounded-2xl bg-card p-8 ring-1 ring-border">
+            <h2 className="text-center text-2xl font-black">{free ? "Τι περιλαμβάνει" : "Συμπεριλαμβάνεται σε κάθε πακέτο"}</h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {[
                 { icon: "📚", title: "6+ Μαθήματα", desc: "Βίντεο, quiz και δραστηριότητες για κάθε επίπεδο." },
@@ -209,7 +210,16 @@ function PricingPage() {
                 q: "Υπάρχουν πραγματικά χρήματα στην εφαρμογή;",
                 a: "Όχι. Το Kids in Business χρησιμοποιεί εικονικό νόμισμα για εκπαιδευτικούς σκοπούς. Δεν απαιτείται τραπεζικός λογαριασμός παιδιού.",
               },
-            ].map(({ q, a }) => (
+            ].filter(({ q }) => !free || q.startsWith("Υπάρχουν")).concat(free ? [
+              {
+                q: "Κοστίζει κάτι;",
+                a: "Όχι. Στη δοκιμαστική περίοδο η εφαρμογή είναι δωρεάν για όλους, χωρίς κάρτα και χωρίς συνδρομή.",
+              },
+              {
+                q: "Πόσα παιδιά μπορώ να προσθέσω;",
+                a: "Όσα παιδιά έχεις. Το καθένα έχει δικό του προφίλ, και εσύ βλέπεις την πρόοδό τους από τον λογαριασμό γονιού.",
+              },
+            ] : []).map(({ q, a }) => (
               <div key={q} className="rounded-xl bg-card p-6 ring-1 ring-border">
                 <p className="font-black">{q}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{a}</p>
