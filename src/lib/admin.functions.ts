@@ -19,8 +19,31 @@ export type AdminStats = {
   newChildrenThisMonth: number;
 };
 
+export type BetaStats = {
+  parentsFromBook: number;
+  parentsWithConsent: number;
+  startups: number;
+  startupsByKids: number;
+  decisions: number;
+  decisions7d: number;
+  pledges: number;
+  pledgedCoins: number;
+  stockHolders: number;
+  lessonsDone: number;
+  feedbackCount: number;
+};
+
+export type FeedbackItem = {
+  id: string;
+  role: "parent" | "child";
+  name: string;
+  page: string | null;
+  message: string;
+  created_at: string;
+};
+
 export type AdminStatsResult =
-  | { ok: true; stats: AdminStats }
+  | { ok: true; stats: AdminStats; beta: BetaStats | null; feedback: FeedbackItem[] }
   | { ok: false; reason: "login" | "forbidden" | "failed" };
 
 function adminEmails(): string[] {
@@ -72,6 +95,28 @@ export const getAdminStats = createServerFn({ method: "POST" }).handler(
         return { ok: false, reason: "failed" };
       }
 
+      // Beta numbers and the latest feedback. If these fail the main numbers still show.
+      const [betaRes, fbRes] = await Promise.all([
+        db.rpc("jfb_admin_beta_stats" as never),
+        db.from("jfb_feedback" as never).select("id, user_id, role, page, message, created_at")
+          .order("created_at", { ascending: false }).limit(50),
+      ]);
+      if (betaRes.error) console.error("admin beta stats failed", betaRes.error.message);
+      if (fbRes.error) console.error("admin feedback failed", fbRes.error.message);
+      const fbRows = ((fbRes.data ?? []) as unknown) as (Omit<FeedbackItem, "name"> & { user_id: string })[];
+      const ids = [...new Set(fbRows.map((r) => r.user_id))];
+      const names = new Map<string, string>();
+      if (ids.length) {
+        const [kids, parentsRes] = await Promise.all([
+          db.from("jfb_children").select("user_id, name").in("user_id", ids),
+          db.from("jfb_parents").select("user_id, name").in("user_id", ids),
+        ]);
+        for (const r of [...(kids.data ?? []), ...(parentsRes.data ?? [])] as { user_id: string | null; name: string | null }[]) {
+          if (r.user_id) names.set(r.user_id, r.name ?? "");
+        }
+      }
+      const feedback: FeedbackItem[] = fbRows.map(({ user_id, ...r }) => ({ ...r, name: names.get(user_id) || "—" }));
+
       const totalCoinsGiven = ((coins.data ?? []) as { amount: number }[]).reduce((s, t) => s + t.amount, 0);
       const parentsWithChildren = new Set(
         ((childParents.data ?? []) as { parent_id: string | null }[]).map((c) => c.parent_id).filter(Boolean),
@@ -79,6 +124,8 @@ export const getAdminStats = createServerFn({ method: "POST" }).handler(
 
       return {
         ok: true,
+        beta: betaRes.error ? null : (betaRes.data as unknown as BetaStats),
+        feedback,
         stats: {
           totalParents: parents.count ?? 0,
           totalChildren: children.count ?? 0,

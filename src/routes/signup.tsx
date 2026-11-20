@@ -1,4 +1,5 @@
 import { PRIVACY_VERSION } from "@/routes/privacy";
+import { getSignupSource } from "@/lib/signup-source";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
@@ -109,6 +110,8 @@ function ParentSignup() {
           role: "parent",
           privacy_consent_at: new Date().toISOString(),
           privacy_version: PRIVACY_VERSION,
+          // e.g. "book" when the parent arrived from app.kidsinbusiness.gr
+          signup_source: getSignupSource() ?? "direct",
         },
       },
     });

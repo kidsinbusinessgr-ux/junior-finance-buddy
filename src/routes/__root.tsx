@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/lib/supabaseClient";
 import { BuddyFloat } from "@/components/BuddyFloat";
+import { FeedbackButton } from "@/components/feedback-button";
+import { rememberSignupSource } from "@/lib/signup-source";
 
 function NotFoundComponent() {
   return (
@@ -108,13 +110,14 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password"];
+const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password", "/privacy", "/pricing"];
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
   useEffect(() => {
+    rememberSignupSource();
     const checkAuth = async () => {
       const {
         data: { session },
@@ -144,6 +147,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <BuddyFloat />
+      <FeedbackButton />
     </QueryClientProvider>
   );
 }

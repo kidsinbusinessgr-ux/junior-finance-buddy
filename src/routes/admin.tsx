@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { getAdminStats, type AdminStats } from "@/lib/admin.functions";
+import { getAdminStats, type AdminStats, type BetaStats, type FeedbackItem } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -9,6 +9,8 @@ export const Route = createFileRoute("/admin")({
 // Access is checked on the server (ADMIN_EMAILS); the page only shows what it gets back.
 function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [beta, setBeta] = useState<BetaStats | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [denied, setDenied] = useState<"login" | "forbidden" | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
@@ -16,7 +18,7 @@ function AdminPage() {
   useEffect(() => {
     getAdminStats()
       .then((res) => {
-        if (res.ok) setStats(res.stats);
+        if (res.ok) { setStats(res.stats); setBeta(res.beta); setFeedback(res.feedback); }
         else if (res.reason === "failed") setFetchError("Σφάλμα φόρτωσης δεδομένων.");
         else setDenied(res.reason);
       })
@@ -137,6 +139,44 @@ function AdminPage() {
                 <StatCard emoji="📖" label="Book Registrations" value={stats.bookRegistrations} sub="παιδιά" />
                 <StatCard emoji="🌱" label="Νέα παιδιά" value={stats.newChildrenThisMonth} sub="αυτόν τον μήνα" />
               </div>
+            </section>
+
+            {beta && (
+              <section className="mb-6">
+                <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">
+                  Beta
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <StatCard emoji="📖" label="Γονείς από το βιβλίο" value={beta.parentsFromBook} sub="εγγραφές με ?from=book" highlight />
+                  <StatCard emoji="✍️" label="Συγκατάθεση γονιού" value={beta.parentsWithConsent} sub="γονείς με αποδοχή απορρήτου" />
+                  <StatCard emoji="🚀" label="Startups" value={beta.startups} sub={`${beta.startupsByKids} από παιδιά`} />
+                  <StatCard emoji="🧠" label="Αποφάσεις ιδρυτών" value={beta.decisions} sub={`${beta.decisions7d} τις τελευταίες 7 μέρες`} />
+                  <StatCard emoji="🤝" label="Επενδύσεις σε γύρους" value={beta.pledges} sub={`${beta.pledgedCoins} coins`} />
+                  <StatCard emoji="📈" label="Παιδιά με μετοχές" value={beta.stockHolders} sub="έχουν τουλάχιστον μία" />
+                  <StatCard emoji="📚" label="Μαθήματα" value={beta.lessonsDone} sub="ολοκληρώσεις" />
+                  <StatCard emoji="💬" label="Σχόλια" value={beta.feedbackCount} sub="από το κουμπί «Η γνώμη σου»" />
+                </div>
+              </section>
+            )}
+
+            <section className="bg-white rounded-2xl ring-1 ring-gray-200 p-6 mb-6">
+              <h2 className="text-sm font-black text-gray-700 mb-4">💬 Τι λένε οι χρήστες</h2>
+              {feedback.length === 0 ? (
+                <p className="text-sm text-gray-400 font-semibold">Δεν έχει έρθει ακόμα κανένα σχόλιο.</p>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {feedback.map((f) => (
+                    <li key={f.id} className="py-3">
+                      <p className="text-xs font-bold text-gray-400">
+                        {f.role === "child" ? "🎒 Παιδί" : "👨‍👩‍👧 Γονιός"} · {f.name} ·{" "}
+                        {new Date(f.created_at).toLocaleString("el-GR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        {f.page ? ` · ${f.page}` : ""}
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">{f.message}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
 
             <section className="bg-white rounded-2xl ring-1 ring-gray-200 p-6 mb-6">
