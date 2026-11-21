@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { getAdminStats, type AdminStats, type BetaStats, type FeedbackItem } from "@/lib/admin.functions";
+import { subscribeThisBrowser, type PushState } from "@/lib/push-client";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -11,16 +13,18 @@ function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [beta, setBeta] = useState<BetaStats | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [alertState, setAlertState] = useState<PushState | "working" | null>(null);
   const [denied, setDenied] = useState<"login" | "forbidden" | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [deniedEmail, setDeniedEmail] = useState("");
 
   useEffect(() => {
     getAdminStats()
       .then((res) => {
         if (res.ok) { setStats(res.stats); setBeta(res.beta); setFeedback(res.feedback); }
         else if (res.reason === "failed") setFetchError("Σφάλμα φόρτωσης δεδομένων.");
-        else setDenied(res.reason);
+        else { setDenied(res.reason); setDeniedEmail(res.email ?? ""); }
       })
       .catch(() => setFetchError("Σφάλμα φόρτωσης δεδομένων."))
       .finally(() => setLoading(false));
@@ -37,6 +41,19 @@ function AdminPage() {
               ? "Συνδέσου με τον λογαριασμό διαχειριστή για να δεις τα στατιστικά."
               : "Αυτός ο λογαριασμός δεν έχει πρόσβαση σε αυτή τη σελίδα."}
           </p>
+          {denied === "forbidden" && (
+            <>
+              {deniedEmail && <p className="mt-2 break-all text-xs font-bold text-gray-400">Λογαριασμός: {deniedEmail}</p>}
+              <button
+                type="button"
+                onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }}
+                className="mt-5 inline-block w-full py-3 rounded-xl font-black text-white"
+                style={{ background: "oklch(0.57 0.23 292)" }}
+              >
+                Σύνδεση με άλλο λογαριασμό →
+              </button>
+            </>
+          )}
           {denied === "login" && (
             <Link
               to="/login"
@@ -160,7 +177,28 @@ function AdminPage() {
             )}
 
             <section className="bg-white rounded-2xl ring-1 ring-gray-200 p-6 mb-6">
-              <h2 className="text-sm font-black text-gray-700 mb-4">💬 Τι λένε οι χρήστες</h2>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-sm font-black text-gray-700">💬 Τι λένε οι χρήστες</h2>
+                <button
+                  type="button"
+                  disabled={alertState === "working" || alertState === "subscribed"}
+                  onClick={async () => {
+                    setAlertState("working");
+                    setAlertState(await subscribeThisBrowser(undefined, true));
+                  }}
+                  className="rounded-full bg-purple-50 px-3 py-1.5 text-xs font-black text-purple-700 ring-1 ring-purple-200 disabled:opacity-70"
+                >
+                  {alertState === "subscribed" ? "✅ Θα ειδοποιείσαι κάθε πρωί"
+                    : alertState === "working" ? "…"
+                    : "🔔 Ειδοποίηση κάθε πρωί για νέα σχόλια"}
+                </button>
+              </div>
+              {alertState === "denied" && (
+                <p className="mb-3 text-xs font-semibold text-red-600">Ο browser έχει μπλοκάρει τις ειδοποιήσεις. Επίτρεψέ τες από το λουκέτο δίπλα στη διεύθυνση και ξαναπάτα.</p>
+              )}
+              {(alertState === "error" || alertState === "unsupported") && (
+                <p className="mb-3 text-xs font-semibold text-red-600">Δεν ενεργοποιήθηκε. Δοκίμασε σε Chrome ή Edge.</p>
+              )}
               {feedback.length === 0 ? (
                 <p className="text-sm text-gray-400 font-semibold">Δεν έχει έρθει ακόμα κανένα σχόλιο.</p>
               ) : (

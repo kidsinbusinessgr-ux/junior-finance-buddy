@@ -14,7 +14,7 @@ export function subscriptionKey(sub: PushSubscription): string {
 
 // Saves the subscription on the server. With a signed-in child it is linked to
 // them (for founder reminders); `ticker` sets which stock the daily note is about.
-export async function saveSubscription(sub: PushSubscription, ticker?: string) {
+export async function saveSubscription(sub: PushSubscription, ticker?: string, adminAlerts = false) {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   const res = await fetch("/api/push/subscribe", {
@@ -23,7 +23,7 @@ export async function saveSubscription(sub: PushSubscription, ticker?: string) {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ subscription: sub.toJSON(), ...(ticker ? { ticker } : {}) }),
+    body: JSON.stringify({ subscription: sub.toJSON(), ...(ticker ? { ticker } : {}), ...(adminAlerts ? { adminAlerts: true } : {}) }),
   });
   if (!res.ok) throw new Error("subscribe failed: " + res.status);
 }
@@ -35,7 +35,7 @@ export function pushSupported() {
 }
 
 // Asks for permission if needed and subscribes this browser.
-export async function subscribeThisBrowser(ticker?: string): Promise<PushState> {
+export async function subscribeThisBrowser(ticker?: string, adminAlerts = false): Promise<PushState> {
   if (!pushSupported()) return "unsupported";
   try {
     const reg = await navigator.serviceWorker.register("/sw.js");
@@ -43,7 +43,7 @@ export async function subscribeThisBrowser(ticker?: string): Promise<PushState> 
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return "denied";
     const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: VAPID_PUBLIC });
-    await saveSubscription(sub, ticker);
+    await saveSubscription(sub, ticker, adminAlerts);
     return "subscribed";
   } catch (err) {
     console.error("Push subscribe error:", err);

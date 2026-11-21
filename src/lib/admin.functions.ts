@@ -44,9 +44,9 @@ export type FeedbackItem = {
 
 export type AdminStatsResult =
   | { ok: true; stats: AdminStats; beta: BetaStats | null; feedback: FeedbackItem[] }
-  | { ok: false; reason: "login" | "forbidden" | "failed" };
+  | { ok: false; reason: "login" | "forbidden" | "failed"; email?: string };
 
-function adminEmails(): string[] {
+export function adminEmails(): string[] {
   return (process.env["ADMIN_EMAILS"] ?? "")
     .split(",")
     .map((e) => e.trim().toLowerCase())
@@ -60,7 +60,7 @@ export const getAdminStats = createServerFn({ method: "POST" }).handler(
     const user = await getUserFromRequest(getRequest());
     if (!user) return { ok: false, reason: "login" };
     const email = (user.email ?? "").toLowerCase();
-    if (!email || !adminEmails().includes(email)) return { ok: false, reason: "forbidden" };
+    if (!email || !adminEmails().includes(email)) return { ok: false, reason: "forbidden", email };
 
     const db = getAdminClient();
     const now = new Date();

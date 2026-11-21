@@ -34,7 +34,8 @@ function priceMessage(
   };
 }
 
-// Daily job (see vercel.json, every day at 09:00 UTC). A founder whose startup
+// Daily job (see vercel.json, every day at 09:00 UTC). Browsers that turned on
+// feedback alerts on /admin hear how many feedback messages came in. A founder whose startup
 // still waits for today's decision gets a reminder; otherwise, Tuesday–Saturday
 // (after each US trading day), a note about the stock the browser follows.
 // Vercel sends `Authorization: Bearer $CRON_SECRET`.
@@ -83,7 +84,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
         if (roundError) console.error("news-push: round refunds failed", roundError.message);
         else if (Number(refunds) > 0) console.log("news-push: round pledges refunded", refunds);
 
-        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers, child_id");
+        const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, tickers, child_id, admin_alerts" as "endpoint, p256dh, auth, tickers, child_id");
         if (error) return json({ error: error.message }, 500);
         if (!subs || subs.length === 0) {
           console.log("news-push: no subscribers");
@@ -121,7 +122,41 @@ export const Route = createFileRoute("/api/cron/news-push")({
         let removed = 0;
         let failed = 0;
         let skipped = 0;
+
+        // Founder: how many feedback messages came in the last 24 hours.
+        const adminSubs = subs.filter((s) => (s as { admin_alerts?: boolean }).admin_alerts);
+        let feedbackAlerts = 0;
+        if (adminSubs.length) {
+          const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+          const { count } = await supabase
+            .from("jfb_feedback" as never)
+            .select("*", { count: "exact", head: true })
+            .gte("created_at", since);
+          const n = count ?? 0;
+          if (n > 0) {
+            const payload = JSON.stringify({
+              title: n === 1 ? "📬 1 νέο σχόλιο" : `📬 ${n} νέα σχόλια`,
+              body: "Δες τι έγραψαν οι χρήστες στο Founder Dashboard.",
+              url: "/admin",
+            });
+            for (const sub of adminSubs) {
+              try {
+                await webpush.sendNotification(
+                  { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh ?? "", auth: sub.auth ?? "" } },
+                  payload,
+                  { TTL: 86400 },
+                );
+                feedbackAlerts++;
+              } catch (err) {
+                console.error("feedback alert failed", (err as { statusCode?: number }).statusCode, err);
+              }
+            }
+          }
+        }
+
         for (const sub of subs) {
+          // A founder-only browser (not a child's) gets just the feedback alert.
+          if ((sub as { admin_alerts?: boolean }).admin_alerts && !sub.child_id) continue;
           let payload: string;
           const startup = sub.child_id ? waiting.get(sub.child_id) : undefined;
           if (startup) {
@@ -166,7 +201,7 @@ export const Route = createFileRoute("/api/cron/news-push")({
           }
         }
 
-        const result = { subscribers: subs.length, sent, reminders, removed, failed, skipped };
+        const result = { subscribers: subs.length, sent, reminders, removed, failed, skipped, feedbackAlerts };
         console.log("news-push:", JSON.stringify(result));
         await record(result);
         return json(result);
