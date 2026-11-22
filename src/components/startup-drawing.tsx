@@ -40,17 +40,24 @@ const fontCss = (i: number, size: number) => FONTS[i].css.replace("{size}", Stri
 
 // Text stays movable: it is kept as a list and drawn on a layer above the
 // drawing, and only joins the picture when it is saved.
-type TextItem = { text: string; x: number; y: number; font: number; px: number; color: string };
+// Stickers are kept the same way, so they can be moved and resized too.
+type TextItem = { text: string; x: number; y: number; font: number; px: number; color: string; sticker?: boolean };
+
+const EMOJI_FONT = `"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+const itemFont = (t: TextItem) => (t.sticker ? `${t.px}px ${EMOJI_FONT}` : fontCss(t.font, t.px));
+// Smallest and biggest size when resizing with two fingers.
+const MIN_PX = 14;
+const MAX_PX = 280;
 
 function textBox(c: CanvasRenderingContext2D, t: TextItem) {
-  c.font = fontCss(t.font, t.px);
+  c.font = itemFont(t);
   const w = Math.min(c.measureText(t.text).width, WIDTH - 20);
   return { x: t.x - w / 2 - 10, y: t.y - t.px * 0.6 - 6, w: w + 20, h: t.px * 1.2 + 12 };
 }
 
 function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: number | null) {
   items.forEach((t, i) => {
-    c.font = fontCss(t.font, t.px);
+    c.font = itemFont(t);
     c.textAlign = "center";
     c.textBaseline = "middle";
     c.fillStyle = t.color;
@@ -150,6 +157,13 @@ export function StartupDrawing({
   const [selected, setSelected] = useState<number | null>(null);
   // The text being dragged, and where the finger holds it.
   const drag = useRef<{ i: number; dx: number; dy: number } | null>(null);
+  // Fingers on the board, and a two-finger resize in progress.
+  const fingers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ i: number; dist: number; px: number } | null>(null);
+  const gap = () => {
+    const [a, b] = [...fingers.current.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y) || 1;
+  };
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(SIZES[1]);
   const [tool, setTool] = useState<Tool>("brush");
@@ -178,15 +192,15 @@ export function StartupDrawing({
     changeSelected({ color: c });
   };
   // A tapped text can get another colour, letter style or size.
-  const changeSelected = (patch: Partial<TextItem>) => {
+  const changeSelected = (patch: Partial<TextItem> | ((t: TextItem) => Partial<TextItem>)) => {
     if (selected === null) return;
     remember();
-    setTexts((all) => all.map((t, i) => (i === selected ? { ...t, ...patch } : t)));
+    setTexts((all) => all.map((t, i) => (i === selected ? { ...t, ...(typeof patch === "function" ? patch(t) : patch) } : t)));
     setDirty(true);
   };
   const pickSize = (s: number) => {
     setSize(s);
-    changeSelected({ px: TEXT_SIZES[SIZES.indexOf(s)] });
+    changeSelected((t) => ({ px: (t.sticker ? STICKER_SIZES : TEXT_SIZES)[SIZES.indexOf(s)] }));
   };
   const pickFont = (f: number) => {
     setFont(f);
@@ -272,6 +286,17 @@ export function StartupDrawing({
 
   const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const p = point(e);
+    fingers.current.set(e.pointerId, p);
+    // A second finger while holding a text or sticker: resize it.
+    const held = drag.current?.i ?? selected;
+    if (fingers.current.size === 2 && held !== null && texts[held]) {
+      pinch.current = { i: held, dist: gap(), px: texts[held].px };
+      drag.current = null;
+      setSelected(held);
+      e.currentTarget.setPointerCapture(e.pointerId);
+      return;
+    }
+    if (fingers.current.size > 1) return;
     // Tapping a text picks it up, whatever tool is chosen.
     const hit = textAt(p);
     if (hit >= 0) {
@@ -282,13 +307,14 @@ export function StartupDrawing({
       return;
     }
     setSelected(null);
-    if (tool === "text") {
-      if (!text.trim()) return;
+    if (tool === "text" || tool === "sticker") {
+      if (tool === "text" && !text.trim()) return;
       remember();
-      setTexts((all) => [
-        ...all,
-        { text: text.trim(), x: p.x, y: p.y, font, px: TEXT_SIZES[SIZES.indexOf(size)], color },
-      ]);
+      const item: TextItem =
+        tool === "text"
+          ? { text: text.trim(), x: p.x, y: p.y, font, px: TEXT_SIZES[SIZES.indexOf(size)], color }
+          : { text: sticker, x: p.x, y: p.y, font: 0, px: STICKER_SIZES[SIZES.indexOf(size)], color, sticker: true };
+      setTexts((all) => [...all, item]);
       drag.current = { i: texts.length, dx: 0, dy: 0 };
       e.currentTarget.setPointerCapture(e.pointerId);
       setDirty(true);
@@ -324,13 +350,6 @@ export function StartupDrawing({
     const s = start.current;
     if (!c || !s || !before.current) return;
     c.putImageData(before.current, 0, 0);
-    if (tool === "sticker") {
-      c.font = `${STICKER_SIZES[SIZES.indexOf(size)]}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
-      c.textAlign = "center";
-      c.textBaseline = "middle";
-      c.fillText(sticker, p.x, p.y);
-      return;
-    }
     c.strokeStyle = color;
     c.lineWidth = size;
     c.lineCap = "round";
@@ -371,6 +390,15 @@ export function StartupDrawing({
   };
 
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (fingers.current.has(e.pointerId)) fingers.current.set(e.pointerId, point(e));
+    const pz = pinch.current;
+    if (pz) {
+      if (fingers.current.size < 2) return;
+      const px = Math.round(Math.max(MIN_PX, Math.min(MAX_PX, (pz.px * gap()) / pz.dist)));
+      setTexts((all) => all.map((t, i) => (i === pz.i ? { ...t, px } : t)));
+      setDirty(true);
+      return;
+    }
     const d = drag.current;
     if (d) {
       const p = point(e);
@@ -391,7 +419,9 @@ export function StartupDrawing({
     last.current = p;
   };
 
-  const up = () => {
+  const up = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    fingers.current.delete(e.pointerId);
+    if (fingers.current.size < 2) pinch.current = null;
     drag.current = null;
     drawing.current = false;
     last.current = null;
@@ -456,6 +486,7 @@ export function StartupDrawing({
           [null, "🔇 Χωρίς"],
           ["happy", "😊 Χαρούμενη"],
           ["calm", "😌 Ήρεμη"],
+          ["jazz", "🎷 Jazz"],
         ] as [Tune | null, string][]).map(([t, label]) => (
           <button
             key={label}
@@ -604,10 +635,10 @@ export function StartupDrawing({
         <p className="mt-2 text-xs font-bold text-muted-foreground">
           {tool === "text"
             ? text.trim()
-              ? "👆 Πάτα πάνω στη ζωγραφιά για να βάλεις το κείμενο. Το μέγεθος αλλάζει με τις τελίτσες πάχους. Μετά μπορείς να το πατήσεις και να το σύρεις όπου θέλεις."
+              ? "👆 Πάτα πάνω στη ζωγραφιά για να βάλεις το κείμενο. Μετά σύρε το όπου θέλεις και άνοιξε ή κλείσε δύο δάχτυλα πάνω του για να το μεγαλώσεις ή να το μικρύνεις."
               : "✏️ Γράψε πρώτα το κείμενο στο κουτάκι."
             : tool === "sticker"
-            ? "👆 Πάτα πάνω στη ζωγραφιά για να κολλήσεις το αυτοκόλλητο. Το μέγεθος αλλάζει με τις τελίτσες πάχους."
+            ? "👆 Πάτα πάνω στη ζωγραφιά για να κολλήσεις το αυτοκόλλητο. Μετά σύρε το όπου θέλεις και άνοιξε ή κλείσε δύο δάχτυλα πάνω του για να το μεγαλώσεις ή να το μικρύνεις."
             : "👆 Σύρε το δάχτυλο ή το ποντίκι πάνω στη ζωγραφιά για να φτιάξεις το σχήμα. Γέμισέ το με το 🪣."}
         </p>
       )}
@@ -637,7 +668,7 @@ export function StartupDrawing({
       {selected !== null && (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-[oklch(0.96_0.03_292)] px-3 py-2">
           <span className="flex-1 text-xs font-bold text-[oklch(0.45_0.2_292)]">
-            ✋ Σύρε το κείμενο όπου θέλεις. Μπορείς να του αλλάξεις χρώμα, γράμματα ή μέγεθος.
+            ✋ Σύρε το όπου θέλεις. Με δύο δάχτυλα το μεγαλώνεις ή το μικραίνεις (στον υπολογιστή, με τις τελίτσες πάχους).{selected !== null && !texts[selected]?.sticker && " Μπορείς να του αλλάξεις και χρώμα ή γράμματα."}
           </span>
           <button type="button" onClick={deleteSelected} className="h-8 rounded-full bg-white px-3 text-sm font-bold">
             🗑️ Σβήσε το
