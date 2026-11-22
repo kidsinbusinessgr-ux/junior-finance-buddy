@@ -55,7 +55,19 @@ function textBox(c: CanvasRenderingContext2D, t: TextItem) {
   return { x: t.x - w / 2 - 10, y: t.y - t.px * 0.6 - 6, w: w + 20, h: t.px * 1.2 + 12 };
 }
 
-function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: number | null) {
+// The red × at the top right corner of each text or sticker, kept inside the page.
+const X_RADIUS = 17;
+function xButton(c: CanvasRenderingContext2D, t: TextItem) {
+  const b = textBox(c, t);
+  return {
+    x: Math.max(X_RADIUS, Math.min(WIDTH - X_RADIUS, b.x + b.w)),
+    y: Math.max(X_RADIUS, Math.min(HEIGHT - X_RADIUS, b.y)),
+  };
+}
+
+// controls: the selection box and the × buttons, shown on the board but
+// never saved with the picture.
+function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: number | null, controls = true) {
   items.forEach((t, i) => {
     c.font = itemFont(t);
     c.textAlign = "center";
@@ -72,6 +84,26 @@ function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: num
       c.restore();
     }
   });
+  if (!controls) return;
+  for (const t of items) {
+    const p = xButton(c, t);
+    c.save();
+    c.beginPath();
+    c.arc(p.x, p.y, X_RADIUS, 0, Math.PI * 2);
+    c.fillStyle = "#ef4444";
+    c.fill();
+    c.lineWidth = 3;
+    c.strokeStyle = "#ffffff";
+    c.stroke();
+    c.beginPath();
+    c.moveTo(p.x - 6, p.y - 6);
+    c.lineTo(p.x + 6, p.y + 6);
+    c.moveTo(p.x + 6, p.y - 6);
+    c.lineTo(p.x - 6, p.y + 6);
+    c.lineCap = "round";
+    c.stroke();
+    c.restore();
+  }
 }
 
 type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker" | "text";
@@ -298,6 +330,21 @@ export function StartupDrawing({
     }
     if (fingers.current.size > 1) return;
     // Tapping a text picks it up, whatever tool is chosen.
+    // Tapping the × removes that text or sticker straight away.
+    const oc = overlayRef.current?.getContext("2d");
+    if (oc && fingers.current.size === 1) {
+      for (let i = texts.length - 1; i >= 0; i--) {
+        const xb = xButton(oc, texts[i]);
+        if (Math.hypot(p.x - xb.x, p.y - xb.y) <= X_RADIUS + 6) {
+          remember();
+          setTexts((all) => all.filter((_, j) => j !== i));
+          setSelected(null);
+          setDirty(true);
+          fingers.current.delete(e.pointerId);
+          return;
+        }
+      }
+    }
     const hit = textAt(p);
     if (hit >= 0) {
       remember();
@@ -458,7 +505,7 @@ export function StartupDrawing({
       const oc = out.getContext("2d");
       if (!oc) throw new Error("no canvas");
       oc.drawImage(canvas, 0, 0);
-      drawTexts(oc, texts, null);
+      drawTexts(oc, texts, null, false);
       const res = await saveStartupDrawing({ data: { startupId, png: out.toDataURL("image/png") } });
       if (res.ok) {
         onSaved(res.imageUrl);
