@@ -23,8 +23,11 @@ const COLORS = [
 const SIZES = [4, 10, 22];
 // Sticker size for each of the three sizes above.
 const STICKER_SIZES = [48, 90, 150];
+// Text size for each of the three sizes above.
+const TEXT_SIZES = [28, 48, 80];
+const MAX_TEXT = 40;
 
-type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker";
+type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker" | "text";
 
 const SHAPES: { tool: Tool; icon: string; label: string }[] = [
   { tool: "line", icon: "╱", label: "Γραμμή" },
@@ -106,6 +109,7 @@ export function StartupDrawing({
   const [size, setSize] = useState(SIZES[1]);
   const [tool, setTool] = useState<Tool>("brush");
   const [sticker, setSticker] = useState(STICKERS[0]);
+  const [text, setText] = useState("");
   // Shapes and stickers: the page before the drag, redrawn on every move.
   const start = useRef<{ x: number; y: number } | null>(null);
   const before = useRef<ImageData | null>(null);
@@ -166,6 +170,7 @@ export function StartupDrawing({
   };
 
   const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (tool === "text" && !text.trim()) return;
     remember();
     const p = point(e);
     if (bucket) {
@@ -202,6 +207,14 @@ export function StartupDrawing({
       c.textAlign = "center";
       c.textBaseline = "middle";
       c.fillText(sticker, p.x, p.y);
+      return;
+    }
+    if (tool === "text") {
+      c.font = `900 ${TEXT_SIZES[SIZES.indexOf(size)]}px system-ui,"Segoe UI",Roboto,Arial,sans-serif`;
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillStyle = color;
+      c.fillText(text.trim(), p.x, p.y, WIDTH - 20);
       return;
     }
     c.strokeStyle = color;
@@ -396,9 +409,34 @@ export function StartupDrawing({
         </div>
       </div>
 
+      {/* Text: type a word, then tap (or drag) on the page to place it */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="text-sm font-bold text-muted-foreground">Κείμενο:</span>
+        <input
+          type="text"
+          value={text}
+          maxLength={MAX_TEXT}
+          placeholder="Γράψε μια λέξη, π.χ. το όνομα του προϊόντος"
+          onFocus={() => setTool("text")}
+          onChange={(e) => { setText(e.target.value); setTool("text"); }}
+          className={`h-9 min-w-0 flex-1 rounded-xl border-2 bg-background px-3 text-sm ${tool === "text" ? "border-[oklch(0.57_0.23_292)]" : "border-muted"}`}
+        />
+        <button
+          type="button"
+          onClick={() => toggle("text")}
+          className={`h-9 rounded-xl px-3 text-sm font-bold ${tool === "text" ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+        >
+          🔤 Κείμενο
+        </button>
+      </div>
+
       {tool !== "brush" && tool !== "eraser" && tool !== "bucket" && (
         <p className="mt-2 text-xs font-bold text-muted-foreground">
-          {tool === "sticker"
+          {tool === "text"
+            ? text.trim()
+              ? "👆 Πάτα πάνω στη ζωγραφιά για να βάλεις το κείμενο. Αν κρατήσεις πατημένο, μπορείς να το μετακινήσεις. Το μέγεθος αλλάζει με τις τελίτσες πάχους."
+              : "✏️ Γράψε πρώτα το κείμενο στο κουτάκι."
+            : tool === "sticker"
             ? "👆 Πάτα πάνω στη ζωγραφιά για να κολλήσεις το αυτοκόλλητο. Το μέγεθος αλλάζει με τις τελίτσες πάχους."
             : "👆 Σύρε το δάχτυλο ή το ποντίκι πάνω στη ζωγραφιά για να φτιάξεις το σχήμα. Γέμισέ το με το 🪣."}
         </p>
