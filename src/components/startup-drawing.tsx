@@ -55,7 +55,18 @@ type TextItem = {
   y2?: number;
   width?: number;
   fill?: string;
+  // Brush lines: the points of one stroke. Eraser strokes are white lines.
+  points?: { x: number; y: number }[];
+  erase?: boolean;
 };
+
+// Only the newest brush line shows a ×, so the board doesn't fill with them.
+function hasX(items: TextItem[], i: number) {
+  if (!items[i].points) return true;
+  if (items[i].erase) return false;
+  for (let j = items.length - 1; j > i; j--) if (items[j].points && !items[j].erase) return false;
+  return true;
+}
 
 const EMOJI_FONT = `"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
 const itemFont = (t: TextItem) => (t.sticker ? `${t.px}px ${EMOJI_FONT}` : fontCss(t.font, t.px));
@@ -101,6 +112,12 @@ function shapePath(c: CanvasRenderingContext2D, t: TextItem) {
 }
 
 function textBox(c: CanvasRenderingContext2D, t: TextItem) {
+  if (t.points) {
+    const pad = (t.width ?? 4) / 2 + 6;
+    const xs = t.points.map((p) => p.x), ys = t.points.map((p) => p.y);
+    const x1 = Math.min(...xs), x2 = Math.max(...xs), y1 = Math.min(...ys), y2 = Math.max(...ys);
+    return { x: x1 - pad, y: y1 - pad, w: x2 - x1 + pad * 2, h: y2 - y1 + pad * 2 };
+  }
   if (t.shape) {
     const pad = (t.width ?? 4) / 2 + 6;
     const x1 = Math.min(t.x, t.x2 ?? t.x), x2 = Math.max(t.x, t.x2 ?? t.x);
@@ -115,6 +132,8 @@ function textBox(c: CanvasRenderingContext2D, t: TextItem) {
 // Is the point on this item? Shapes count only near their outline, so a new
 // shape can still be drawn inside an old one.
 function isOnItem(c: CanvasRenderingContext2D, t: TextItem, p: { x: number; y: number }) {
+  // Brush lines are not picked up, so drawing over them works as usual.
+  if (t.points) return false;
   if (t.shape) {
     shapePath(c, t);
     c.lineWidth = (t.width ?? 4) + 22;
@@ -138,7 +157,16 @@ function xButton(c: CanvasRenderingContext2D, t: TextItem) {
 // never saved with the picture.
 function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: number | null, controls = true) {
   items.forEach((t, i) => {
-    if (t.shape) {
+    if (t.points) {
+      c.beginPath();
+      c.moveTo(t.points[0].x, t.points[0].y);
+      for (const q of t.points) c.lineTo(q.x, q.y);
+      c.strokeStyle = t.erase ? "#ffffff" : t.color;
+      c.lineWidth = t.width ?? 4;
+      c.lineCap = "round";
+      c.lineJoin = "round";
+      c.stroke();
+    } else if (t.shape) {
       shapePath(c, t);
       if (t.fill && t.shape !== "line") {
         c.fillStyle = t.fill;
@@ -167,8 +195,9 @@ function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: num
     }
   });
   if (!controls) return;
-  for (const t of items) {
-    const p = xButton(c, t);
+  for (let i = 0; i < items.length; i++) {
+    if (!hasX(items, i)) continue;
+    const p = xButton(c, items[i]);
     c.save();
     c.beginPath();
     c.arc(p.x, p.y, X_RADIUS, 0, Math.PI * 2);
@@ -223,11 +252,13 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 // Paint bucket: fills the area around (x, y) that has the clicked colour.
-function floodFill(img: ImageData, x: number, y: number, fill: [number, number, number]) {
-  const { width, height, data } = img;
+// The area to fill is found on the whole picture (so brush lines and shapes
+// are walls), and painted on the drawing layer underneath them.
+function floodFill(look: ImageData, img: ImageData, x: number, y: number, fill: [number, number, number]) {
+  const { width, height, data } = look;
+  const out = img.data;
   const start = (y * width + x) * 4;
   const [r0, g0, b0] = [data[start], data[start + 1], data[start + 2]];
-  if (Math.abs(r0 - fill[0]) + Math.abs(g0 - fill[1]) + Math.abs(b0 - fill[2]) === 0) return;
 
   const matches = (p: number) => {
     const i = p * 4;
@@ -240,10 +271,10 @@ function floodFill(img: ImageData, x: number, y: number, fill: [number, number, 
     if (seen[p] || !matches(p)) continue;
     seen[p] = 1;
     const i = p * 4;
-    data[i] = fill[0];
-    data[i + 1] = fill[1];
-    data[i + 2] = fill[2];
-    data[i + 3] = 255;
+    out[i] = fill[0];
+    out[i + 1] = fill[1];
+    out[i + 2] = fill[2];
+    out[i + 3] = 255;
     const px = p % width;
     if (px > 0) stack.push(p - 1);
     if (px < width - 1) stack.push(p + 1);
@@ -272,8 +303,11 @@ export function StartupDrawing({
   onClose: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawing = useRef(false);
-  const last = useRef<{ x: number; y: number } | null>(null);
+  // A brush or eraser line being drawn: its place in the list.
+  const newStroke = useRef<number | null>(null);
+  // A finger that went down on a ×: a tap deletes the item, but if the finger
+  // moves (e.g. to start a new line next to the last one) it draws instead.
+  const pendingX = useRef<{ i: number; p: { x: number; y: number } } | null>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const undo = useRef<{ img: ImageData; texts: TextItem[] }[]>([]);
   const [texts, setTexts] = useState<TextItem[]>([]);
@@ -382,18 +416,6 @@ export function StartupDrawing({
     if (undo.current.length > MAX_UNDO) undo.current.shift();
   };
 
-  const line = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-    const c = ctx();
-    if (!c) return;
-    c.strokeStyle = eraser ? "#ffffff" : color;
-    c.lineWidth = eraser ? size * 2 : size;
-    c.lineCap = "round";
-    c.lineJoin = "round";
-    c.beginPath();
-    c.moveTo(from.x, from.y);
-    c.lineTo(to.x, to.y);
-    c.stroke();
-  };
 
   // Which item is under the finger (the top one first), or -1.
   const textAt = (p: { x: number; y: number }) => {
@@ -419,17 +441,15 @@ export function StartupDrawing({
       return;
     }
     if (fingers.current.size > 1) return;
-    // Tapping the × removes that text or sticker straight away.
+    // Tapping the × removes that item straight away.
     const oc = overlayRef.current?.getContext("2d");
     if (oc && fingers.current.size === 1) {
       for (let i = texts.length - 1; i >= 0; i--) {
+        if (!hasX(texts, i)) continue;
         const xb = xButton(oc, texts[i]);
         if (Math.hypot(p.x - xb.x, p.y - xb.y) <= X_RADIUS + 6) {
-          remember();
-          setTexts((all) => all.filter((_, j) => j !== i));
-          setSelected(null);
-          setDirty(true);
-          fingers.current.delete(e.pointerId);
+          pendingX.current = { i, p };
+          e.currentTarget.setPointerCapture(e.pointerId);
           return;
         }
       }
@@ -483,22 +503,52 @@ export function StartupDrawing({
     remember();
     if (bucket) {
       const c = ctx();
-      if (!c) return;
+      const canvas = canvasRef.current;
+      if (!c || !canvas) return;
+      const whole = document.createElement("canvas");
+      whole.width = WIDTH;
+      whole.height = HEIGHT;
+      const wc = whole.getContext("2d");
+      if (!wc) return;
+      wc.drawImage(canvas, 0, 0);
+      drawTexts(wc, texts, null, false);
       const img = c.getImageData(0, 0, WIDTH, HEIGHT);
-      floodFill(img, Math.min(WIDTH - 1, Math.floor(p.x)), Math.min(HEIGHT - 1, Math.floor(p.y)), hexToRgb(color));
+      floodFill(
+        wc.getImageData(0, 0, WIDTH, HEIGHT),
+        img,
+        Math.min(WIDTH - 1, Math.floor(p.x)),
+        Math.min(HEIGHT - 1, Math.floor(p.y)),
+        hexToRgb(color),
+      );
       c.putImageData(img, 0, 0);
       setDirty(true);
       return;
     }
+    // Brush and eraser: each line is kept as an item.
+    const item: TextItem = { text: "", x: p.x, y: p.y, font: 0, px: 0, color, points: [p], width: eraser ? size * 2 : size, erase: eraser };
+    setTexts((all) => [...all, item]);
+    newStroke.current = texts.length;
     e.currentTarget.setPointerCapture(e.pointerId);
-    drawing.current = true;
     setDirty(true);
-    last.current = p;
-    line(p, p);
   };
 
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (fingers.current.has(e.pointerId)) fingers.current.set(e.pointerId, point(e));
+    const px = pendingX.current;
+    if (px) {
+      const p = point(e);
+      if (Math.hypot(p.x - px.p.x, p.y - px.p.y) < 10) return;
+      // It was not a tap on the ×: with the brush or eraser, start a line.
+      pendingX.current = null;
+      if (tool === "brush" || tool === "eraser") {
+        remember();
+        const item: TextItem = { text: "", x: px.p.x, y: px.p.y, font: 0, px: 0, color, points: [px.p, p], width: eraser ? size * 2 : size, erase: eraser };
+        setTexts((all) => [...all, item]);
+        newStroke.current = texts.length;
+        setDirty(true);
+      }
+      return;
+    }
     const pz = pinch.current;
     if (pz) {
       if (fingers.current.size < 2) return;
@@ -526,15 +576,23 @@ export function StartupDrawing({
       setTexts((all) => all.map((t, i) => (i === ns ? { ...t, x2: p.x, y2: p.y } : t)));
       return;
     }
-    if (!drawing.current) return;
-    const p = point(e);
-    if (!last.current) return;
-    line(last.current, p);
-    last.current = p;
+    const st = newStroke.current;
+    if (st !== null) {
+      const p = point(e);
+      setTexts((all) => all.map((t, i) => (i === st ? { ...t, points: [...(t.points ?? []), p] } : t)));
+    }
   };
 
   const up = (e: React.PointerEvent<HTMLCanvasElement>) => {
     fingers.current.delete(e.pointerId);
+    const px = pendingX.current;
+    pendingX.current = null;
+    if (px && e.type === "pointerup") {
+      remember();
+      setTexts((all) => all.filter((_, j) => j !== px.i));
+      setSelected(null);
+      setDirty(true);
+    }
     if (fingers.current.size < 2) pinch.current = null;
     drag.current = null;
     // A tap with a shape tool (no drag) leaves no tiny shape behind.
@@ -545,8 +603,7 @@ export function StartupDrawing({
         all.filter((t, i) => i !== ns || Math.abs((t.x2 ?? t.x) - t.x) > 4 || Math.abs((t.y2 ?? t.y) - t.y) > 4),
       );
     }
-    drawing.current = false;
-    last.current = null;
+    newStroke.current = null;
   };
 
   const handleUndo = () => {
