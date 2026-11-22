@@ -21,6 +21,44 @@ const COLORS = [
   "#78350f", "#92400e", "#d6a77a",
 ];
 const SIZES = [4, 10, 22];
+// How different a pixel may be from the clicked one and still get filled, so
+// the soft edges of brush lines don't leave a pale outline.
+const FILL_TOLERANCE = 60;
+
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+// Paint bucket: fills the area around (x, y) that has the clicked colour.
+function floodFill(img: ImageData, x: number, y: number, fill: [number, number, number]) {
+  const { width, height, data } = img;
+  const start = (y * width + x) * 4;
+  const [r0, g0, b0] = [data[start], data[start + 1], data[start + 2]];
+  if (Math.abs(r0 - fill[0]) + Math.abs(g0 - fill[1]) + Math.abs(b0 - fill[2]) === 0) return;
+
+  const matches = (p: number) => {
+    const i = p * 4;
+    return Math.abs(data[i] - r0) + Math.abs(data[i + 1] - g0) + Math.abs(data[i + 2] - b0) <= FILL_TOLERANCE;
+  };
+  const seen = new Uint8Array(width * height);
+  const stack = [y * width + x];
+  while (stack.length) {
+    const p = stack.pop()!;
+    if (seen[p] || !matches(p)) continue;
+    seen[p] = 1;
+    const i = p * 4;
+    data[i] = fill[0];
+    data[i + 1] = fill[1];
+    data[i + 2] = fill[2];
+    data[i + 3] = 255;
+    const px = p % width;
+    if (px > 0) stack.push(p - 1);
+    if (px < width - 1) stack.push(p + 1);
+    if (p >= width) stack.push(p - width);
+    if (p < width * (height - 1)) stack.push(p + width);
+  }
+}
 const MAX_UNDO = 20;
 
 const SAVE_ERRORS: Record<Exclude<SaveDrawingResult, { ok: true }>["reason"], string> = {
@@ -48,6 +86,7 @@ export function StartupDrawing({
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(SIZES[1]);
   const [eraser, setEraser] = useState(false);
+  const [bucket, setBucket] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,10 +139,19 @@ export function StartupDrawing({
   };
 
   const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
     remember();
-    drawing.current = true;
     const p = point(e);
+    if (bucket) {
+      const c = ctx();
+      if (!c) return;
+      const img = c.getImageData(0, 0, WIDTH, HEIGHT);
+      floodFill(img, Math.min(WIDTH - 1, Math.floor(p.x)), Math.min(HEIGHT - 1, Math.floor(p.y)), hexToRgb(color));
+      c.putImageData(img, 0, 0);
+      setDirty(true);
+      return;
+    }
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drawing.current = true;
     last.current = p;
     line(p, p);
     setDirty(true);
@@ -204,7 +252,14 @@ export function StartupDrawing({
         ))}
         <button
           type="button"
-          onClick={() => setEraser((v) => !v)}
+          onClick={() => { setBucket((v) => !v); setEraser(false); }}
+          className={`h-9 rounded-xl px-3 text-sm font-bold ${bucket && !eraser ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+        >
+          🪣 Γέμισμα
+        </button>
+        <button
+          type="button"
+          onClick={() => { setEraser((v) => !v); setBucket(false); }}
           className={`h-9 rounded-xl px-3 text-sm font-bold ${eraser ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
         >
           🧽 Γόμα
