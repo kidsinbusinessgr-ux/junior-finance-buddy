@@ -38,6 +38,35 @@ const FONTS: { label: string; css: string }[] = [
 ];
 const fontCss = (i: number, size: number) => FONTS[i].css.replace("{size}", String(size));
 
+// Text stays movable: it is kept as a list and drawn on a layer above the
+// drawing, and only joins the picture when it is saved.
+type TextItem = { text: string; x: number; y: number; font: number; px: number; color: string };
+
+function textBox(c: CanvasRenderingContext2D, t: TextItem) {
+  c.font = fontCss(t.font, t.px);
+  const w = Math.min(c.measureText(t.text).width, WIDTH - 20);
+  return { x: t.x - w / 2 - 10, y: t.y - t.px * 0.6 - 6, w: w + 20, h: t.px * 1.2 + 12 };
+}
+
+function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: number | null) {
+  items.forEach((t, i) => {
+    c.font = fontCss(t.font, t.px);
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillStyle = t.color;
+    c.fillText(t.text, t.x, t.y, WIDTH - 20);
+    if (i === selected) {
+      const b = textBox(c, t);
+      c.save();
+      c.setLineDash([10, 6]);
+      c.strokeStyle = "#7c3aed";
+      c.lineWidth = 3;
+      c.strokeRect(b.x, b.y, b.w, b.h);
+      c.restore();
+    }
+  });
+}
+
 type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker" | "text";
 
 const SHAPES: { tool: Tool; icon: string; label: string }[] = [
@@ -115,7 +144,12 @@ export function StartupDrawing({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
-  const undo = useRef<ImageData[]>([]);
+  const overlayRef = useRef<HTMLCanvasElement>(null);
+  const undo = useRef<{ img: ImageData; texts: TextItem[] }[]>([]);
+  const [texts, setTexts] = useState<TextItem[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  // The text being dragged, and where the finger holds it.
+  const drag = useRef<{ i: number; dx: number; dy: number } | null>(null);
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(SIZES[1]);
   const [tool, setTool] = useState<Tool>("brush");
@@ -138,7 +172,41 @@ export function StartupDrawing({
   const eraser = tool === "eraser";
   const bucket = tool === "bucket";
   // Picking a colour leaves the eraser (it has no colour), keeps other tools.
-  const pickColor = (c: string) => { setColor(c); setTool((t) => (t === "eraser" ? "brush" : t)); };
+  const pickColor = (c: string) => {
+    setColor(c);
+    setTool((t) => (t === "eraser" ? "brush" : t));
+    changeSelected({ color: c });
+  };
+  // A tapped text can get another colour, letter style or size.
+  const changeSelected = (patch: Partial<TextItem>) => {
+    if (selected === null) return;
+    remember();
+    setTexts((all) => all.map((t, i) => (i === selected ? { ...t, ...patch } : t)));
+    setDirty(true);
+  };
+  const pickSize = (s: number) => {
+    setSize(s);
+    changeSelected({ px: TEXT_SIZES[SIZES.indexOf(s)] });
+  };
+  const pickFont = (f: number) => {
+    setFont(f);
+    if (selected === null) setTool("text");
+    else changeSelected({ font: f });
+  };
+  const deleteSelected = () => {
+    if (selected === null) return;
+    remember();
+    setTexts((all) => all.filter((_, i) => i !== selected));
+    setSelected(null);
+    setDirty(true);
+  };
+
+  useEffect(() => {
+    const c = overlayRef.current?.getContext("2d");
+    if (!c) return;
+    c.clearRect(0, 0, WIDTH, HEIGHT);
+    drawTexts(c, texts, selected);
+  }, [texts, selected]);
   const toggle = (t: Tool) => setTool((cur) => (cur === t ? "brush" : t));
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -174,7 +242,7 @@ export function StartupDrawing({
   const remember = () => {
     const c = ctx();
     if (!c) return;
-    undo.current.push(c.getImageData(0, 0, WIDTH, HEIGHT));
+    undo.current.push({ img: c.getImageData(0, 0, WIDTH, HEIGHT), texts });
     if (undo.current.length > MAX_UNDO) undo.current.shift();
   };
 
@@ -191,10 +259,42 @@ export function StartupDrawing({
     c.stroke();
   };
 
+  // Which text is under the finger (the top one first), or -1.
+  const textAt = (p: { x: number; y: number }) => {
+    const c = overlayRef.current?.getContext("2d");
+    if (!c) return -1;
+    for (let i = texts.length - 1; i >= 0; i--) {
+      const b = textBox(c, texts[i]);
+      if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return i;
+    }
+    return -1;
+  };
+
   const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (tool === "text" && !text.trim()) return;
-    remember();
     const p = point(e);
+    // Tapping a text picks it up, whatever tool is chosen.
+    const hit = textAt(p);
+    if (hit >= 0) {
+      remember();
+      setSelected(hit);
+      drag.current = { i: hit, dx: p.x - texts[hit].x, dy: p.y - texts[hit].y };
+      e.currentTarget.setPointerCapture(e.pointerId);
+      return;
+    }
+    setSelected(null);
+    if (tool === "text") {
+      if (!text.trim()) return;
+      remember();
+      setTexts((all) => [
+        ...all,
+        { text: text.trim(), x: p.x, y: p.y, font, px: TEXT_SIZES[SIZES.indexOf(size)], color },
+      ]);
+      drag.current = { i: texts.length, dx: 0, dy: 0 };
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDirty(true);
+      return;
+    }
+    remember();
     if (bucket) {
       const c = ctx();
       if (!c) return;
@@ -229,14 +329,6 @@ export function StartupDrawing({
       c.textAlign = "center";
       c.textBaseline = "middle";
       c.fillText(sticker, p.x, p.y);
-      return;
-    }
-    if (tool === "text") {
-      c.font = fontCss(font, TEXT_SIZES[SIZES.indexOf(size)]);
-      c.textAlign = "center";
-      c.textBaseline = "middle";
-      c.fillStyle = color;
-      c.fillText(text.trim(), p.x, p.y, WIDTH - 20);
       return;
     }
     c.strokeStyle = color;
@@ -279,6 +371,15 @@ export function StartupDrawing({
   };
 
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const d = drag.current;
+    if (d) {
+      const p = point(e);
+      const x = Math.max(0, Math.min(WIDTH, p.x - d.dx));
+      const y = Math.max(0, Math.min(HEIGHT, p.y - d.dy));
+      setTexts((all) => all.map((t, i) => (i === d.i ? { ...t, x, y } : t)));
+      setDirty(true);
+      return;
+    }
     if (!drawing.current) return;
     const p = point(e);
     if (start.current) {
@@ -291,6 +392,7 @@ export function StartupDrawing({
   };
 
   const up = () => {
+    drag.current = null;
     drawing.current = false;
     last.current = null;
     start.current = null;
@@ -299,12 +401,17 @@ export function StartupDrawing({
 
   const handleUndo = () => {
     const prev = undo.current.pop();
-    if (prev) ctx()?.putImageData(prev, 0, 0);
+    if (!prev) return;
+    ctx()?.putImageData(prev.img, 0, 0);
+    setTexts(prev.texts);
+    setSelected(null);
   };
 
   const handleClear = () => {
     remember();
     fillWhite();
+    setTexts([]);
+    setSelected(null);
     setDirty(true);
   };
 
@@ -314,7 +421,15 @@ export function StartupDrawing({
     setSaving(true);
     setError(null);
     try {
-      const res = await saveStartupDrawing({ data: { startupId, png: canvas.toDataURL("image/png") } });
+      // The picture with the texts on top, without the selection box.
+      const out = document.createElement("canvas");
+      out.width = WIDTH;
+      out.height = HEIGHT;
+      const oc = out.getContext("2d");
+      if (!oc) throw new Error("no canvas");
+      oc.drawImage(canvas, 0, 0);
+      drawTexts(oc, texts, null);
+      const res = await saveStartupDrawing({ data: { startupId, png: out.toDataURL("image/png") } });
       if (res.ok) {
         onSaved(res.imageUrl);
         return;
@@ -391,7 +506,7 @@ export function StartupDrawing({
             key={s}
             type="button"
             aria-label={`Πάχος ${s}`}
-            onClick={() => setSize(s)}
+            onClick={() => pickSize(s)}
             className={`flex h-9 w-9 items-center justify-center rounded-xl ${size === s ? "bg-[oklch(0.57_0.23_292)]" : "bg-muted"}`}
           >
             <span className="rounded-full bg-foreground" style={{ width: s / 1.5 + 3, height: s / 1.5 + 3, backgroundColor: size === s ? "#fff" : undefined }} />
@@ -476,7 +591,7 @@ export function StartupDrawing({
           <button
             key={f.label}
             type="button"
-            onClick={() => { setFont(i); setTool("text"); }}
+            onClick={() => pickFont(i)}
             className={`h-9 rounded-xl px-3 ${font === i ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
             style={{ font: fontCss(i, 15) }}
           >
@@ -489,7 +604,7 @@ export function StartupDrawing({
         <p className="mt-2 text-xs font-bold text-muted-foreground">
           {tool === "text"
             ? text.trim()
-              ? "👆 Πάτα πάνω στη ζωγραφιά για να βάλεις το κείμενο. Αν κρατήσεις πατημένο, μπορείς να το μετακινήσεις. Το μέγεθος αλλάζει με τις τελίτσες πάχους."
+              ? "👆 Πάτα πάνω στη ζωγραφιά για να βάλεις το κείμενο. Το μέγεθος αλλάζει με τις τελίτσες πάχους. Μετά μπορείς να το πατήσεις και να το σύρεις όπου θέλεις."
               : "✏️ Γράψε πρώτα το κείμενο στο κουτάκι."
             : tool === "sticker"
             ? "👆 Πάτα πάνω στη ζωγραφιά για να κολλήσεις το αυτοκόλλητο. Το μέγεθος αλλάζει με τις τελίτσες πάχους."
@@ -497,17 +612,41 @@ export function StartupDrawing({
         </p>
       )}
 
-      <canvas
-        ref={canvasRef}
-        width={WIDTH}
-        height={HEIGHT}
-        onPointerDown={down}
-        onPointerMove={move}
-        onPointerUp={up}
-        onPointerCancel={up}
-        onPointerLeave={up}
-        className="mt-4 aspect-[4/3] w-full cursor-crosshair touch-none rounded-xl border bg-white"
-      />
+      <div className="relative mt-4">
+        <canvas
+          ref={canvasRef}
+          width={WIDTH}
+          height={HEIGHT}
+          onPointerDown={down}
+          onPointerMove={move}
+          onPointerUp={up}
+          onPointerCancel={up}
+          onPointerLeave={up}
+          className="block aspect-[4/3] w-full cursor-crosshair touch-none rounded-xl border bg-white"
+        />
+        {/* The texts, above the drawing; taps go through to the drawing. */}
+        <canvas
+          ref={overlayRef}
+          width={WIDTH}
+          height={HEIGHT}
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full rounded-xl"
+        />
+      </div>
+
+      {selected !== null && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-[oklch(0.96_0.03_292)] px-3 py-2">
+          <span className="flex-1 text-xs font-bold text-[oklch(0.45_0.2_292)]">
+            ✋ Σύρε το κείμενο όπου θέλεις. Μπορείς να του αλλάξεις χρώμα, γράμματα ή μέγεθος.
+          </span>
+          <button type="button" onClick={deleteSelected} className="h-8 rounded-full bg-white px-3 text-sm font-bold">
+            🗑️ Σβήσε το
+          </button>
+          <button type="button" onClick={() => setSelected(null)} className="h-8 rounded-full bg-[oklch(0.57_0.23_292)] px-3 text-sm font-bold text-white">
+            ✔️ Έτοιμο
+          </button>
+        </div>
+      )}
 
       {error && <p className="mt-3 rounded-xl bg-destructive/10 px-4 py-2 text-sm font-bold text-destructive">{error}</p>}
 
