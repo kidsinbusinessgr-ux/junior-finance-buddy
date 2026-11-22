@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { saveStartupDrawing, type SaveDrawingResult } from "@/lib/startups.functions";
+import { DrawingMusic, type Tune } from "@/lib/drawing-music";
 
 // Drawing board: the founder draws their product with the finger or the mouse,
 // and the picture is saved with the startup (see saveStartupDrawing). Free,
@@ -121,6 +122,16 @@ export function StartupDrawing({
   const [sticker, setSticker] = useState(STICKERS[0]);
   const [text, setText] = useState("");
   const [font, setFont] = useState(0);
+  // Music is off until the child turns it on, and stops when the board closes.
+  const music = useRef<DrawingMusic | null>(null);
+  const [tune, setTune] = useState<Tune | null>(null);
+  const playTune = (t: Tune | null) => {
+    if (!music.current) music.current = new DrawingMusic();
+    if (t) music.current.start(t);
+    else music.current.stop();
+    setTune(t);
+  };
+  useEffect(() => () => music.current?.stop(), []);
   // Shapes and stickers: the page before the drag, redrawn on every move.
   const start = useRef<{ x: number; y: number } | null>(null);
   const before = useRef<ImageData | null>(null);
@@ -322,6 +333,25 @@ export function StartupDrawing({
       <p className="mt-1 text-sm text-muted-foreground">
         Δείξε σε όλους πώς μοιάζει! Ζωγράφισε μόνο το προϊόν, χωρίς ονόματα, τηλέφωνα ή πρόσωπα.
       </p>
+
+      {/* Music while drawing */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="text-sm font-bold text-muted-foreground">🎵 Μουσική:</span>
+        {([
+          [null, "🔇 Χωρίς"],
+          ["happy", "😊 Χαρούμενη"],
+          ["calm", "😌 Ήρεμη"],
+        ] as [Tune | null, string][]).map(([t, label]) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => playTune(t)}
+            className={`h-8 rounded-full px-3 text-sm font-bold ${tune === t ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {/* Colours */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
