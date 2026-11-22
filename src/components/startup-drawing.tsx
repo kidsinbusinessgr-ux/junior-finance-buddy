@@ -38,10 +38,24 @@ const FONTS: { label: string; css: string }[] = [
 ];
 const fontCss = (i: number, size: number) => FONTS[i].css.replace("{size}", String(size));
 
-// Text stays movable: it is kept as a list and drawn on a layer above the
-// drawing, and only joins the picture when it is saved.
-// Stickers are kept the same way, so they can be moved and resized too.
-type TextItem = { text: string; x: number; y: number; font: number; px: number; color: string; sticker?: boolean };
+// Texts, stickers and shapes stay movable: they are kept as a list and drawn
+// on a layer above the drawing, and only join the picture when it is saved.
+type ShapeTool = "line" | "rect" | "circle" | "triangle" | "star" | "heart";
+type TextItem = {
+  text: string;
+  x: number;
+  y: number;
+  font: number;
+  px: number;
+  color: string;
+  sticker?: boolean;
+  // Shapes: drawn from (x, y) to (x2, y2), with this line width and fill.
+  shape?: ShapeTool;
+  x2?: number;
+  y2?: number;
+  width?: number;
+  fill?: string;
+};
 
 const EMOJI_FONT = `"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
 const itemFont = (t: TextItem) => (t.sticker ? `${t.px}px ${EMOJI_FONT}` : fontCss(t.font, t.px));
@@ -49,13 +63,68 @@ const itemFont = (t: TextItem) => (t.sticker ? `${t.px}px ${EMOJI_FONT}` : fontC
 const MIN_PX = 14;
 const MAX_PX = 280;
 
+function shapePath(c: CanvasRenderingContext2D, t: TextItem) {
+  const s = { x: t.x, y: t.y };
+  const p = { x: t.x2 ?? t.x, y: t.y2 ?? t.y };
+  c.beginPath();
+  if (t.shape === "line") {
+    c.moveTo(s.x, s.y);
+    c.lineTo(p.x, p.y);
+  } else if (t.shape === "rect") {
+    c.rect(s.x, s.y, p.x - s.x, p.y - s.y);
+  } else if (t.shape === "circle") {
+    c.ellipse((s.x + p.x) / 2, (s.y + p.y) / 2, Math.abs(p.x - s.x) / 2, Math.abs(p.y - s.y) / 2, 0, 0, Math.PI * 2);
+  } else if (t.shape === "triangle") {
+    c.moveTo((s.x + p.x) / 2, s.y);
+    c.lineTo(p.x, p.y);
+    c.lineTo(s.x, p.y);
+    c.closePath();
+  } else if (t.shape === "star") {
+    const cx = (s.x + p.x) / 2, cy = (s.y + p.y) / 2;
+    const rx = Math.abs(p.x - s.x) / 2, ry = Math.abs(p.y - s.y) / 2;
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 5;
+      const k = i % 2 ? 0.45 : 1;
+      const x = cx + Math.cos(a) * rx * k, y = cy + Math.sin(a) * ry * k;
+      if (i) c.lineTo(x, y); else c.moveTo(x, y);
+    }
+    c.closePath();
+  } else if (t.shape === "heart") {
+    const w = p.x - s.x, h = p.y - s.y;
+    c.moveTo(s.x + w / 2, s.y + h * 0.3);
+    c.bezierCurveTo(s.x + w / 2, s.y, s.x, s.y, s.x, s.y + h * 0.3);
+    c.bezierCurveTo(s.x, s.y + h * 0.6, s.x + w / 2, s.y + h * 0.8, s.x + w / 2, p.y);
+    c.bezierCurveTo(s.x + w / 2, s.y + h * 0.8, p.x, s.y + h * 0.6, p.x, s.y + h * 0.3);
+    c.bezierCurveTo(p.x, s.y, s.x + w / 2, s.y, s.x + w / 2, s.y + h * 0.3);
+    c.closePath();
+  }
+}
+
 function textBox(c: CanvasRenderingContext2D, t: TextItem) {
+  if (t.shape) {
+    const pad = (t.width ?? 4) / 2 + 6;
+    const x1 = Math.min(t.x, t.x2 ?? t.x), x2 = Math.max(t.x, t.x2 ?? t.x);
+    const y1 = Math.min(t.y, t.y2 ?? t.y), y2 = Math.max(t.y, t.y2 ?? t.y);
+    return { x: x1 - pad, y: y1 - pad, w: x2 - x1 + pad * 2, h: y2 - y1 + pad * 2 };
+  }
   c.font = itemFont(t);
   const w = Math.min(c.measureText(t.text).width, WIDTH - 20);
   return { x: t.x - w / 2 - 10, y: t.y - t.px * 0.6 - 6, w: w + 20, h: t.px * 1.2 + 12 };
 }
 
-// The red × at the top right corner of each text or sticker, kept inside the page.
+// Is the point on this item? Shapes count only near their outline, so a new
+// shape can still be drawn inside an old one.
+function isOnItem(c: CanvasRenderingContext2D, t: TextItem, p: { x: number; y: number }) {
+  if (t.shape) {
+    shapePath(c, t);
+    c.lineWidth = (t.width ?? 4) + 22;
+    return c.isPointInStroke(p.x, p.y);
+  }
+  const b = textBox(c, t);
+  return p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+}
+
+// The red × at the top right corner of each item, kept inside the page.
 const X_RADIUS = 17;
 function xButton(c: CanvasRenderingContext2D, t: TextItem) {
   const b = textBox(c, t);
@@ -69,12 +138,25 @@ function xButton(c: CanvasRenderingContext2D, t: TextItem) {
 // never saved with the picture.
 function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: number | null, controls = true) {
   items.forEach((t, i) => {
-    c.font = itemFont(t);
-    c.textAlign = "center";
-    c.textBaseline = "middle";
-    c.fillStyle = t.color;
-    c.fillText(t.text, t.x, t.y, WIDTH - 20);
-    if (i === selected) {
+    if (t.shape) {
+      shapePath(c, t);
+      if (t.fill && t.shape !== "line") {
+        c.fillStyle = t.fill;
+        c.fill();
+      }
+      c.strokeStyle = t.color;
+      c.lineWidth = t.width ?? 4;
+      c.lineCap = "round";
+      c.lineJoin = "round";
+      c.stroke();
+    } else {
+      c.font = itemFont(t);
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillStyle = t.color;
+      c.fillText(t.text, t.x, t.y, WIDTH - 20);
+    }
+    if (controls && i === selected) {
       const b = textBox(c, t);
       c.save();
       c.setLineDash([10, 6]);
@@ -104,6 +186,15 @@ function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: num
     c.stroke();
     c.restore();
   }
+}
+
+// Makes an item bigger or smaller by factor k, around its middle.
+function scaled(t: TextItem, k: number): TextItem {
+  if (!t.shape) return { ...t, px: Math.round(Math.max(MIN_PX, Math.min(MAX_PX, t.px * k))) };
+  const cx = (t.x + (t.x2 ?? t.x)) / 2, cy = (t.y + (t.y2 ?? t.y)) / 2;
+  const span = Math.max(Math.abs((t.x2 ?? t.x) - t.x), Math.abs((t.y2 ?? t.y) - t.y), 1);
+  k = Math.max(20 / span, Math.min(WIDTH * 1.5 / span, k));
+  return { ...t, x: cx + (t.x - cx) * k, y: cy + (t.y - cy) * k, x2: cx + ((t.x2 ?? t.x) - cx) * k, y2: cy + ((t.y2 ?? t.y) - cy) * k };
 }
 
 type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker" | "text";
@@ -191,7 +282,9 @@ export function StartupDrawing({
   const drag = useRef<{ i: number; dx: number; dy: number } | null>(null);
   // Fingers on the board, and a two-finger resize in progress.
   const fingers = useRef(new Map<number, { x: number; y: number }>());
-  const pinch = useRef<{ i: number; dist: number; px: number } | null>(null);
+  const pinch = useRef<{ i: number; dist: number; orig: TextItem } | null>(null);
+  // A shape being drawn: its place in the list.
+  const newShape = useRef<number | null>(null);
   const gap = () => {
     const [a, b] = [...fingers.current.values()];
     return Math.hypot(a.x - b.x, a.y - b.y) || 1;
@@ -212,9 +305,6 @@ export function StartupDrawing({
     setTune(t);
   };
   useEffect(() => () => music.current?.stop(), []);
-  // Shapes and stickers: the page before the drag, redrawn on every move.
-  const start = useRef<{ x: number; y: number } | null>(null);
-  const before = useRef<ImageData | null>(null);
   const eraser = tool === "eraser";
   const bucket = tool === "bucket";
   // Picking a colour leaves the eraser (it has no colour), keeps other tools.
@@ -223,7 +313,7 @@ export function StartupDrawing({
     setTool((t) => (t === "eraser" ? "brush" : t));
     changeSelected({ color: c });
   };
-  // A tapped text can get another colour, letter style or size.
+  // A tapped item can get another colour, letter style, size or line width.
   const changeSelected = (patch: Partial<TextItem> | ((t: TextItem) => Partial<TextItem>)) => {
     if (selected === null) return;
     remember();
@@ -232,7 +322,7 @@ export function StartupDrawing({
   };
   const pickSize = (s: number) => {
     setSize(s);
-    changeSelected((t) => ({ px: (t.sticker ? STICKER_SIZES : TEXT_SIZES)[SIZES.indexOf(s)] }));
+    changeSelected((t) => (t.shape ? { width: s } : { px: (t.sticker ? STICKER_SIZES : TEXT_SIZES)[SIZES.indexOf(s)] }));
   };
   const pickFont = (f: number) => {
     setFont(f);
@@ -305,13 +395,12 @@ export function StartupDrawing({
     c.stroke();
   };
 
-  // Which text is under the finger (the top one first), or -1.
+  // Which item is under the finger (the top one first), or -1.
   const textAt = (p: { x: number; y: number }) => {
     const c = overlayRef.current?.getContext("2d");
     if (!c) return -1;
     for (let i = texts.length - 1; i >= 0; i--) {
-      const b = textBox(c, texts[i]);
-      if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return i;
+      if (isOnItem(c, texts[i], p)) return i;
     }
     return -1;
   };
@@ -322,14 +411,14 @@ export function StartupDrawing({
     // A second finger while holding a text or sticker: resize it.
     const held = drag.current?.i ?? selected;
     if (fingers.current.size === 2 && held !== null && texts[held]) {
-      pinch.current = { i: held, dist: gap(), px: texts[held].px };
+      pinch.current = { i: held, dist: gap(), orig: texts[held] };
       drag.current = null;
+      newShape.current = null;
       setSelected(held);
       e.currentTarget.setPointerCapture(e.pointerId);
       return;
     }
     if (fingers.current.size > 1) return;
-    // Tapping a text picks it up, whatever tool is chosen.
     // Tapping the × removes that text or sticker straight away.
     const oc = overlayRef.current?.getContext("2d");
     if (oc && fingers.current.size === 1) {
@@ -345,7 +434,22 @@ export function StartupDrawing({
         }
       }
     }
-    const hit = textAt(p);
+    // In bucket mode, tapping inside a shape fills the shape.
+    if (bucket && oc) {
+      for (let i = texts.length - 1; i >= 0; i--) {
+        const t = texts[i];
+        if (!t.shape || t.shape === "line") continue;
+        shapePath(oc, t);
+        if (oc.isPointInPath(p.x, p.y)) {
+          remember();
+          setTexts((all) => all.map((it, j) => (j === i ? { ...it, fill: color } : it)));
+          setDirty(true);
+          return;
+        }
+      }
+    }
+    // Tapping an item picks it up, whatever tool is chosen.
+    const hit = bucket ? -1 : textAt(p);
     if (hit >= 0) {
       remember();
       setSelected(hit);
@@ -367,6 +471,15 @@ export function StartupDrawing({
       setDirty(true);
       return;
     }
+    if (tool !== "brush" && tool !== "eraser" && tool !== "bucket") {
+      remember();
+      const item: TextItem = { text: "", x: p.x, y: p.y, x2: p.x, y2: p.y, font: 0, px: 0, color, shape: tool, width: size };
+      setTexts((all) => [...all, item]);
+      newShape.current = texts.length;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDirty(true);
+      return;
+    }
     remember();
     if (bucket) {
       const c = ctx();
@@ -380,60 +493,8 @@ export function StartupDrawing({
     e.currentTarget.setPointerCapture(e.pointerId);
     drawing.current = true;
     setDirty(true);
-    if (tool === "brush" || tool === "eraser") {
-      last.current = p;
-      line(p, p);
-      return;
-    }
-    start.current = p;
-    before.current = ctx()?.getImageData(0, 0, WIDTH, HEIGHT) ?? null;
-    preview(p);
-  };
-
-  // Shapes go from where the finger went down to where it is now; a sticker
-  // follows the finger until it is let go.
-  const preview = (p: { x: number; y: number }) => {
-    const c = ctx();
-    const s = start.current;
-    if (!c || !s || !before.current) return;
-    c.putImageData(before.current, 0, 0);
-    c.strokeStyle = color;
-    c.lineWidth = size;
-    c.lineCap = "round";
-    c.lineJoin = "round";
-    c.beginPath();
-    if (tool === "line") {
-      c.moveTo(s.x, s.y);
-      c.lineTo(p.x, p.y);
-    } else if (tool === "rect") {
-      c.rect(s.x, s.y, p.x - s.x, p.y - s.y);
-    } else if (tool === "circle") {
-      c.ellipse((s.x + p.x) / 2, (s.y + p.y) / 2, Math.abs(p.x - s.x) / 2, Math.abs(p.y - s.y) / 2, 0, 0, Math.PI * 2);
-    } else if (tool === "triangle") {
-      c.moveTo((s.x + p.x) / 2, s.y);
-      c.lineTo(p.x, p.y);
-      c.lineTo(s.x, p.y);
-      c.closePath();
-    } else if (tool === "star") {
-      const cx = (s.x + p.x) / 2, cy = (s.y + p.y) / 2;
-      const rx = Math.abs(p.x - s.x) / 2, ry = Math.abs(p.y - s.y) / 2;
-      for (let i = 0; i < 10; i++) {
-        const a = -Math.PI / 2 + (i * Math.PI) / 5;
-        const k = i % 2 ? 0.45 : 1;
-        const x = cx + Math.cos(a) * rx * k, y = cy + Math.sin(a) * ry * k;
-        if (i) c.lineTo(x, y); else c.moveTo(x, y);
-      }
-      c.closePath();
-    } else if (tool === "heart") {
-      const w = p.x - s.x, h = p.y - s.y;
-      c.moveTo(s.x + w / 2, s.y + h * 0.3);
-      c.bezierCurveTo(s.x + w / 2, s.y, s.x, s.y, s.x, s.y + h * 0.3);
-      c.bezierCurveTo(s.x, s.y + h * 0.6, s.x + w / 2, s.y + h * 0.8, s.x + w / 2, p.y);
-      c.bezierCurveTo(s.x + w / 2, s.y + h * 0.8, p.x, s.y + h * 0.6, p.x, s.y + h * 0.3);
-      c.bezierCurveTo(p.x, s.y, s.x + w / 2, s.y, s.x + w / 2, s.y + h * 0.3);
-      c.closePath();
-    }
-    c.stroke();
+    last.current = p;
+    line(p, p);
   };
 
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -441,8 +502,8 @@ export function StartupDrawing({
     const pz = pinch.current;
     if (pz) {
       if (fingers.current.size < 2) return;
-      const px = Math.round(Math.max(MIN_PX, Math.min(MAX_PX, (pz.px * gap()) / pz.dist)));
-      setTexts((all) => all.map((t, i) => (i === pz.i ? { ...t, px } : t)));
+      const next = scaled(pz.orig, gap() / pz.dist);
+      setTexts((all) => all.map((t, i) => (i === pz.i ? next : t)));
       setDirty(true);
       return;
     }
@@ -451,16 +512,22 @@ export function StartupDrawing({
       const p = point(e);
       const x = Math.max(0, Math.min(WIDTH, p.x - d.dx));
       const y = Math.max(0, Math.min(HEIGHT, p.y - d.dy));
-      setTexts((all) => all.map((t, i) => (i === d.i ? { ...t, x, y } : t)));
+      setTexts((all) =>
+        all.map((t, i) =>
+          i !== d.i ? t : t.shape ? { ...t, x, y, x2: x + (t.x2 ?? t.x) - t.x, y2: y + (t.y2 ?? t.y) - t.y } : { ...t, x, y },
+        ),
+      );
       setDirty(true);
+      return;
+    }
+    const ns = newShape.current;
+    if (ns !== null) {
+      const p = point(e);
+      setTexts((all) => all.map((t, i) => (i === ns ? { ...t, x2: p.x, y2: p.y } : t)));
       return;
     }
     if (!drawing.current) return;
     const p = point(e);
-    if (start.current) {
-      preview(p);
-      return;
-    }
     if (!last.current) return;
     line(last.current, p);
     last.current = p;
@@ -470,10 +537,16 @@ export function StartupDrawing({
     fingers.current.delete(e.pointerId);
     if (fingers.current.size < 2) pinch.current = null;
     drag.current = null;
+    // A tap with a shape tool (no drag) leaves no tiny shape behind.
+    const ns = newShape.current;
+    newShape.current = null;
+    if (ns !== null) {
+      setTexts((all) =>
+        all.filter((t, i) => i !== ns || Math.abs((t.x2 ?? t.x) - t.x) > 4 || Math.abs((t.y2 ?? t.y) - t.y) > 4),
+      );
+    }
     drawing.current = false;
     last.current = null;
-    start.current = null;
-    before.current = null;
   };
 
   const handleUndo = () => {
@@ -715,7 +788,9 @@ export function StartupDrawing({
       {selected !== null && (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-[oklch(0.96_0.03_292)] px-3 py-2">
           <span className="flex-1 text-xs font-bold text-[oklch(0.45_0.2_292)]">
-            ✋ Σύρε το όπου θέλεις. Με δύο δάχτυλα το μεγαλώνεις ή το μικραίνεις (στον υπολογιστή, με τις τελίτσες πάχους).{selected !== null && !texts[selected]?.sticker && " Μπορείς να του αλλάξεις και χρώμα ή γράμματα."}
+            ✋ Σύρε το όπου θέλεις. Με δύο δάχτυλα το μεγαλώνεις ή το μικραίνεις{selected !== null && !texts[selected]?.shape && " (στον υπολογιστή, με τις τελίτσες πάχους)"}.{selected !== null && texts[selected]?.shape
+              ? " Μπορείς να του αλλάξεις και χρώμα ή πάχος, και να το γεμίσεις με το 🪣."
+              : selected !== null && !texts[selected]?.sticker && " Μπορείς να του αλλάξεις και χρώμα ή γράμματα."}
           </span>
           <button type="button" onClick={deleteSelected} className="h-8 rounded-full bg-white px-3 text-sm font-bold">
             🗑️ Σβήσε το
