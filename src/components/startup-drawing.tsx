@@ -9,8 +9,16 @@ import { saveStartupDrawing, type SaveDrawingResult } from "@/lib/startups.funct
 const WIDTH = 800;
 const HEIGHT = 600;
 const COLORS = [
-  "#111827", "#ef4444", "#f97316", "#facc15", "#22c55e",
-  "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899", "#92400e",
+  "#111827", "#6b7280", "#d1d5db", "#ffffff",
+  "#7f1d1d", "#ef4444", "#fca5a5",
+  "#c2410c", "#f97316", "#fdba74",
+  "#ca8a04", "#facc15", "#fef08a",
+  "#15803d", "#22c55e", "#86efac",
+  "#0e7490", "#06b6d4", "#a5f3fc",
+  "#1d4ed8", "#3b82f6", "#93c5fd",
+  "#6d28d9", "#8b5cf6", "#c4b5fd",
+  "#be185d", "#ec4899", "#f9a8d4",
+  "#78350f", "#92400e", "#d6a77a",
 ];
 const SIZES = [4, 10, 22];
 const MAX_UNDO = 20;
@@ -158,10 +166,27 @@ export function StartupDrawing({
             type="button"
             aria-label={`Χρώμα ${c}`}
             onClick={() => { setColor(c); setEraser(false); }}
-            className={`h-8 w-8 rounded-full border-2 transition-transform ${!eraser && color === c ? "scale-110 border-foreground" : "border-white shadow"}`}
+            className={`h-8 w-8 rounded-full border-2 transition-transform ${!eraser && color === c ? "scale-110 border-foreground" : "border-white shadow ring-1 ring-black/10"}`}
             style={{ backgroundColor: c }}
           />
         ))}
+        {/* Any colour: the device's own colour palette */}
+        <label
+          className={`relative flex h-8 cursor-pointer items-center gap-1 rounded-full px-3 text-sm font-bold ${!eraser && !COLORS.includes(color) ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+          title="Διάλεξε όποιο χρώμα θέλεις"
+        >
+          <span
+            className="h-5 w-5 rounded-full border-2 border-white shadow"
+            style={{ background: COLORS.includes(color) ? "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)" : color }}
+          />
+          🌈 Παλέτα
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => { setColor(e.target.value); setEraser(false); }}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          />
+        </label>
       </div>
 
       {/* Brush size and tools */}
