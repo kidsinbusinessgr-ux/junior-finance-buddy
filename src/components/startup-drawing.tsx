@@ -21,6 +21,25 @@ const COLORS = [
   "#78350f", "#92400e", "#d6a77a",
 ];
 const SIZES = [4, 10, 22];
+// Sticker size for each of the three sizes above.
+const STICKER_SIZES = [48, 90, 150];
+
+type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker";
+
+const SHAPES: { tool: Tool; icon: string; label: string }[] = [
+  { tool: "line", icon: "╱", label: "Γραμμή" },
+  { tool: "rect", icon: "▭", label: "Ορθογώνιο" },
+  { tool: "circle", icon: "◯", label: "Κύκλος" },
+  { tool: "triangle", icon: "△", label: "Τρίγωνο" },
+  { tool: "star", icon: "☆", label: "Αστέρι" },
+  { tool: "heart", icon: "♡", label: "Καρδιά" },
+];
+
+const STICKERS = [
+  "⭐", "❤️", "✨", "💡", "🚀", "🌱", "🌍", "♻️", "💧", "☀️", "🌈", "⚡",
+  "📱", "💻", "🎮", "🎧", "📚", "✏️", "🎒", "🎨", "⚽", "🚲", "🛹", "🎁",
+  "🍎", "🍕", "🧁", "🍪", "🧃", "🥤", "🐶", "🐱", "🌸", "🏠", "🛒", "💰",
+];
 // How different a pixel may be from the clicked one and still get filled, so
 // the soft edges of brush lines don't leave a pale outline.
 const FILL_TOLERANCE = 60;
@@ -85,8 +104,16 @@ export function StartupDrawing({
   const undo = useRef<ImageData[]>([]);
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(SIZES[1]);
-  const [eraser, setEraser] = useState(false);
-  const [bucket, setBucket] = useState(false);
+  const [tool, setTool] = useState<Tool>("brush");
+  const [sticker, setSticker] = useState(STICKERS[0]);
+  // Shapes and stickers: the page before the drag, redrawn on every move.
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const before = useRef<ImageData | null>(null);
+  const eraser = tool === "eraser";
+  const bucket = tool === "bucket";
+  // Picking a colour leaves the eraser (it has no colour), keeps other tools.
+  const pickColor = (c: string) => { setColor(c); setTool((t) => (t === "eraser" ? "brush" : t)); };
+  const toggle = (t: Tool) => setTool((cur) => (cur === t ? "brush" : t));
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,14 +179,78 @@ export function StartupDrawing({
     }
     e.currentTarget.setPointerCapture(e.pointerId);
     drawing.current = true;
-    last.current = p;
-    line(p, p);
     setDirty(true);
+    if (tool === "brush" || tool === "eraser") {
+      last.current = p;
+      line(p, p);
+      return;
+    }
+    start.current = p;
+    before.current = ctx()?.getImageData(0, 0, WIDTH, HEIGHT) ?? null;
+    preview(p);
+  };
+
+  // Shapes go from where the finger went down to where it is now; a sticker
+  // follows the finger until it is let go.
+  const preview = (p: { x: number; y: number }) => {
+    const c = ctx();
+    const s = start.current;
+    if (!c || !s || !before.current) return;
+    c.putImageData(before.current, 0, 0);
+    if (tool === "sticker") {
+      c.font = `${STICKER_SIZES[SIZES.indexOf(size)]}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillText(sticker, p.x, p.y);
+      return;
+    }
+    c.strokeStyle = color;
+    c.lineWidth = size;
+    c.lineCap = "round";
+    c.lineJoin = "round";
+    c.beginPath();
+    if (tool === "line") {
+      c.moveTo(s.x, s.y);
+      c.lineTo(p.x, p.y);
+    } else if (tool === "rect") {
+      c.rect(s.x, s.y, p.x - s.x, p.y - s.y);
+    } else if (tool === "circle") {
+      c.ellipse((s.x + p.x) / 2, (s.y + p.y) / 2, Math.abs(p.x - s.x) / 2, Math.abs(p.y - s.y) / 2, 0, 0, Math.PI * 2);
+    } else if (tool === "triangle") {
+      c.moveTo((s.x + p.x) / 2, s.y);
+      c.lineTo(p.x, p.y);
+      c.lineTo(s.x, p.y);
+      c.closePath();
+    } else if (tool === "star") {
+      const cx = (s.x + p.x) / 2, cy = (s.y + p.y) / 2;
+      const rx = Math.abs(p.x - s.x) / 2, ry = Math.abs(p.y - s.y) / 2;
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        const k = i % 2 ? 0.45 : 1;
+        const x = cx + Math.cos(a) * rx * k, y = cy + Math.sin(a) * ry * k;
+        if (i) c.lineTo(x, y); else c.moveTo(x, y);
+      }
+      c.closePath();
+    } else if (tool === "heart") {
+      const w = p.x - s.x, h = p.y - s.y;
+      c.moveTo(s.x + w / 2, s.y + h * 0.3);
+      c.bezierCurveTo(s.x + w / 2, s.y, s.x, s.y, s.x, s.y + h * 0.3);
+      c.bezierCurveTo(s.x, s.y + h * 0.6, s.x + w / 2, s.y + h * 0.8, s.x + w / 2, p.y);
+      c.bezierCurveTo(s.x + w / 2, s.y + h * 0.8, p.x, s.y + h * 0.6, p.x, s.y + h * 0.3);
+      c.bezierCurveTo(p.x, s.y, s.x + w / 2, s.y, s.x + w / 2, s.y + h * 0.3);
+      c.closePath();
+    }
+    c.stroke();
   };
 
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!drawing.current || !last.current) return;
+    if (!drawing.current) return;
     const p = point(e);
+    if (start.current) {
+      preview(p);
+      return;
+    }
+    if (!last.current) return;
     line(last.current, p);
     last.current = p;
   };
@@ -167,6 +258,8 @@ export function StartupDrawing({
   const up = () => {
     drawing.current = false;
     last.current = null;
+    start.current = null;
+    before.current = null;
   };
 
   const handleUndo = () => {
@@ -213,7 +306,7 @@ export function StartupDrawing({
             key={c}
             type="button"
             aria-label={`Χρώμα ${c}`}
-            onClick={() => { setColor(c); setEraser(false); }}
+            onClick={() => pickColor(c)}
             className={`h-8 w-8 rounded-full border-2 transition-transform ${!eraser && color === c ? "scale-110 border-foreground" : "border-white shadow ring-1 ring-black/10"}`}
             style={{ backgroundColor: c }}
           />
@@ -231,7 +324,7 @@ export function StartupDrawing({
           <input
             type="color"
             value={color}
-            onChange={(e) => { setColor(e.target.value); setEraser(false); }}
+            onChange={(e) => pickColor(e.target.value)}
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
           />
         </label>
@@ -252,14 +345,14 @@ export function StartupDrawing({
         ))}
         <button
           type="button"
-          onClick={() => { setBucket((v) => !v); setEraser(false); }}
-          className={`h-9 rounded-xl px-3 text-sm font-bold ${bucket && !eraser ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+          onClick={() => toggle("bucket")}
+          className={`h-9 rounded-xl px-3 text-sm font-bold ${bucket ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
         >
           🪣 Γέμισμα
         </button>
         <button
           type="button"
-          onClick={() => { setEraser((v) => !v); setBucket(false); }}
+          onClick={() => toggle("eraser")}
           className={`h-9 rounded-xl px-3 text-sm font-bold ${eraser ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
         >
           🧽 Γόμα
@@ -267,6 +360,49 @@ export function StartupDrawing({
         <button type="button" onClick={handleUndo} className="h-9 rounded-xl bg-muted px-3 text-sm font-bold">↩️ Αναίρεση</button>
         <button type="button" onClick={handleClear} className="h-9 rounded-xl bg-muted px-3 text-sm font-bold">🗑️ Καθάρισμα</button>
       </div>
+
+      {/* Shapes: drag on the page to draw one */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="text-sm font-bold text-muted-foreground">Σχήματα:</span>
+        {SHAPES.map((s) => (
+          <button
+            key={s.tool}
+            type="button"
+            title={s.label}
+            aria-label={s.label}
+            onClick={() => toggle(s.tool)}
+            className={`flex h-9 w-9 items-center justify-center rounded-xl text-xl font-black ${tool === s.tool ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+          >
+            {s.icon}
+          </button>
+        ))}
+      </div>
+
+      {/* Stickers: tap one, then tap (or drag) on the page to place it */}
+      <div className="mt-3">
+        <span className="text-sm font-bold text-muted-foreground">Αυτοκόλλητα:</span>
+        <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-y-auto">
+          {STICKERS.map((s) => (
+            <button
+              key={s}
+              type="button"
+              aria-label={`Αυτοκόλλητο ${s}`}
+              onClick={() => { setSticker(s); setTool("sticker"); }}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xl ${tool === "sticker" && sticker === s ? "bg-[oklch(0.57_0.23_292)]" : "bg-muted"}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {tool !== "brush" && tool !== "eraser" && tool !== "bucket" && (
+        <p className="mt-2 text-xs font-bold text-muted-foreground">
+          {tool === "sticker"
+            ? "👆 Πάτα πάνω στη ζωγραφιά για να κολλήσεις το αυτοκόλλητο. Το μέγεθος αλλάζει με τις τελίτσες πάχους."
+            : "👆 Σύρε το δάχτυλο ή το ποντίκι πάνω στη ζωγραφιά για να φτιάξεις το σχήμα. Γέμισέ το με το 🪣."}
+        </p>
+      )}
 
       <canvas
         ref={canvasRef}
