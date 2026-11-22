@@ -26,6 +26,16 @@ const STICKER_SIZES = [48, 90, 150];
 // Text size for each of the three sizes above.
 const TEXT_SIZES = [28, 48, 80];
 const MAX_TEXT = 40;
+// Letter styles. They use fonts every device already has (with a generic
+// fallback), so Greek letters always show and nothing has to be downloaded.
+const FONTS: { label: string; css: string }[] = [
+  { label: "Χοντρά", css: `900 {size}px system-ui,"Segoe UI",Roboto,Arial,sans-serif` },
+  { label: "Πλάγια", css: `italic 700 {size}px system-ui,"Segoe UI",Roboto,Arial,sans-serif` },
+  { label: "Χειρόγραφα", css: `700 {size}px "Comic Sans MS","Chalkboard SE","Comic Neue","Segoe Print",cursive` },
+  { label: "Κομψά", css: `700 {size}px Georgia,"Times New Roman","Noto Serif",serif` },
+  { label: "Γραφομηχανή", css: `700 {size}px "Courier New",Courier,"Noto Sans Mono",monospace` },
+];
+const fontCss = (i: number, size: number) => FONTS[i].css.replace("{size}", String(size));
 
 type Tool = "brush" | "eraser" | "bucket" | "line" | "rect" | "circle" | "triangle" | "star" | "heart" | "sticker" | "text";
 
@@ -110,6 +120,7 @@ export function StartupDrawing({
   const [tool, setTool] = useState<Tool>("brush");
   const [sticker, setSticker] = useState(STICKERS[0]);
   const [text, setText] = useState("");
+  const [font, setFont] = useState(0);
   // Shapes and stickers: the page before the drag, redrawn on every move.
   const start = useRef<{ x: number; y: number } | null>(null);
   const before = useRef<ImageData | null>(null);
@@ -210,7 +221,7 @@ export function StartupDrawing({
       return;
     }
     if (tool === "text") {
-      c.font = `900 ${TEXT_SIZES[SIZES.indexOf(size)]}px system-ui,"Segoe UI",Roboto,Arial,sans-serif`;
+      c.font = fontCss(font, TEXT_SIZES[SIZES.indexOf(size)]);
       c.textAlign = "center";
       c.textBaseline = "middle";
       c.fillStyle = color;
@@ -428,6 +439,20 @@ export function StartupDrawing({
         >
           🔤 Κείμενο
         </button>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="text-sm font-bold text-muted-foreground">Γράμματα:</span>
+        {FONTS.map((f, i) => (
+          <button
+            key={f.label}
+            type="button"
+            onClick={() => { setFont(i); setTool("text"); }}
+            className={`h-9 rounded-xl px-3 ${font === i ? "bg-[oklch(0.57_0.23_292)] text-white" : "bg-muted"}`}
+            style={{ font: fontCss(i, 15) }}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {tool !== "brush" && tool !== "eraser" && tool !== "bucket" && (
