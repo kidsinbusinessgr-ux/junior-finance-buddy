@@ -28,6 +28,7 @@ type Startup = {
   coins_raised: number;
   created_at: string;
   valuation: number;
+  image_url: string | null;
 };
 
 export default function StartupsPage() {
@@ -38,7 +39,7 @@ export default function StartupsPage() {
   useEffect(() => {
     supabase
       .from("startups")
-      .select("id, name, emoji, problem, solution, creator_name, coins_raised, created_at, valuation")
+      .select("id, name, emoji, problem, solution, creator_name, coins_raised, created_at, valuation, image_url")
       .order("valuation", { ascending: false })
       .then(({ data }) => {
         setStartups(data ?? []);
@@ -105,6 +106,9 @@ export default function StartupsPage() {
                       <span className="text-3xl">{i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</span>
                       <span className="text-2xl">{s.emoji}</span>
                     </div>
+                    {s.image_url && (
+                      <img src={s.image_url} alt="" loading="lazy" className="mb-3 aspect-[4/3] w-full rounded-xl border bg-white object-contain" />
+                    )}
                     <h3 className="text-lg font-black">{s.name}</h3>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{s.solution}</p>
                     <div className="mt-3 flex items-center gap-2">
@@ -128,7 +132,11 @@ export default function StartupsPage() {
                 <Link key={s.id} to="/startups/$id" params={{ id: s.id }}>
                   <div className="group rounded-2xl border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-muted text-3xl">{s.emoji}</div>
+                      {s.image_url ? (
+                        <img src={s.image_url} alt="" loading="lazy" className="h-14 w-14 shrink-0 rounded-xl border bg-white object-contain" />
+                      ) : (
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-muted text-3xl">{s.emoji}</div>
+                      )}
                       <div className="min-w-0">
                         <h3 className="font-black">{s.name}</h3>
                         <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{s.solution}</p>

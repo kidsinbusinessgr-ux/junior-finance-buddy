@@ -8,6 +8,7 @@ import { useChild, useCurrentUser } from "@/hooks/useJFB";
 import { CompanyStats, FounderDecision, FounderReminder } from "@/components/startup-company";
 import { FounderMoneyTools, MyStake, SharesInfo, sharePrice } from "@/components/startup-investors";
 import { StartupReactions } from "@/components/startup-community";
+import { StartupDrawing } from "@/components/startup-drawing";
 
 // Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
 const INVEST_LIMIT = 200;
@@ -54,6 +55,7 @@ type Startup = {
   round_ends_at: string | null;
   rounds_won: number;
   last_dividend_at: string | null;
+  image_url: string | null;
 };
 
 type Investment = {
@@ -81,6 +83,7 @@ export default function StartupPage() {
   const [selectedCoins, setSelectedCoins] = useState(10);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [drawingOpen, setDrawingOpen] = useState(false);
 
   const fetchData = async () => {
     const [{ data: s }, { data: inv }] = await Promise.all([
@@ -164,6 +167,14 @@ export default function StartupPage() {
             <h1 className="mt-4 text-5xl font-black sm:text-6xl">{startup.name}</h1>
             <p className="mt-3 text-lg text-[oklch(0.9_0.04_292)]">by {startup.creator_name}</p>
 
+            {startup.image_url && (
+              <img
+                src={startup.image_url}
+                alt={`Ζωγραφιά του προϊόντος ${startup.name}`}
+                className="mx-auto mt-8 aspect-[4/3] w-full max-w-md rounded-2xl border-4 border-white/80 bg-white object-contain shadow-xl"
+              />
+            )}
+
             {/* Coins */}
             <div className="mx-auto mt-8 inline-flex items-center gap-3 rounded-2xl bg-[oklch(0.45_0.18_292)] px-8 py-4">
               <span className="text-3xl">🪙</span>
@@ -185,6 +196,33 @@ export default function StartupPage() {
               <p className="font-black">Επένδυσες επιτυχώς!</p>
               <p className="text-sm">Σε ευχαριστούμε για την υποστήριξη!</p>
             </div>
+          </div>
+        )}
+
+        {/* Founder: draw the product so everyone sees how it looks */}
+        {child && startup.child_id === child.id && (
+          <div className="mb-8">
+            {drawingOpen ? (
+              <StartupDrawing
+                startupId={startup.id}
+                imageUrl={startup.image_url}
+                onSaved={(url) => { setStartup({ ...startup, image_url: url }); setDrawingOpen(false); }}
+                onClose={() => setDrawingOpen(false)}
+              />
+            ) : startup.image_url ? (
+              <Button variant="outline" className="w-full rounded-full font-bold" onClick={() => setDrawingOpen(true)}>
+                🎨 Άλλαξε τη ζωγραφιά του προϊόντος σου
+              </Button>
+            ) : (
+              <div className="rounded-2xl border-2 border-dashed border-[oklch(0.57_0.23_292)] bg-[oklch(0.97_0.03_292)] p-5 text-center">
+                <p className="text-3xl">🎨</p>
+                <p className="mt-2 font-black">Πώς μοιάζει το προϊόν σου;</p>
+                <p className="mt-1 text-sm text-muted-foreground">Ζωγράφισέ το, για να το δουν όλοι στη σελίδα της εταιρείας σου!</p>
+                <Button className="mt-4 rounded-full font-black" onClick={() => setDrawingOpen(true)}>
+                  Ζωγράφισε το προϊόν σου
+                </Button>
+              </div>
+            )}
           </div>
         )}
 

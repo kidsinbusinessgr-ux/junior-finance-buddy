@@ -1388,6 +1388,7 @@ export type Database = {
           model: string
           name: string
           problem: string
+          image_url: string | null
           solution: string
         }
         Insert: {
@@ -1414,6 +1415,7 @@ export type Database = {
           model: string
           name: string
           problem: string
+          image_url?: string | null
           solution: string
         }
         Update: {
@@ -1440,6 +1442,7 @@ export type Database = {
           model?: string
           name?: string
           problem?: string
+          image_url?: string | null
           solution?: string
         }
         Relationships: []

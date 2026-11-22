@@ -190,3 +190,52 @@ export const answerDecision = createServerFn({ method: "POST" })
     }
     return { ok: true, result: choice.result, lesson: choice.lesson, effects: effects as unknown as Record<string, number> };
   });
+
+// ── Product drawing ───────────────────────────────────────────────────────────
+// The founder draws their product on the drawing board (startup-drawing.tsx)
+// and the PNG is saved here, so only the owner can change it and only small
+// PNG files are stored. Everyone sees it on the startup's page and in the list.
+
+const MAX_DRAWING_BYTES = 1024 * 1024;
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+
+const drawingSchema = z.object({
+  startupId: z.string().uuid(),
+  // data:image/png;base64,… from canvas.toDataURL("image/png")
+  png: z.string().startsWith("data:image/png;base64,").max(Math.ceil((MAX_DRAWING_BYTES * 4) / 3) + 100),
+});
+
+export type SaveDrawingResult =
+  | { ok: true; imageUrl: string }
+  | { ok: false; reason: "login" | "not_owner" | "bad_file" | "failed" };
+
+export const saveStartupDrawing = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof drawingSchema>) => drawingSchema.parse(data))
+  .handler(async ({ data }): Promise<SaveDrawingResult> => {
+    const owned = await ownStartup(data.startupId);
+    if ("error" in owned) return { ok: false, reason: owned.error! };
+
+    const bytes = Buffer.from(data.png.slice("data:image/png;base64,".length), "base64");
+    if (bytes.length < 100 || bytes.length > MAX_DRAWING_BYTES || PNG_SIGNATURE.some((b, i) => bytes[i] !== b)) {
+      return { ok: false, reason: "bad_file" };
+    }
+
+    const path = `${data.startupId}.png`;
+    const bucket = owned.admin.storage.from("startup-images");
+    const { error: upErr } = await bucket.upload(path, bytes, { contentType: "image/png", upsert: true });
+    if (upErr) {
+      console.error("drawing upload failed", upErr.message);
+      return { ok: false, reason: "failed" };
+    }
+    // ?v= makes browsers show the new drawing instead of a cached old one.
+    const imageUrl = `${bucket.getPublicUrl(path).data.publicUrl}?v=${Date.now()}`;
+    const { error } = await owned.admin
+      .from("startups")
+      .update({ image_url: imageUrl } as never)
+      .eq("id", data.startupId);
+    if (error) {
+      console.error("drawing save failed", error.message);
+      return { ok: false, reason: "failed" };
+    }
+    return { ok: true, imageUrl };
+  });
