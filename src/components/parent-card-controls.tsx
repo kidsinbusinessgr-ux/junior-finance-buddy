@@ -3,6 +3,7 @@ import { CreditCard, Gift, Lock, Trash2, Unlock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { JFBReward, ParentChild } from "@/hooks/useJFB";
 import { KibCard } from "@/components/kib-card";
+import { MonthlyStatement } from "@/components/monthly-statement";
 
 // Parent side of the virtual card: lock it, set a weekly limit, see what the
 // child paid with it, and keep the Shop's rewards (what the child can pay for).
@@ -15,6 +16,7 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
   const [payments, setPayments] = useState<Payment[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [showStatement, setShowStatement] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: s }, { data: p }] = await Promise.all([
@@ -116,6 +118,18 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
           </ul>
         )}
       </div>
+
+      <button
+        onClick={() => setShowStatement((v) => !v)}
+        className="mt-4 w-full rounded-xl border border-[oklch(0.85_0.04_250)] py-2.5 text-sm font-bold text-[oklch(0.4_0.08_250)] hover:bg-[oklch(0.97_0.01_250)]"
+      >
+        {showStatement ? "Κλείσε τη μηνιαία κίνηση" : "Δες τη μηνιαία κίνηση"}
+      </button>
+      {showStatement && (
+        <div className="mt-3">
+          <MonthlyStatement childId={child.id} coins={child.coins} name={child.name} />
+        </div>
+      )}
     </div>
   );
 }

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { KibCard } from "@/components/kib-card";
+import { MonthlyStatement } from "@/components/monthly-statement";
 import { supabase } from "@/integrations/supabase/client";
 import {
   useChild,
@@ -47,7 +48,7 @@ const bottomNav = [
   { label: "Επενδύσεις", to: "/investments" as const, icon: TrendingUp },
 ];
 
-type Tab = "history" | "chores" | "shop";
+type Tab = "history" | "chores" | "shop" | "statement";
 
 function txIcon(type: string) {
   if (type === "lesson") return { Icon: BookOpen, color: "bg-[oklch(0.88_0.1_292)]" };
@@ -249,13 +250,13 @@ function WalletPage() {
       <div className="sticky top-0 z-20 bg-background px-5 pt-4 sm:px-8">
         <div className="mx-auto max-w-xl">
           <div className="flex rounded-xl bg-secondary p-1">
-            {(["history", "chores", "shop"] as Tab[]).map((t) => (
+            {(["history", "chores", "shop", "statement"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`flex-1 rounded-lg py-2 text-sm font-black transition-colors ${tab === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
               >
-                {t === "history" ? "Ιστορικό" : t === "chores" ? "Δουλειές" : "Κατάστημα"}
+                {t === "history" ? "Ιστορικό" : t === "chores" ? "Δουλειές" : t === "shop" ? "Κατάστημα" : "Μήνας"}
               </button>
             ))}
           </div>
@@ -390,6 +391,8 @@ function WalletPage() {
         )}
 
         {/* SHOP TAB */}
+        {tab === "statement" && <MonthlyStatement childId={child.id} coins={child.coins} name={child.name} />}
+
         {tab === "shop" && (
           <div className="space-y-3">
             <p className="px-1 text-sm text-muted-foreground">
