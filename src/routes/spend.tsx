@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Coins, Lock, Palette, ShoppingBag, Sparkles, TrendingUp, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import spendHero from "@/assets/spend-hero-boy-card.png";
+import { HeroArt } from "@/components/hero-art";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { CARD_COLORS, CARD_PATTERNS, CARD_TIERS, KibCard, colorMinLevel, nextTier, tierFor } from "@/components/kib-card";
@@ -150,10 +150,7 @@ function SpendPage() {
                 )
               )}
             </div>
-            <div className="relative mx-auto w-full max-w-[460px]">
-              <div className="hero-orb absolute inset-[10%] rounded-full" />
-              <img src={spendHero} width={1000} height={1000} alt="Νέος με κάρτα" className="relative z-10 h-full w-full rounded-full bg-white object-cover" />
-            </div>
+            <HeroArt variant="spend" />
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, Pause } from "lucide-react";
-import heroKid from "@/assets/hero-kids.png";
+import { HeroArt } from "@/components/hero-art";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,13 +67,7 @@ function Index() {
               </Link>
               )}
             </div>
-            <div className="relative mx-auto mt-7 aspect-square w-full max-w-[610px] lg:mt-0">
-              <div className="hero-orb absolute inset-[8%] rounded-full" />
-              <div className="hero-ring absolute bottom-[3%] right-[5%] h-[39%] w-[39%] rounded-full" />
-              <div className="drift absolute left-[2%] top-[40%] h-12 w-28 rotate-[-18deg] rounded-full border-[12px] border-[oklch(0.76_0.21_182)] border-r-transparent" />
-              <div className="float-slow absolute right-[11%] top-[6%] h-7 w-18 rotate-[-12deg] rounded-full bg-[oklch(0.74_0.21_318)]" />
-              <img src={heroKid} width={1200} height={1200} alt="Παιδί με κάρτα και κινητό" className="relative z-10 h-full w-full rounded-full object-cover mix-blend-normal" />
-            </div>
+            <HeroArt variant="home" />
           </div>
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-4">

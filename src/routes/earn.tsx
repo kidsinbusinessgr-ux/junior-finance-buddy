@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Circle } from "lucide-react";
-import earnHero from "@/assets/earn-girl.png";
+import { HeroArt } from "@/components/hero-art";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { useChild } from "@/hooks/useJFB";
@@ -93,10 +93,7 @@ function EarnPage() {
                 </Link>
               )}
             </div>
-            <div className="relative mx-auto w-full max-w-[500px]">
-              <div className="hero-orb absolute inset-[10%] rounded-full" />
-              <img src={earnHero} width={1000} height={1000} alt="Παιδί κερδίζει χρήματα" className="relative z-10 h-full w-full rounded-full object-cover" />
-            </div>
+            <HeroArt variant="earn" />
           </div>
         </div>
       </section>
