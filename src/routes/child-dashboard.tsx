@@ -184,7 +184,7 @@ function ChildDashboard() {
               Καλημέρα
             </p>
             <div className="flex items-center gap-2 mt-1">
-            <h1 className="text-4xl font-black">{child.name}!</h1>
+            <h1 className="text-4xl font-black">{child.name}</h1>
             {streak > 0 && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.88_0.12_60)] px-2.5 py-1 text-sm font-black text-[oklch(0.45_0.2_50)]">
                 🔥 {streak}
