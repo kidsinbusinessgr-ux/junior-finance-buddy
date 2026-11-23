@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { HeroArt } from "@/components/hero-art";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/save")({
   head: () => ({
@@ -23,6 +24,7 @@ const GOAL_SAVED = 21;
 
 function SavePage() {
   const [weeklyAmount, setWeeklyAmount] = useState(3);
+  const { userId } = useCurrentUser();
 
   const weeksNeeded = Math.ceil((GOAL_TARGET - GOAL_SAVED) / weeklyAmount);
   const progressPct = Math.round((GOAL_SAVED / GOAL_TARGET) * 100);
@@ -39,9 +41,15 @@ function SavePage() {
               <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Αποταμίευση</p>
               <h1 className="text-5xl font-black leading-tight sm:text-6xl">Φέρε τους στόχους πιο κοντά.</h1>
               <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Τα παιδιά μαθαίνουν να αποταμιεύουν θέτοντας πραγματικούς στόχους και παρακολουθώντας την πρόοδό τους κάθε εβδομάδα.</p>
-              <Link to="/signup">
-                <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
-              </Link>
+              {userId ? (
+                <Link to="/goals">
+                  <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Οι στόχοι μου →</Button>
+                </Link>
+              ) : (
+                <Link to="/signup">
+                  <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
+                </Link>
+              )}
             </div>
             <HeroArt variant="save" />
           </div>
@@ -122,7 +130,8 @@ function SavePage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA, for visitors only */}
+      {!userId && (
       <section className="bg-background px-6 py-20 text-center">
         <div className="mx-auto max-w-xl">
           <h2 className="text-4xl font-black sm:text-5xl">Θέσε τον πρώτο στόχο.</h2>
@@ -132,6 +141,7 @@ function SavePage() {
           </Link>
         </div>
       </section>
+      )}
     </main>
   );
 }

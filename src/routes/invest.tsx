@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sprout, TrendingUp, Compass } from "lucide-react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/invest")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/invest")({
 });
 
 function InvestPage() {
+  const { userId } = useCurrentUser();
   return (
     <main className="min-h-screen overflow-hidden bg-background">
       {/* Hero */}
@@ -70,9 +72,15 @@ function InvestPage() {
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-black sm:text-5xl">Η μάθηση ξεκινά εδώ.</h2>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">Το Kids in Business δεν παρέχει επενδυτικές υπηρεσίες ή συμβουλές. Το περιεχόμενο αυτό είναι εκπαιδευτικό και αποσκοπεί στο να βοηθήσει τα παιδιά να κατανοήσουν βασικές έννοιες επένδυσης. Για πραγματικές επενδύσεις απαιτείται η καθοδήγηση ενήλικα.</p>
-          <Link to="/signup">
-            <Button className="mt-8 h-14 rounded-full px-10 text-base">Εγγραφή δωρεάν</Button>
-          </Link>
+          {userId ? (
+            <Link to="/stocks">
+              <Button className="mt-8 h-14 rounded-full px-10 text-base">Πήγαινε στις μετοχές →</Button>
+            </Link>
+          ) : (
+            <Link to="/signup">
+              <Button className="mt-8 h-14 rounded-full px-10 text-base">Εγγραφή δωρεάν</Button>
+            </Link>
+          )}
         </div>
       </section>
     </main>

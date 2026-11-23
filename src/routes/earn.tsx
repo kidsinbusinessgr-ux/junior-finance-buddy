@@ -171,7 +171,8 @@ function EarnPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA, for visitors only */}
+      {!child && (
       <section className="bg-background px-6 py-20 text-center">
         <div className="mx-auto max-w-xl">
           <h2 className="text-4xl font-black sm:text-5xl">Έτοιμοι να αρχίσετε;</h2>
@@ -181,6 +182,7 @@ function EarnPage() {
           </Link>
         </div>
       </section>
+      )}
     </main>
   );
 }
