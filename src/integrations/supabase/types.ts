@@ -767,6 +767,9 @@ export type Database = {
           invest_capital: number
           avatar: string | null
           card_color: string
+          card_locked: boolean
+          card_parent_locked: boolean
+          card_weekly_limit: number | null
           card_pattern: string
           coins: number
           created_at: string | null
@@ -784,6 +787,9 @@ export type Database = {
           invest_capital?: number
           avatar?: string | null
           card_color?: string
+          card_locked?: boolean
+          card_parent_locked?: boolean
+          card_weekly_limit?: number | null
           card_pattern?: string
           coins?: number
           created_at?: string | null
@@ -801,6 +807,9 @@ export type Database = {
           invest_capital?: number
           avatar?: string | null
           card_color?: string
+          card_locked?: boolean
+          card_parent_locked?: boolean
+          card_weekly_limit?: number | null
           card_pattern?: string
           coins?: number
           created_at?: string | null
@@ -1544,6 +1553,12 @@ export type Database = {
         Returns: undefined
       }
       jfb_approve_reward: { Args: { p_request_id: string }; Returns: undefined }
+      jfb_card_pay: { Args: { p_reward_id: string }; Returns: number }
+      jfb_card_week_spent: { Args: { p_child_id: string }; Returns: number }
+      jfb_parent_card_settings: {
+        Args: { p_child_id: string; p_locked: boolean; p_weekly_limit: number | null }
+        Returns: undefined
+      }
       jfb_check_invite: { Args: { p_code: string }; Returns: string }
       jfb_claim_invite: { Args: { p_code: string }; Returns: string }
       jfb_complete_lesson: {

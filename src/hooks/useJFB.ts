@@ -667,13 +667,18 @@ export interface ParentChild {
   current_streak: number;
   invite_code: string;
   invest_capital: number;
+  card_color: string;
+  card_pattern: string;
+  card_locked: boolean;
+  card_parent_locked: boolean;
+  card_weekly_limit: number | null;
 }
 
 export function useParentChildren(parentId: string | null | undefined) {
   const [children, setChildren] = useState<ParentChild[]>([]);
   const refresh = useCallback(async () => {
     if (!parentId) return;
-    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak, invite_code, invest_capital").eq("parent_id", parentId).order("name");
+    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak, invite_code, invest_capital, card_color, card_pattern, card_locked, card_parent_locked, card_weekly_limit").eq("parent_id", parentId).order("name");
     setChildren(data ?? []);
   }, [parentId]);
   useEffect(() => { refresh(); }, [refresh]);

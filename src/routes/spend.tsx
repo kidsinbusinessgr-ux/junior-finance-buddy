@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Coins, Palette, Sparkles, TrendingUp, Wallet } from "lucide-react";
+import { Check, Coins, Lock, Palette, ShoppingBag, Sparkles, TrendingUp, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import spendHero from "@/assets/spend-hero-boy-card.png";
 import { BrightlyNav } from "@/components/brightly-nav";
@@ -34,6 +34,16 @@ const FACTS = [
     Icon: Wallet,
     title: "Το χαρτζιλίκι μπαίνει στην κάρτα",
     copy: "Όταν ο γονιός σου στέλνει κέρματα ή κερδίζεις από μαθήματα και δουλειές, το υπόλοιπο της κάρτας αλλάζει αμέσως.",
+  },
+  {
+    Icon: ShoppingBag,
+    title: "Πληρώνεις στο Κατάστημα",
+    copy: "Ο γονιός σου βάζει ανταμοιβές, π.χ. «1 ώρα παιχνίδι». Τις πληρώνεις με την κάρτα από το Πορτοφόλι.",
+  },
+  {
+    Icon: Lock,
+    title: "Κλείδωμα και όριο",
+    copy: "Κλειδώνεις την κάρτα όποτε θέλεις. Ο γονιός σου μπορεί επίσης να την κλειδώσει ή να βάλει όριο ανά εβδομάδα.",
   },
   {
     Icon: TrendingUp,
@@ -222,7 +232,7 @@ function SpendPage() {
             <p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Πώς δουλεύει</p>
             <h2 className="mt-4 text-4xl font-black sm:text-5xl">Τι κάνει η κάρτα σου.</h2>
           </div>
-          <div className="mt-12 grid gap-6 sm:grid-cols-3">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {FACTS.map(({ Icon, title, copy }) => (
               <div key={title} className="rounded-xl bg-card p-6 shadow-sm">
                 <Icon className="h-6 w-6 text-[oklch(0.5_0.2_292)]" />

@@ -10,6 +10,7 @@ import {
   giveInvestCapital,
   type PendingSubmission,
 } from "@/hooks/useJFB";
+import { ParentCardControls, ParentRewards } from "@/components/parent-card-controls";
 
 export const Route = createFileRoute("/parent-dashboard")({
   component: ParentDashboard,
@@ -141,6 +142,10 @@ function ParentDashboard() {
           </div>
         )}
       </section>
+
+      {/* The virtual card and the Shop's rewards */}
+      <ParentCardControls children={children} onChanged={refreshChildren} />
+      <ParentRewards parentId={parent.id} />
 
       {/* Pending submissions */}
       <section className="mb-6">

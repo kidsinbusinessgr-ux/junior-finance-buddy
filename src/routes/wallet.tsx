@@ -4,7 +4,9 @@ import {
   BookOpen,
   Check,
   ChevronRight,
-  Clock,
+  CreditCard,
+  Lock,
+  Unlock,
   Gift,
   Home,
   Loader2,
@@ -24,9 +26,7 @@ import {
   useChoreSubmissions,
   useTransactions,
   useRewards,
-  useRewardRequests,
   submitChore,
-  requestReward,
 } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/wallet")({
@@ -54,6 +54,7 @@ function txIcon(type: string) {
   if (type === "chore") return { Icon: Zap, color: "bg-[oklch(0.89_0.11_51)]" };
   if (type === "investment") return { Icon: TrendingUp, color: "bg-[oklch(0.76_0.15_173)]" };
   if (type === "reward") return { Icon: ShoppingBag, color: "bg-[oklch(0.86_0.09_214)]" };
+  if (type === "card") return { Icon: CreditCard, color: "bg-[oklch(0.86_0.09_214)]" };
   if (type === "parent_load") return { Icon: Gift, color: "bg-[oklch(0.88_0.1_292)]" };
   return { Icon: Star, color: "bg-secondary" };
 }
@@ -84,7 +85,9 @@ function WalletPage() {
   const [selectedChores, setSelectedChores] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [choreMessage, setChoreMessage] = useState<{ ok: boolean; text: string } | null>(null);
-  const [requestingReward, setRequestingReward] = useState<string | null>(null);
+  const [paying, setPaying] = useState<string | null>(null);
+  const [shopMsg, setShopMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [cardWeekSpent, setCardWeekSpent] = useState<number | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -102,7 +105,15 @@ function WalletPage() {
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id ?? null);
   const { transactions } = useTransactions(child?.id ?? null);
   const { rewards } = useRewards(child?.parent_id ?? null);
-  const { requests: rewardRequests, refetch: refetchRequests } = useRewardRequests(child?.id ?? null);
+
+  // Card payments this week, for the parent's weekly limit.
+  const childId = child?.id ?? null;
+  const loadWeekSpent = async () => {
+    if (!childId) return;
+    const { data } = await supabase.rpc("jfb_card_week_spent", { p_child_id: childId });
+    setCardWeekSpent(typeof data === "number" ? data : 0);
+  };
+  useEffect(() => { loadWeekSpent(); }, [childId]);
 
   if (!authChecked || childLoading) {
     return (
@@ -129,13 +140,8 @@ function WalletPage() {
     }
   });
 
-  // Map reward id → pending request
-  const pendingRewardIds = new Set(
-    rewardRequests.filter((r) => r.status === "pending").map((r) => r.reward_id)
-  );
-  const approvedRewardIds = new Set(
-    rewardRequests.filter((r) => r.status === "approved").map((r) => r.reward_id)
-  );
+  const cardLocked = child.card_locked || child.card_parent_locked;
+  const limitLeft = child.card_weekly_limit === null ? null : Math.max(0, child.card_weekly_limit - (cardWeekSpent ?? 0));
 
   const toggleChore = (choreId: string) => {
     setSelectedChores((prev) =>
@@ -162,13 +168,33 @@ function WalletPage() {
     }
   }
 
-  async function handleRequestReward(rewardId: string) {
-    if (!child) return;
-    setRequestingReward(rewardId);
-    await requestReward(child.id, rewardId);
-    await refetchRequests();
-    setRequestingReward(null);
+  async function payWithCard(rewardId: string, name: string) {
+    setPaying(rewardId);
+    setShopMsg(null);
+    const { error } = await supabase.rpc("jfb_card_pay", { p_reward_id: rewardId });
+    setPaying(null);
+    if (error) {
+      const m = error.message;
+      setShopMsg({
+        ok: false,
+        text: m.includes("card_locked")
+          ? "Η κάρτα σου είναι κλειδωμένη."
+          : m.includes("over_limit")
+          ? "Ξεπερνάς το όριο της εβδομάδας που έβαλε ο γονιός σου."
+          : m.includes("Not enough")
+          ? "Δεν έχεις αρκετά κέρματα."
+          : "Η πληρωμή δεν έγινε. Δοκίμασε ξανά.",
+      });
+      return;
+    }
+    setShopMsg({ ok: true, text: `Πλήρωσες με την κάρτα: ${name}. Ο γονιός σου το βλέπει στον πίνακά του.` });
+    loadWeekSpent();
   }
+
+  async function toggleOwnLock() {
+    await supabase.from("jfb_children").update({ card_locked: !child!.card_locked }).eq("id", child!.id);
+  }
+
 
   // Weekly stats from transactions
   const now = new Date();
@@ -199,9 +225,19 @@ function WalletPage() {
                 <p className="text-[oklch(0.76_0.15_292)]">Καμία κίνηση αυτή την εβδομάδα</p>
               )}
             </div>
-            <Link to="/spend" hash="card" className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25">
-              Άλλαξε σχέδιο κάρτας
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={toggleOwnLock}
+                disabled={child.card_parent_locked}
+                className="flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25 disabled:opacity-60"
+              >
+                {cardLocked ? <Lock size={14} /> : <Unlock size={14} />}
+                {child.card_parent_locked ? "Κλείδωσε ο γονιός σου" : child.card_locked ? "Ξεκλείδωσε" : "Κλείδωσε"}
+              </button>
+              <Link to="/spend" hash="card" className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25">
+                Άλλαξε σχέδιο
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -353,64 +389,61 @@ function WalletPage() {
         {/* SHOP TAB */}
         {tab === "shop" && (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground px-1">Ο γονέας σου έχει ορίσει αυτές τις ανταμοιβές. Εξαργύρωσε τα coins σου!</p>
+            <p className="px-1 text-sm text-muted-foreground">
+              Ανταμοιβές που έβαλε ο γονιός σου. Πληρώνεις με την κάρτα σου και τα κέρματα φεύγουν αμέσως.
+            </p>
+            {(cardLocked || limitLeft !== null) && (
+              <div className="rounded-2xl bg-secondary px-4 py-3 text-sm font-bold text-muted-foreground">
+                {cardLocked
+                  ? child.card_parent_locked
+                    ? "🔒 Ο γονιός σου κλείδωσε την κάρτα. Δεν μπορείς να πληρώσεις τώρα."
+                    : "🔒 Έχεις κλειδώσει την κάρτα σου. Ξεκλείδωσέ τη για να πληρώσεις."
+                  : `Όριο εβδομάδας: σου μένουν ${limitLeft} από ${child.card_weekly_limit} κέρματα.`}
+              </div>
+            )}
+            {shopMsg && (
+              <div className={`rounded-2xl px-4 py-3 text-sm font-bold ${shopMsg.ok ? "bg-[oklch(0.94_0.06_173)] text-[oklch(0.35_0.1_173)]" : "bg-red-50 text-red-600"}`}>
+                {shopMsg.text}
+              </div>
+            )}
             {rewards.length === 0 ? (
-              <div className="rounded-2xl bg-card ring-1 ring-border p-8 text-center">
-                <p className="text-4xl mb-3">🎁</p>
-                <p className="font-black text-foreground">Κανένα βραβείο ακόμα</p>
-                <p className="text-sm text-muted-foreground mt-1">Ο γονέας σου θα προσθέσει βραβεία σύντομα.</p>
+              <div className="rounded-2xl bg-card p-8 text-center ring-1 ring-border">
+                <ShoppingBag className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+                <p className="font-black text-foreground">Δεν υπάρχουν ανταμοιβές ακόμα</p>
+                <p className="mt-1 text-sm text-muted-foreground">Ζήτα από τον γονιό σου να βάλει μερικές από τον πίνακά του.</p>
               </div>
             ) : (
               rewards.map((reward) => {
                 const canAfford = child.coins >= reward.cost;
-                const isPending = pendingRewardIds.has(reward.id);
-                const isApproved = approvedRewardIds.has(reward.id);
-                const isRequesting = requestingReward === reward.id;
+                const fitsLimit = limitLeft === null || reward.cost <= limitLeft;
+                const isPaying = paying === reward.id;
                 return (
-                  <div
-                    key={reward.id}
-                    className={`flex items-center gap-4 rounded-2xl px-5 py-4 ring-1 ${
-                      isApproved
-                        ? "bg-[oklch(0.76_0.15_173)] ring-[oklch(0.6_0.15_173)]"
-                        : "bg-card ring-border"
-                    }`}
-                  >
-                    <span className="text-3xl">{reward.emoji ?? "🎁"}</span>
+                  <div key={reward.id} className="flex items-center gap-4 rounded-2xl bg-card px-5 py-4 ring-1 ring-border">
                     <div className="flex-1">
                       <p className="font-black">{reward.name}</p>
                       <p className="text-sm font-bold text-muted-foreground">{reward.cost} 🪙</p>
                     </div>
-                    {isApproved ? (
-                      <span className="flex items-center gap-1 text-xs font-black text-[oklch(0.2_0.08_175)]">
-                        <Check size={14} /> Εγκρίθηκε
-                      </span>
-                    ) : isPending ? (
-                      <span className="rounded-full bg-[oklch(0.89_0.11_51)] px-2 py-1 text-[10px] font-black text-[oklch(0.4_0.14_37)]">
-                        ⏳ Αναμονή
-                      </span>
-                    ) : (
-                      <Button
-                        disabled={!canAfford || isRequesting}
-                        onClick={() => handleRequestReward(reward.id)}
-                        size="sm"
-                        className="rounded-full"
-                        variant={canAfford ? "default" : "outline"}
-                      >
-                        {isRequesting ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : canAfford ? "Αγόρα" : "Λίγα 🪙"}
-                      </Button>
-                    )}
+                    <Button
+                      disabled={!canAfford || !fitsLimit || cardLocked || paying !== null}
+                      onClick={() => payWithCard(reward.id, reward.name)}
+                      size="sm"
+                      className="rounded-full"
+                      variant={canAfford && fitsLimit && !cardLocked ? "default" : "outline"}
+                    >
+                      {isPaying ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : !canAfford ? (
+                        "Λίγα κέρματα"
+                      ) : !fitsLimit ? (
+                        "Πάνω από το όριο"
+                      ) : (
+                        <span className="flex items-center gap-1.5"><CreditCard size={14} /> Πλήρωσε</span>
+                      )}
+                    </Button>
                   </div>
                 );
               })
             )}
-            <div className="mt-4 rounded-2xl bg-secondary p-4 text-center">
-              <p className="text-sm font-bold text-muted-foreground">
-                <Clock size={14} className="inline mr-1" />
-                Μετά την εξαργύρωση, ο γονέας σου θα ειδοποιηθεί για έγκριση.
-              </p>
-            </div>
           </div>
         )}
       </div>
