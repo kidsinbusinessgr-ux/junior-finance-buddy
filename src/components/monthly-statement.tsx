@@ -34,7 +34,18 @@ function groupBy(list: Tx[]) {
   return [...m.entries()].map(([type, sum]) => ({ type, label: CATEGORY[type] ?? "Άλλα", sum })).sort((a, b) => Math.abs(b.sum) - Math.abs(a.sum));
 }
 
-export function MonthlyStatement({ childId, coins, name }: { childId: string; coins: number; name: string }) {
+// forParent: the notes speak about the child ("Κράτησε") instead of to them.
+export function MonthlyStatement({
+  childId,
+  coins,
+  name,
+  forParent = false,
+}: {
+  childId: string;
+  coins: number;
+  name: string;
+  forParent?: boolean;
+}) {
   const now = new Date();
   const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() });
   const [after, setAfter] = useState<Tx[] | null>(null);
@@ -83,8 +94,8 @@ export function MonthlyStatement({ childId, coins, name }: { childId: string; co
     else {
       const kept = Math.round(((s.totalIn + s.totalOut) / s.totalIn) * 100);
       insight = kept >= 0
-        ? `Κράτησες το ${kept}% από όσα μπήκαν αυτόν τον μήνα.`
-        : "Αυτόν τον μήνα έβγαλες περισσότερα απ' όσα μπήκαν.";
+        ? `${forParent ? "Κράτησε" : "Κράτησες"} το ${kept}% από όσα μπήκαν αυτόν τον μήνα.`
+        : `Αυτόν τον μήνα ${forParent ? "έβγαλε" : "έβγαλες"} περισσότερα απ' όσα μπήκαν.`;
     }
   }
 

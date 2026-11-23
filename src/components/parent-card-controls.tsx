@@ -127,7 +127,7 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
       </button>
       {showStatement && (
         <div className="mt-3">
-          <MonthlyStatement childId={child.id} coins={child.coins} name={child.name} />
+          <MonthlyStatement childId={child.id} coins={child.coins} name={child.name} forParent />
         </div>
       )}
     </div>
