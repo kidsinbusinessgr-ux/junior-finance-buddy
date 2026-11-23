@@ -766,6 +766,8 @@ export type Database = {
         Row: {
           invest_capital: number
           avatar: string | null
+          card_color: string
+          card_pattern: string
           coins: number
           created_at: string | null
           current_streak: number
@@ -781,6 +783,8 @@ export type Database = {
         Insert: {
           invest_capital?: number
           avatar?: string | null
+          card_color?: string
+          card_pattern?: string
           coins?: number
           created_at?: string | null
           current_streak?: number
@@ -796,6 +800,8 @@ export type Database = {
         Update: {
           invest_capital?: number
           avatar?: string | null
+          card_color?: string
+          card_pattern?: string
           coins?: number
           created_at?: string | null
           current_streak?: number

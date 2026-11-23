@@ -16,6 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { KibCard } from "@/components/kib-card";
 import { supabase } from "@/integrations/supabase/client";
 import {
   useChild,
@@ -185,12 +186,12 @@ function WalletPage() {
           <Link to="/child-dashboard" className="flex items-center gap-2 text-sm font-bold text-[oklch(0.86_0.1_292)] mb-6">
             ← Αρχική
           </Link>
-          <h1 className="text-3xl font-black">Πορτοφόλι 💰</h1>
-          <div className="mt-4 flex items-center gap-4">
-            <div className="rounded-2xl bg-[oklch(0.46_0.18_292)] px-6 py-4">
-              <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">Υπόλοιπο</p>
-              <p className="mt-1 text-4xl font-black">🪙 {child.coins}</p>
-            </div>
+          <h1 className="text-3xl font-black">Πορτοφόλι</h1>
+          {/* The child's virtual card, with the balance */}
+          <div className="mt-5 max-w-sm">
+            <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} />
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm font-bold text-[oklch(0.86_0.1_292)]">
               {weekEarned > 0 && <p>+{weekEarned} αυτή την εβδομάδα</p>}
               {weekSpent < 0 && <p className="mt-1 text-[oklch(0.76_0.15_292)]">{weekSpent} ξοδεύτηκαν</p>}
@@ -198,6 +199,9 @@ function WalletPage() {
                 <p className="text-[oklch(0.76_0.15_292)]">Καμία κίνηση αυτή την εβδομάδα</p>
               )}
             </div>
+            <Link to="/spend" hash="card" className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25">
+              Άλλαξε σχέδιο κάρτας
+            </Link>
           </div>
         </div>
       </section>
