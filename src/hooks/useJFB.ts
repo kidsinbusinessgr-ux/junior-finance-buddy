@@ -161,21 +161,21 @@ export function useTransactions(childId: string | null | undefined) {
   const [transactions, setTransactions] = useState<JFBTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetch = useCallback(async () => {
     if (!childId) return;
-    supabase
+    const { data } = await supabase
       .from("jfb_transactions")
       .select("*")
       .eq("child_id", childId)
       .order("created_at", { ascending: false })
-      .limit(50)
-      .then(({ data }) => {
-        setTransactions(data ?? []);
-        setLoading(false);
-      });
+      .limit(50);
+    setTransactions(data ?? []);
+    setLoading(false);
   }, [childId]);
 
-  return { transactions, loading };
+  useEffect(() => { fetch(); }, [fetch]);
+
+  return { transactions, loading, refetch: fetch };
 }
 
 // All coin changes go through SECURITY DEFINER functions in Supabase

@@ -100,10 +100,10 @@ function WalletPage() {
     });
   }, [navigate]);
 
-  const { child, loading: childLoading } = useChild(userId);
+  const { child, loading: childLoading, refetch: refetchChild } = useChild(userId);
   const { chores } = useChores(child?.parent_id ?? null);
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id ?? null);
-  const { transactions } = useTransactions(child?.id ?? null);
+  const { transactions, refetch: refetchTransactions } = useTransactions(child?.id ?? null);
   const { rewards } = useRewards(child?.parent_id ?? null);
 
   // Card payments this week, for the parent's weekly limit.
@@ -189,10 +189,13 @@ function WalletPage() {
     }
     setShopMsg({ ok: true, text: `Πλήρωσες με την κάρτα: ${name}. Ο γονιός σου το βλέπει στον πίνακά του.` });
     loadWeekSpent();
+    refetchChild();
+    refetchTransactions();
   }
 
   async function toggleOwnLock() {
     await supabase.from("jfb_children").update({ card_locked: !child!.card_locked }).eq("id", child!.id);
+    await refetchChild();
   }
 
 
