@@ -94,7 +94,7 @@ function InvestmentsPage() {
     <div className="min-h-screen bg-background pb-28 text-foreground">
       <header className="bg-[oklch(0.46_0.18_292)] px-5 pb-8 pt-6 text-primary-foreground">
         <div className="mx-auto max-w-2xl">
-          <h1 className="text-3xl font-black">Επενδύσεις 📈</h1>
+          <h1 className="text-3xl font-black">Επενδύσεις</h1>
           <p className="mt-1 text-sm font-bold opacity-90">
             🪙 {fmt(child.coins)} coins
             {child.invest_capital > 0 && <> · 🚀 {fmt(child.invest_capital)} επενδυτικά</>}
@@ -122,14 +122,14 @@ function InvestmentsPage() {
         {/* Own startups */}
         <section className="rounded-2xl border bg-card p-5">
           <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-lg font-black">🧑‍💼 Τα startups μου</h2>
+            <h2 className="text-lg font-black">Τα startups μου</h2>
             {ownStartups.length < 3 && (
               <Link to="/build" className="text-sm font-black text-[oklch(0.45_0.2_292)]">+ Φτιάξε νέο</Link>
             )}
           </div>
           {ownStartups.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              Δεν έχεις ακόμα startup. Φτιάξε το δικό σου και πάρε μια απόφαση κάθε μέρα!
+              Δεν έχεις ακόμα startup. Φτιάξε το δικό σου και πάρε μια απόφαση κάθε μέρα.
             </p>
           ) : (
             <div className="mt-3 space-y-2">
@@ -154,7 +154,7 @@ function InvestmentsPage() {
         {/* Real stocks */}
         <section className="rounded-2xl border bg-card p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-black">📈 Οι μετοχές μου</h2>
+            <h2 className="text-lg font-black">Οι μετοχές μου</h2>
             {stockRows.length > 0 && (
               <p className={`text-sm font-black ${stockGain >= 0 ? "text-green-700" : "text-red-600"}`}>
                 Αξία 🪙 {fmt(stockValue)} ({stockGain >= 0 ? "+" : ""}{fmt(stockGain)})

@@ -23,9 +23,9 @@ export type JFBStartupInvestment = Tables<"jfb_startup_investments">;
 // ── Level helpers ───────────────────────────────────────────────
 export const XP_LEVELS = [0, 400, 1000, 1800, 3000, 5000] as const;
 export const LEVEL_NAMES = [
-  "Αρχάριος",
-  "Μαθητής",
-  "Μικρός Επιχειρηματίας",
+  "Νέο μέλος",
+  "Αποταμιευτής",
+  "Επιχειρηματίας",
   "Επενδυτής",
   "Οικονομολόγος",
   "Χρηματοδότης",

@@ -119,7 +119,7 @@ export function BuddyFloat() {
             {messages.length === 0 && !loading && (
               <div style={{ textAlign: "center", color: "#7c3aed", fontSize: "13px", marginTop: "20px" }}>
                 <div style={{ marginBottom: "8px" }}><img src="/buddy-robot.png" style={{ width: "48px", height: "48px" }} alt="Buddy" /></div>
-                Γεια! Ρώτα με οτιδήποτε για χρήματα και επιχειρηματικότητα!
+                Γεια. Ρώτα με ό,τι θέλεις για χρήματα και επιχειρηματικότητα.
               </div>
             )}
             {messages.map((m, i) => (

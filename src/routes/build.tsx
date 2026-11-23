@@ -6,10 +6,10 @@ import { createStartup, type CreateStartupResult } from "@/lib/startups.function
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
 
 const CREATE_ERRORS: Record<Exclude<CreateStartupResult, { ok: true }>["reason"], string> = {
-  login: "Συνδέσου για να φτιάξεις το startup σου!",
+  login: "Συνδέσου για να φτιάξεις το startup σου.",
   no_child: "Μόνο ο λογαριασμός παιδιού μπορεί να φτιάξει startup.",
   bad_words: "Ας κρατήσουμε τα κείμενα ευγενικά 😊 Άλλαξε τις λέξεις που δεν ταιριάζουν και δοκίμασε ξανά.",
-  too_many: "Έχεις ήδη 3 startups! Εστίασε σε αυτά που έχεις 💪",
+  too_many: "Έχεις ήδη 3 startups. Εστίασε σε αυτά που έχεις 💪",
   failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
 };
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/build")({
   head: () => ({
     meta: [
       { title: "Φτιάξε το Startup σου — Kids in Business" },
-      { name: "description", content: "Δημιούργησε το δικό σου startup και παρουσίασέ το στην κοινότητα!" },
+      { name: "description", content: "Δημιούργησε το δικό σου startup και παρουσίασέ το στην κοινότητα." },
     ],
   }),
   component: BuildPage,
@@ -103,8 +103,8 @@ export default function BuildPage() {
           <BrightlyNav active="build" />
           <div className="mx-auto max-w-xl pt-16 text-center">
             <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.86_0.1_173)]">Startup Builder</p>
-            <h1 className="mt-3 text-4xl font-black sm:text-5xl">Φτιάξε το Startup σου 🚀</h1>
-            <p className="mt-4 text-lg text-[oklch(0.96_0.02_173)]">5 βήματα και η ιδέα σου γίνεται pitch page!</p>
+            <h1 className="mt-3 text-4xl font-black sm:text-5xl">Φτιάξε το startup σου</h1>
+            <p className="mt-4 text-lg text-[oklch(0.96_0.02_173)]">5 βήματα και η ιδέα σου γίνεται pitch page.</p>
           </div>
         </div>
       </section>
@@ -146,7 +146,7 @@ export default function BuildPage() {
         {step === 0 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-black">Δώσε όνομα στο startup σου!</h2>
+              <h2 className="text-2xl font-black">Δώσε όνομα στο startup σου</h2>
               <p className="mt-1 text-muted-foreground">Κάτι που να μένει στο μυαλό. Μπορείς να το αλλάξεις αργότερα.</p>
             </div>
 
@@ -185,7 +185,7 @@ export default function BuildPage() {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-black">Ποιο πρόβλημα λύνεις; 🔍</h2>
+              <h2 className="text-2xl font-black">Ποιο πρόβλημα λύνεις;</h2>
               <p className="mt-1 text-muted-foreground">Περίγραψε το πρόβλημα που βλέπεις. Όσο πιο συγκεκριμένο, τόσο καλύτερο.</p>
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
@@ -210,7 +210,7 @@ export default function BuildPage() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-black">Ποια είναι η λύση σου; 💡</h2>
+              <h2 className="text-2xl font-black">Ποια είναι η λύση σου;</h2>
               <p className="mt-1 text-muted-foreground">Τι φτιάχνεις ή τι προσφέρεις; App, υπηρεσία, προϊόν;</p>
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
@@ -235,8 +235,8 @@ export default function BuildPage() {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-black">Ποιος είναι ο πελάτης σου; 🎯</h2>
-              <p className="mt-1 text-muted-foreground">Μην πεις «όλοι» — είσαι συγκεκριμένος/η!</p>
+              <h2 className="text-2xl font-black">Ποιος είναι ο πελάτης σου;</h2>
+              <p className="mt-1 text-muted-foreground">Μην πεις «όλοι». Γίνε συγκεκριμένος/η.</p>
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παράδειγμα:</p>
@@ -260,7 +260,7 @@ export default function BuildPage() {
         {step === 4 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-black">Πώς βγάζεις χρήματα; 💰</h2>
+              <h2 className="text-2xl font-black">Πώς βγάζεις χρήματα;</h2>
               <p className="mt-1 text-muted-foreground">Ποιο είναι το business model σου; Πώς χρεώνεις;</p>
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
@@ -306,7 +306,7 @@ export default function BuildPage() {
               disabled={!canNext() || submitting}
               onClick={handleSubmit}
             >
-              {submitting ? "Δημοσίευση…" : "🚀 Δημοσίευσε το Startup σου!"}
+              {submitting ? "Δημοσίευση…" : "🚀 Δημοσίευσε το startup σου"}
             </Button>
           )}
         </div>

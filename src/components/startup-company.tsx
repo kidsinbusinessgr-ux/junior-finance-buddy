@@ -208,13 +208,13 @@ export function FounderDecision({
           )}
           {(fx["missed"] ?? 0) > 0 && (
             <p className="text-xs font-bold text-[oklch(0.5_0.18_40)]">
-              Έλειψες {fx["missed"]} {fx["missed"] === 1 ? "μέρα" : "μέρες"} και η εταιρεία έχασε λίγη φήμη και πελάτες. Έλα κάθε μέρα!
+              Έλειψες {fx["missed"]} {fx["missed"] === 1 ? "μέρα" : "μέρες"} και η εταιρεία έχασε λίγη φήμη και πελάτες. Έλα κάθε μέρα.
             </p>
           )}
           <div className="rounded-xl bg-[oklch(0.95_0.05_170)] px-4 py-3 text-sm">
             <span className="font-black">💡 Τι μαθαίνουμε: </span>{decided.lesson}
           </div>
-          <p className="text-center text-xs font-bold text-muted-foreground">Έλα αύριο για την επόμενη απόφαση! 👋</p>
+          <p className="text-center text-xs font-bold text-muted-foreground">Έλα αύριο για την επόμενη απόφαση. 👋</p>
         </div>
       )}
     </div>
@@ -246,7 +246,7 @@ export function FounderReminder() {
   if (state === "subscribed") {
     return (
       <p className="rounded-xl bg-green-50 px-4 py-2 text-xs font-black text-green-700">
-        🔔 Θα σου θυμίζουμε κάθε πρωί την απόφαση της ημέρας!
+        🔔 Θα σου θυμίζουμε κάθε πρωί την απόφαση της ημέρας.
       </p>
     );
   }

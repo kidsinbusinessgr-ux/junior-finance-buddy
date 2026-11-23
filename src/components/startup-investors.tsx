@@ -118,7 +118,7 @@ export function MyStake({
     if (error) {
       setMessage(
         error.message.includes("no cash")
-          ? "Η εταιρεία δεν έχει αρκετά μετρητά για να αγοράσει το μερίδιό σου τώρα. Δοκίμασε αργότερα! (Αυτό λέγεται ρευστότητα.)"
+          ? "Η εταιρεία δεν έχει αρκετά μετρητά για να αγοράσει το μερίδιό σου τώρα. Δοκίμασε αργότερα. (Αυτό λέγεται ρευστότητα.)"
           : "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
       );
       return;
@@ -212,7 +212,7 @@ export function FounderMoneyTools({ startup, onChanged }: { startup: ShareNumber
       <div className="mt-4">
         <p className="text-sm font-black">🎯 Γύρος χρηματοδότησης</p>
         {open ? (
-          <p className="mt-1 text-sm text-muted-foreground">Ο γύρος σου είναι ανοιχτός. Δείξε το startup σου στους φίλους σου!</p>
+          <p className="mt-1 text-sm text-muted-foreground">Ο γύρος σου είναι ανοιχτός. Δείξε το startup σου στους φίλους σου.</p>
         ) : (
           <>
             <p className="mt-1 text-xs text-muted-foreground">Βάλε στόχο για 7 μέρες. «Όλα ή τίποτα»: αν τον πιάσεις, τα coins μπαίνουν στο ταμείο και η εταιρεία κερδίζει +10 φήμη και ένα 🏆· αν όχι, επιστρέφονται στους επενδυτές.</p>
@@ -284,7 +284,7 @@ export function MyStartupInvestments({ childId }: { childId: string }) {
   return (
     <div className="mb-10 rounded-2xl border-2 border-[oklch(0.55_0.17_173)] bg-[oklch(0.97_0.03_173)] p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-xl font-black">💼 Οι επενδύσεις μου</h2>
+        <h2 className="text-xl font-black">Οι επενδύσεις μου</h2>
         <p className={`text-sm font-black ${gain >= 0 ? "text-green-700" : "text-red-600"}`}>
           Αξία 🪙 {fmt(totalValue)} ({gain >= 0 ? "+" : ""}{fmt(gain)})
         </p>

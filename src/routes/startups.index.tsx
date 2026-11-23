@@ -12,7 +12,7 @@ export const Route = createFileRoute("/startups/")({
   head: () => ({
     meta: [
       { title: "Startups — Kids in Business" },
-      { name: "description", content: "Δες τα startups που έφτιαξαν οι μαθητές μας. Επένδυσε virtual coins στις ιδέες που σε ενθουσιάζουν!" },
+      { name: "description", content: "Δες τα startups που έφτιαξαν οι μαθητές μας. Επένδυσε εικονικά κέρματα στις ιδέες που πιστεύεις." },
     ],
   }),
   component: StartupsPage,
@@ -58,8 +58,8 @@ export default function StartupsPage() {
           <BrightlyNav active="startups" />
           <div className="mx-auto max-w-3xl pt-20 text-center">
             <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">Student Startups</p>
-            <h1 className="mt-4 text-5xl font-black leading-tight sm:text-6xl">Οι ιδέες μας 🚀</h1>
-            <p className="mt-5 text-xl text-[oklch(0.96_0.02_292)]">Startups που έφτιαξαν μαθητές. Επένδυσε virtual coins στις αγαπημένες σου!</p>
+            <h1 className="mt-4 text-5xl font-black leading-tight sm:text-6xl">Οι ιδέες μας</h1>
+            <p className="mt-5 text-xl text-[oklch(0.96_0.02_292)]">Startups που έφτιαξαν μαθητές. Επένδυσε εικονικά κέρματα στις ιδέες που πιστεύεις.</p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link to="/build">
                 <Button className="h-12 rounded-full bg-white px-8 font-black text-[oklch(0.57_0.23_292)] hover:bg-white/90">
@@ -82,7 +82,7 @@ export default function StartupsPage() {
         {!loading && startups.length === 0 && (
           <div className="py-20 text-center">
             <div className="text-6xl">🌱</div>
-            <p className="mt-4 text-xl font-black">Δεν υπάρχουν startups ακόμα!</p>
+            <p className="mt-4 text-xl font-black">Δεν υπάρχουν startups ακόμα.</p>
             <p className="mt-2 text-muted-foreground">Γίνε ο/η πρώτος/η που θα φτιάξει ένα.</p>
             <Link to="/build">
               <Button className="mt-6 h-12 rounded-full px-8 font-black">🚀 Φτιάξε το πρώτο Startup</Button>
@@ -93,7 +93,7 @@ export default function StartupsPage() {
         {/* Top 3 — featured */}
         {top3.length > 0 && (
           <>
-            <h2 className="mb-6 text-2xl font-black">🏆 Top Startups</h2>
+            <h2 className="mb-6 text-2xl font-black">Top startups</h2>
             <div className="mb-10 grid gap-4 sm:grid-cols-3">
               {top3.map((s, i) => (
                 <Link key={s.id} to="/startups/$id" params={{ id: s.id }}>

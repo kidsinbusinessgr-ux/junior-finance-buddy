@@ -181,7 +181,7 @@ function ChildDashboard() {
 
           <div className="mt-8">
             <p className="text-sm font-black uppercase tracking-[0.15em] text-[oklch(0.86_0.1_292)]">
-              Καλημέρα 👋
+              Καλημέρα
             </p>
             <div className="flex items-center gap-2 mt-1">
             <h1 className="text-4xl font-black">{child.name}!</h1>
@@ -223,7 +223,7 @@ function ChildDashboard() {
             <div className="flex items-center gap-2">
               <Bell size={16} className="text-[oklch(0.55_0.18_37)]" />
               <p className="text-sm font-black text-[oklch(0.35_0.12_37)]">
-                {extraChores.length} διαθέσιμες πληρωμένες δουλειές!
+                {extraChores.length} διαθέσιμες πληρωμένες δουλειές
               </p>
             </div>
             <div className="mt-3 grid gap-2">
@@ -312,7 +312,7 @@ function ChildDashboard() {
               className="mt-2 h-3 bg-[oklch(0.95_0.08_105)]"
             />
             <p className="mt-2 text-sm font-bold">
-              {Math.round((activeGoal.saved_coins / activeGoal.target_coins) * 100)}% εκεί! Λείπουν{" "}
+              {Math.round((activeGoal.saved_coins / activeGoal.target_coins) * 100)}% του στόχου. Λείπουν{" "}
               {activeGoal.target_coins - activeGoal.saved_coins} 🪙
             </p>
           </section>
@@ -325,8 +325,8 @@ function ChildDashboard() {
           >
             <Target size={24} className="text-[oklch(0.45_0.15_142)]" />
             <div>
-              <p className="font-black text-gray-800">Βάλε στόχο αποταμίευσης!</p>
-              <p className="text-sm text-gray-500">Κάτι που θέλεις να αγοράσεις 🎯</p>
+              <p className="font-black text-gray-800">Βάλε στόχο αποταμίευσης</p>
+              <p className="text-sm text-gray-500">Κάτι που θέλεις να αγοράσεις</p>
             </div>
             <ChevronRight size={18} className="ml-auto text-gray-400" />
           </Link>
@@ -371,7 +371,7 @@ function ChildDashboard() {
         {/* Achievements — real data from DB */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">Επιτεύγματα 🏆</h2>
+            <h2 className="font-black">Επιτεύγματα</h2>
             <span className="text-xs font-bold text-[oklch(0.7_0.2_60)]">
               {earnedBadges.length}/{allBadges.length} ξεκλείδωτα
             </span>
@@ -415,7 +415,7 @@ function ChildDashboard() {
           <div className="mt-4 divide-y divide-border">
             {recentTx.length === 0 && (
               <p className="text-sm text-muted-foreground py-3 text-center">
-                Καμία δραστηριότητα ακόμα. Ξεκίνα μαθήματα ή δουλειές! 🚀
+                Καμία δραστηριότητα ακόμα. Ξεκίνα με ένα μάθημα ή μια δουλειά. 🚀
               </p>
             )}
             {recentTx.map((tx) => (
@@ -485,7 +485,7 @@ function ChildDashboard() {
         {/* Spending Analytics */}
         {spendingStats && (
           <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
-            <h2 className="font-black">Στατιστικά {spendingStats.monthLabel} 📊</h2>
+            <h2 className="font-black">Στατιστικά {spendingStats.monthLabel}</h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[oklch(0.9_0.08_170)] p-3">
                 <p className="text-[10px] font-bold text-[oklch(0.4_0.15_170)] uppercase">Έσοδα</p>

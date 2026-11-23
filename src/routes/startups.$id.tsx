@@ -15,9 +15,9 @@ const INVEST_LIMIT = 200;
 
 // Database error messages from jfb_invest_in_startup → what the child sees.
 function investErrorText(message: string): string {
-  if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά coins!";
+  if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά κέρματα.";
   if (message.includes("Own startup")) return "Δεν μπορείς να επενδύσεις στο δικό σου startup.";
-  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} coins σε αυτό το startup. Μοίρασε τα coins σου και σε άλλα!`;
+  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} coins σε αυτό το startup. Μοίρασε τα κέρματά σου και σε άλλα.`;
   if (message.includes("child account")) return "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.";
   return "Κάτι πήγε στραβά. Δοκίμασε ξανά.";
 }
@@ -194,7 +194,7 @@ export default function StartupPage() {
             <span className="text-2xl">🎉</span>
             <div>
               <p className="font-black">Επένδυσες επιτυχώς!</p>
-              <p className="text-sm">Σε ευχαριστούμε για την υποστήριξη!</p>
+              <p className="text-sm">Ευχαριστούμε για την υποστήριξη.</p>
             </div>
           </div>
         )}
@@ -217,7 +217,7 @@ export default function StartupPage() {
               <div className="rounded-2xl border-2 border-dashed border-[oklch(0.57_0.23_292)] bg-[oklch(0.97_0.03_292)] p-5 text-center">
                 <p className="text-3xl">🎨</p>
                 <p className="mt-2 font-black">Πώς μοιάζει το προϊόν σου;</p>
-                <p className="mt-1 text-sm text-muted-foreground">Ζωγράφισέ το, για να το δουν όλοι στη σελίδα της εταιρείας σου!</p>
+                <p className="mt-1 text-sm text-muted-foreground">Ζωγράφισέ το, για να το δουν όλοι στη σελίδα της εταιρείας σου.</p>
                 <Button className="mt-4 rounded-full font-black" onClick={() => setDrawingOpen(true)}>
                   Ζωγράφισε το προϊόν σου
                 </Button>
@@ -275,7 +275,7 @@ export default function StartupPage() {
         {/* Invest CTA */}
         <div className="mt-10 rounded-2xl border-2 border-[oklch(0.55_0.17_173)] bg-[oklch(0.96_0.03_173)] p-6">
           <h3 className="text-xl font-black">Πιστεύεις σε αυτή την ιδέα;</h3>
-          <p className="mt-1 text-muted-foreground">Επένδυσε virtual coins και δείξε την υποστήριξή σου!</p>
+          <p className="mt-1 text-muted-foreground">Επένδυσε εικονικά κέρματα και δείξε ότι πιστεύεις στην ιδέα.</p>
 
           {!userLoading && !userId ? (
             <Link to="/login">
@@ -287,7 +287,7 @@ export default function StartupPage() {
             <p className="mt-4 text-sm font-bold text-muted-foreground">Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.</p>
           ) : child && startup.child_id === child.id ? (
             <p className="mt-4 rounded-xl bg-white/70 px-4 py-3 text-sm font-bold">
-              🌟 Αυτό είναι το δικό σου startup! Δείξ' το στους φίλους σου για να επενδύσουν.
+              🌟 Αυτό είναι το δικό σου startup. Δείξ' το στους φίλους σου για να επενδύσουν.
             </p>
           ) : !investing ? (
             <>
@@ -337,8 +337,8 @@ export default function StartupPage() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {(child?.invest_capital ?? 0) > 0
-                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά coins, μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup!"
-                    : "Τα coins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup!"}
+                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά coins, μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup."
+                    : "Τα κέρματα φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup."}
                 </p>
               </div>
               {investError && (

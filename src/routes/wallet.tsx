@@ -160,9 +160,9 @@ function WalletPage() {
         await submitChore(choreId, child.id);
       }
       setSelectedChores([]);
-      setChoreMessage({ ok: true, text: `✅ Στάλθηκ${count === 1 ? "ε" : "αν"} στον γονέα σου για έγκριση!` });
+      setChoreMessage({ ok: true, text: `✅ Στάλθηκ${count === 1 ? "ε" : "αν"} στον γονιό σου για έγκριση.` });
     } catch {
-      setChoreMessage({ ok: false, text: "Δε στάλθηκε. Δοκίμασε ξανά!" });
+      setChoreMessage({ ok: false, text: "Δε στάλθηκε. Δοκίμασε ξανά." });
     } finally {
       await refetchSubmissions();
       setSubmitting(false);
@@ -271,7 +271,7 @@ function WalletPage() {
               <div className="rounded-2xl bg-card ring-1 ring-border p-8 text-center">
                 <p className="text-4xl mb-3">🪙</p>
                 <p className="font-black text-foreground">Καμία κίνηση ακόμα</p>
-                <p className="text-sm text-muted-foreground mt-1">Ξεκίνα μαθήματα ή κάνε δουλειές!</p>
+                <p className="text-sm text-muted-foreground mt-1">Ξεκίνα με ένα μάθημα ή μια δουλειά.</p>
               </div>
             ) : (
               <div className="rounded-2xl bg-card ring-1 ring-border">

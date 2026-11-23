@@ -9,9 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kids in Business — Χρηματοοικονομική παιδεία για παιδιά" },
+      { title: "Kids in Business — Χρηματοοικονομική παιδεία για νέους" },
       { name: "description", content: "Η εφαρμογή που διδάσκει στα παιδιά ηλικίας 12—17 χρόνων πώς να κερδίζουν, αποταμιεύουν και επενδύουν με έξυπνο τρόπο." },
-      { property: "og:title", content: "Kids in Business — Χρηματοοικονομική παιδεία για παιδιά" },
+      { property: "og:title", content: "Kids in Business — Χρηματοοικονομική παιδεία για νέους" },
       { property: "og:description", content: "Η εφαρμογή που διδάσκει στα παιδιά ηλικίας 12—17 χρόνων πώς να κερδίζουν, αποταμιεύουν και επενδύουν με έξυπνο τρόπο." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

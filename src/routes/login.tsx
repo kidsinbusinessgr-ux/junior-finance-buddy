@@ -88,7 +88,7 @@ function LoginPage() {
             className="mx-auto mb-3 h-16 w-auto"
           />
           <h1 className="text-2xl font-black text-gray-800">Kids in Business</h1>
-          <p className="text-gray-400 text-sm font-semibold">Χρηματοοικονομική παιδεία για παιδιά</p>
+          <p className="text-gray-400 text-sm font-semibold">Χρηματοοικονομική παιδεία για νέους 12–17</p>
         </div>
 
         {/* Form */}

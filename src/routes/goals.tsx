@@ -108,7 +108,7 @@ function GoalsPage() {
           ← Αρχική
         </Link>
         <p className="text-white/70 text-sm font-semibold uppercase tracking-widest mb-1">Αποταμίευση</p>
-        <h1 className="text-white text-3xl font-black mb-4">Οι Στόχοι μου 🎯</h1>
+        <h1 className="text-white text-3xl font-black mb-4">Οι στόχοι μου</h1>
         <div className="bg-white/15 rounded-2xl p-4 flex items-center gap-4">
           <div className="flex-1">
             <p className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-1">Συνολική πρόοδος</p>
@@ -148,9 +148,8 @@ function GoalsPage() {
           </div>
         ) : activeGoals.length === 0 ? (
           <div className="text-center py-10 text-gray-400">
-            <p className="text-4xl mb-2">🌟</p>
-            <p className="font-semibold">Δεν έχεις ακόμα στόχους!</p>
-            <p className="text-sm">Πρόσθεσε έναν για να ξεκινήσεις</p>
+            <p className="font-semibold">Δεν έχεις ακόμα στόχους.</p>
+            <p className="text-sm">Πρόσθεσε έναν για κάτι που θέλεις να αγοράσεις ή να κάνεις.</p>
           </div>
         ) : (
           activeGoals.map((goal, idx) => {
@@ -200,7 +199,7 @@ function GoalsPage() {
 
         {doneGoals.length > 0 && (
           <>
-            <h2 className="font-black text-gray-800 text-lg pt-2">✅ Ολοκληρώθηκαν</h2>
+            <h2 className="font-black text-gray-800 text-lg pt-2">Ολοκληρώθηκαν</h2>
             {doneGoals.map((goal) => (
               <div key={goal.id} className="bg-white rounded-2xl p-4 ring-1 ring-border shadow-sm opacity-70">
                 <div className="flex items-center gap-3">
@@ -219,12 +218,12 @@ function GoalsPage() {
         )}
 
         <div className="rounded-2xl p-5 mt-2" style={{ background: "oklch(0.89 0.11 51 / 0.15)" }}>
-          <p className="font-black text-gray-800 mb-3">💡 Συμβουλές Αποταμίευσης</p>
+          <p className="font-black text-gray-800 mb-3">Συμβουλές αποταμίευσης</p>
           <div className="space-y-2">
             {[
-              { icon: "🎯", tip: "Βάλε συγκεκριμένο στόχο — ξέρεις πού πας!" },
-              { icon: "⏰", tip: "Αποτάμιευε λίγο κάθε μέρα, όχι όλα μαζί." },
-              { icon: "🏆", tip: "Γιόρτασε κάθε μικρή επιτυχία — αξίζει!" },
+              { icon: "🎯", tip: "Βάλε συγκεκριμένο ποσό και ημερομηνία. Ένας ασαφής στόχος σπάνια πετυχαίνει." },
+              { icon: "⏰", tip: "Βάζε ένα μικρό ποσό με τη σειρά, μόλις πάρεις χρήματα, όχι ό,τι περισσέψει." },
+              { icon: "🏆", tip: "Δες την πρόοδό σου κάθε εβδομάδα και άλλαξε το ποσό αν χρειάζεται." },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-2">
                 <span className="text-lg">{item.icon}</span>
@@ -311,7 +310,7 @@ function GoalsPage() {
               className="mb-1 w-full rounded-xl border border-gray-200 px-4 py-3 font-semibold text-gray-800 focus:outline-none"
             />
             {depositAmount && parseInt(depositAmount) > child.coins && (
-              <p className="mb-2 text-xs font-bold text-red-500">Δεν έχεις αρκετά 🪙!</p>
+              <p className="mb-2 text-xs font-bold text-red-500">Δεν έχεις αρκετά κέρματα.</p>
             )}
             <div className="mb-4" />
             <div className="flex gap-3">
