@@ -219,7 +219,7 @@ function WalletPage() {
           <h1 className="text-3xl font-black">Πορτοφόλι</h1>
           {/* The child's virtual card, with the balance */}
           <div className="mt-5 max-w-sm">
-            <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} />
+            <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} level={child.level} />
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm font-bold text-[oklch(0.86_0.1_292)]">

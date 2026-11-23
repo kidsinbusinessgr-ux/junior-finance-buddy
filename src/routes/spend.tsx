@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import spendHero from "@/assets/spend-hero-boy-card.png";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
-import { CARD_COLORS, CARD_PATTERNS, KibCard } from "@/components/kib-card";
-import { useChild, useCurrentUser } from "@/hooks/useJFB";
+import { CARD_COLORS, CARD_PATTERNS, CARD_TIERS, KibCard, colorMinLevel, nextTier, tierFor } from "@/components/kib-card";
+import { XP_LEVELS, useChild, useCurrentUser } from "@/hooks/useJFB";
 
 // ── Route ────────────────────────────────────────────────────────────────────
 export const Route = createFileRoute("/spend")({
@@ -52,6 +52,35 @@ const FACTS = [
   },
 ];
 
+// Which card tier the child has, and how far the next one is.
+function TierProgress({ level, xp }: { level: number; xp: number }) {
+  const tier = tierFor(level);
+  const next = nextTier(level);
+  const needXp = next ? XP_LEVELS[next.minLevel - 1] : 0;
+  const fromXp = XP_LEVELS[tier.minLevel - 1];
+  const pct = next ? Math.min(100, Math.max(0, Math.round(((xp - fromXp) / (needXp - fromXp)) * 100))) : 100;
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-black">Η κάρτα σου: {tier.label}</span>
+        <span className="text-muted-foreground">{CARD_TIERS.map((t) => t.label).join(" → ")}</span>
+      </div>
+      {next ? (
+        <>
+          <div className="mt-3 h-2 rounded-full bg-muted">
+            <div className="h-2 rounded-full bg-[oklch(0.57_0.23_292)]" style={{ width: `${pct}%` }} />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Σου λείπουν {Math.max(0, needXp - xp)} XP για την κάρτα {next.label} (επίπεδο {next.minLevel}). Κερδίζεις XP από τα μαθήματα.
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 text-xs text-muted-foreground">Έφτασες στην κορυφαία κάρτα.</p>
+      )}
+    </div>
+  );
+}
+
 // ── SpendPage ────────────────────────────────────────────────────────────────
 function SpendPage() {
   const { userId } = useCurrentUser();
@@ -82,7 +111,7 @@ function SpendPage() {
       .eq("id", child.id);
     setSaving(false);
     if (err) {
-      setError("Δεν αποθηκεύτηκε. Δοκίμασε ξανά.");
+      setError(err.message.includes("card_color_locked") ? "Αυτό το χρώμα ξεκλειδώνει σε μεγαλύτερο επίπεδο." : "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.");
       return;
     }
     setSaved(true);
@@ -142,7 +171,8 @@ function SpendPage() {
 
           <div className="mx-auto mt-12 grid max-w-4xl gap-8 lg:grid-cols-2">
             <div className="flex flex-col gap-4">
-              <KibCard color={color} pattern={pattern} name={child?.name ?? ""} coins={child ? child.coins : null} />
+              <KibCard color={color} pattern={pattern} name={child?.name ?? ""} coins={child ? child.coins : null} level={child?.level ?? 1} />
+              {child && <TierProgress level={child.level} xp={child.xp} />}
               {child ? (
                 <>
                   <Button
@@ -190,19 +220,33 @@ function SpendPage() {
 
               {tab === "color" ? (
                 <div className="grid grid-cols-4 gap-3">
-                  {CARD_COLORS.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => pick(() => setColor(c.id))}
-                      className="flex flex-col items-center gap-1.5"
-                    >
-                      <span
-                        className={`aspect-[1.586] w-full rounded-lg transition-all ${color === c.id ? "ring-4 ring-[oklch(0.57_0.23_292)] ring-offset-2" : "hover:scale-105"}`}
-                        style={{ background: c.bg }}
-                      />
-                      <span className="text-xs font-semibold text-muted-foreground">{c.label}</span>
-                    </button>
-                  ))}
+                  {CARD_COLORS.map((c) => {
+                    const need = colorMinLevel(c.id);
+                    const locked = (child?.level ?? 1) < need;
+                    return (
+                      <button
+                        key={c.id}
+                        disabled={locked}
+                        onClick={() => pick(() => setColor(c.id))}
+                        title={locked ? `Ξεκλειδώνει στο επίπεδο ${need} (${tierFor(need).label})` : c.label}
+                        className="flex flex-col items-center gap-1.5 disabled:cursor-not-allowed"
+                      >
+                        <span
+                          className={`relative flex aspect-[1.586] w-full items-center justify-center rounded-lg transition-all ${color === c.id ? "ring-4 ring-[oklch(0.57_0.23_292)] ring-offset-2" : locked ? "" : "hover:scale-105"}`}
+                          style={{ background: c.bg }}
+                        >
+                          {locked && (
+                            <span className="flex h-full w-full items-center justify-center rounded-lg bg-black/45 text-white">
+                              <Lock className="h-4 w-4" />
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          {locked ? `Επίπεδο ${need}` : c.label}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="grid grid-cols-3 gap-3">

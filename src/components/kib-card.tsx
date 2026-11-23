@@ -12,7 +12,34 @@ export const CARD_COLORS = [
   { id: "sunset", label: "Ηλιοβασίλεμα", bg: "linear-gradient(135deg,#c2410c,#f59e0b)" },
   { id: "rose", label: "Τριανταφυλλί", bg: "linear-gradient(135deg,#9f1239,#f43f5e)" },
   { id: "sand", label: "Άμμος", bg: "linear-gradient(135deg,#78716c,#d6c5a8)" },
+  // Tier colours: unlocked by level (checked on the server too).
+  { id: "silver", label: "Ασημί", bg: "linear-gradient(135deg,#4b5563,#9ca3af 45%,#e5e7eb 55%,#6b7280)", minLevel: 2 },
+  { id: "gold", label: "Χρυσό", bg: "linear-gradient(135deg,#854d0e,#ca8a04 45%,#fde68a 55%,#a16207)", minLevel: 4 },
+  { id: "black", label: "Μαύρο", bg: "linear-gradient(135deg,#000000,#1c1c1c 60%,#3f3f46)", minLevel: 6 },
 ] as const;
+
+// The card goes up with the child's level.
+export const CARD_TIERS = [
+  { id: "classic", label: "Classic", minLevel: 1 },
+  { id: "silver", label: "Silver", minLevel: 2 },
+  { id: "gold", label: "Gold", minLevel: 4 },
+  { id: "black", label: "Black", minLevel: 6 },
+] as const;
+
+export function tierFor(level: number) {
+  let t: (typeof CARD_TIERS)[number] = CARD_TIERS[0];
+  for (const x of CARD_TIERS) if (level >= x.minLevel) t = x;
+  return t;
+}
+
+export function nextTier(level: number) {
+  return CARD_TIERS.find((x) => x.minLevel > level) ?? null;
+}
+
+export const colorMinLevel = (id: string) => {
+  const c = CARD_COLORS.find((x) => x.id === id);
+  return c && "minLevel" in c ? c.minLevel : 1;
+};
 
 export const CARD_PATTERNS = [
   { id: "none", label: "Λιτό", css: "none" },
@@ -54,24 +81,29 @@ export function KibCard({
   pattern,
   name,
   coins,
+  level,
   compact = false,
 }: {
   color: string;
   pattern: string;
   name: string;
   coins: number | null;
+  level?: number;
   compact?: boolean;
 }) {
+  const tier = level ? tierFor(level) : null;
   const bg = patternCss(pattern) === "none" ? colorBg(color) : `${patternCss(pattern)},${colorBg(color)}`;
   return (
     <div
-      className={`relative aspect-[1.586] w-full select-none overflow-hidden rounded-2xl text-white shadow-xl ${compact ? "p-4" : "p-5 sm:p-6"}`}
+      className={`relative aspect-[1.586] w-full select-none overflow-hidden rounded-2xl text-white shadow-xl [text-shadow:0_1px_2px_rgba(0,0,0,.35)] ${compact ? "p-4" : "p-5 sm:p-6"}`}
       style={{ background: bg }}
     >
       <div className="flex h-full flex-col justify-between">
         <div className="flex items-start justify-between">
           <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-90">Kids in Business</span>
-          <span className="rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Εικονική</span>
+          <span className="rounded-md bg-black/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+            {tier ? `${tier.label} · ` : ""}Εικονική
+          </span>
         </div>
         {/* Chip */}
         <div className="h-7 w-10 rounded-md bg-gradient-to-br from-[#f5d77a] to-[#b8902e] opacity-90 shadow-inner" />

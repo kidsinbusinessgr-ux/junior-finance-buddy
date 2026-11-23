@@ -57,7 +57,7 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
       <div className="grid gap-5 sm:grid-cols-[220px_1fr]">
-        <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} compact />
+        <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} level={child.level} compact />
         <div className="space-y-3">
           <button
             disabled={busy}
