@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PASSWORD_HINT, authErrorMessage, passwordProblem } from "@/lib/password-rules";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
@@ -29,8 +30,9 @@ function ResetPasswordPage() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 8) {
-      setError("Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες.");
+    const problem = passwordProblem(password);
+    if (problem) {
+      setError(problem);
       return;
     }
     if (password !== confirm) {
@@ -43,7 +45,7 @@ function ResetPasswordPage() {
     setLoading(false);
 
     if (updateError) {
-      setError("Κάτι πήγε στραβά. Δοκίμασε ξανά.");
+      setError(authErrorMessage(updateError));
       return;
     }
 
@@ -100,6 +102,7 @@ function ResetPasswordPage() {
                     minLength={8}
                     className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none"
                   />
+                  <p className="mt-1.5 text-xs font-semibold text-gray-400">{PASSWORD_HINT}</p>
                 </div>
                 <div>
                   <label className="text-sm font-bold text-gray-600 block mb-1">Επανάληψη κωδικού</label>

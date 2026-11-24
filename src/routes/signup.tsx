@@ -4,6 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { PASSWORD_HINT, authErrorMessage, passwordProblem } from "@/lib/password-rules";
 import { Button } from "@/components/ui/button";
 import { checkInviteCode, claimInviteCode } from "@/hooks/useJFB";
 import logo from "@/assets/logo-kidsinbusiness_1.png";
@@ -98,7 +99,7 @@ function ParentSignup() {
     e.preventDefault();
     setError("");
     if (!consent) { setError("Για να συνεχίσεις, επιβεβαίωσε ότι είσαι γονιός ή κηδεμόνας και ότι συμφωνείς με την Πολιτική Απορρήτου."); return; }
-    if (password.length < 8) { setError("Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες."); return; }
+    { const problem = passwordProblem(password); if (problem) { setError(problem); return; } }
     if (password !== confirm) { setError("Οι κωδικοί δεν ταιριάζουν."); return; }
     setLoading(true);
     const { error: authError } = await supabase.auth.signUp({
@@ -115,7 +116,7 @@ function ParentSignup() {
         },
       },
     });
-    if (authError) { setError(authError.message); setLoading(false); return; }
+    if (authError) { setError(authErrorMessage(authError)); setLoading(false); return; }
     setConfirmationEmail(email);
     setLoading(false);
   }
@@ -154,11 +155,12 @@ function ParentSignup() {
         <div>
           <label className="text-sm font-bold text-gray-600 block mb-1">Κωδικός</label>
           <div className="relative">
-            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Τουλάχιστον 8 χαρακτήρες" required className="w-full rounded-xl px-4 py-3 pr-12 border border-gray-200 font-semibold text-gray-800 focus:outline-none" />
+            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Τουλάχιστον 8 χαρακτήρες" title={PASSWORD_HINT} required className="w-full rounded-xl px-4 py-3 pr-12 border border-gray-200 font-semibold text-gray-800 focus:outline-none" />
             <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+          <p className="mt-1.5 text-xs font-semibold text-gray-400">{PASSWORD_HINT}</p>
         </div>
         <div>
           <label className="text-sm font-bold text-gray-600 block mb-1">Επιβεβαίωση κωδικού</label>
@@ -223,7 +225,7 @@ function ChildSignup() {
   async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (password.length < 8) { setError("Κωδικός τουλάχιστον 8 χαρακτήρες."); return; }
+    { const problem = passwordProblem(password); if (problem) { setError(problem); return; } }
     if (password !== confirm) { setError("Οι κωδικοί δεν ταιριάζουν."); return; }
     if (!email.includes("@")) { setError("Χρειάζεσαι ένα έγκυρο email."); return; }
     setLoading(true);
@@ -240,7 +242,7 @@ function ChildSignup() {
     });
 
     if (authError || !authData.user) {
-      setError(authError?.message ?? "Σφάλμα δημιουργίας λογαριασμού.");
+      setError(authError ? authErrorMessage(authError) : "Σφάλμα δημιουργίας λογαριασμού.");
       setLoading(false);
       return;
     }
@@ -318,11 +320,12 @@ function ChildSignup() {
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-1">Κωδικός</label>
               <div className="relative">
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Τουλάχιστον 8 χαρακτήρες" required className="w-full rounded-xl px-4 py-3 pr-12 border border-gray-200 font-semibold text-gray-800 focus:outline-none" />
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Τουλάχιστον 8 χαρακτήρες" title={PASSWORD_HINT} required className="w-full rounded-xl px-4 py-3 pr-12 border border-gray-200 font-semibold text-gray-800 focus:outline-none" />
                 <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              <p className="mt-1.5 text-xs font-semibold text-gray-400">{PASSWORD_HINT}</p>
             </div>
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-1">Επιβεβαίωση</label>
