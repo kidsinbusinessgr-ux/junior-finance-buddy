@@ -4,5 +4,13 @@
       "path": "/api/cron/news-push",
       "schedule": "0 9 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/((?!api/).*)",
+      "has": [{ "type": "host", "value": "junior-finance-buddy.vercel.app" }],
+      "destination": "https://buddy.kidsinbusiness.gr/$1",
+      "permanent": true
+    }
   ]
 }
