@@ -1154,31 +1154,43 @@ export type Database = {
           child_id: string
           completed: boolean
           created_at: string | null
+          deadline: string | null
           emoji: string | null
           id: string
           name: string
+          reflection: string | null
           saved_coins: number
           target_coins: number
+          weekly_coins: number | null
+          why: string | null
         }
         Insert: {
           child_id: string
           completed?: boolean
           created_at?: string | null
+          deadline?: string | null
           emoji?: string | null
           id?: string
           name: string
+          reflection?: string | null
           saved_coins?: number
           target_coins: number
+          weekly_coins?: number | null
+          why?: string | null
         }
         Update: {
           child_id?: string
           completed?: boolean
           created_at?: string | null
+          deadline?: string | null
           emoji?: string | null
           id?: string
           name?: string
+          reflection?: string | null
           saved_coins?: number
           target_coins?: number
+          weekly_coins?: number | null
+          why?: string | null
         }
         Relationships: [
           {

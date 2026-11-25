@@ -275,18 +275,30 @@ export function useSavingsGoals(childId: string | null | undefined) {
   return { goals, loading, refetch: fetch };
 }
 
+export type SmartGoalExtras = { why?: string | null; weeklyCoins?: number | null; deadline?: string | null };
+
 export async function createSavingsGoal(
   childId: string,
   name: string,
   emoji: string,
-  targetCoins: number
+  targetCoins: number,
+  extras: SmartGoalExtras = {},
 ): Promise<void> {
-  await supabase.from("jfb_savings_goals").insert({
+  const { error } = await supabase.from("jfb_savings_goals").insert({
     child_id: childId,
     name,
     emoji,
     target_coins: targetCoins,
+    why: extras.why ?? null,
+    weekly_coins: extras.weeklyCoins ?? null,
+    deadline: extras.deadline ?? null,
   });
+  if (error) throw error;
+}
+
+export async function saveGoalReflection(goalId: string, reflection: string): Promise<void> {
+  const { error } = await supabase.from("jfb_savings_goals").update({ reflection }).eq("id", goalId);
+  if (error) throw error;
 }
 
 export async function depositToGoal(goalId: string, amount: number): Promise<void> {

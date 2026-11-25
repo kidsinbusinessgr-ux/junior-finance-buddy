@@ -1,17 +1,18 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { HeroArt } from "@/components/hero-art";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
-import { useCurrentUser } from "@/hooks/useJFB";
+import { GoalCardBuilder, SmartLesson, eurosToCoins, planFor, type GoalDraft } from "@/components/smart-goals";
+import { createSavingsGoal, useChild, useCurrentUser } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/save")({
   head: () => ({
     meta: [
       { title: "Αποταμίευσε — Kids in Business" },
-      { name: "description", content: "Βοήθησε το παιδί σου να χτίσει την αποταμιευτική συνήθεια με στόχους και πρόοδο." },
+      { name: "description", content: "Μάθε να βάζεις στόχους S.M.A.R.T. και γράψε τη δική σου κάρτα στόχου." },
       { property: "og:title", content: "Αποταμίευσε — Kids in Business" },
-      { property: "og:description", content: "Βοήθησε το παιδί σου να χτίσει την αποταμιευτική συνήθεια με στόχους και πρόοδο." },
+      { property: "og:description", content: "Μάθε να βάζεις στόχους S.M.A.R.T. και γράψε τη δική σου κάρτα στόχου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -19,15 +20,31 @@ export const Route = createFileRoute("/save")({
   component: SavePage,
 });
 
-const GOAL_TARGET = 48;
-const GOAL_SAVED = 21;
-
 function SavePage() {
-  const [weeklyAmount, setWeeklyAmount] = useState(3);
+  const navigate = useNavigate();
   const { userId } = useCurrentUser();
+  const { child } = useChild();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
-  const weeksNeeded = Math.ceil((GOAL_TARGET - GOAL_SAVED) / weeklyAmount);
-  const progressPct = Math.round((GOAL_SAVED / GOAL_TARGET) * 100);
+  async function saveToGoals(d: GoalDraft) {
+    if (!child) return;
+    const p = planFor(d);
+    setSaving(true);
+    setSaveError("");
+    try {
+      await createSavingsGoal(child.id, d.what.trim(), "🎯", eurosToCoins(p.price), {
+        why: d.why.trim(),
+        weeklyCoins: eurosToCoins(p.weekly),
+        deadline: d.deadline,
+      });
+      navigate({ to: "/goals" });
+    } catch {
+      setSaveError("Δεν αποθηκεύτηκε. Δοκίμασε ξανά.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-background">
@@ -40,109 +57,67 @@ function SavePage() {
             <div className="max-w-xl">
               <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Αποταμίευση</p>
               <h1 className="text-5xl font-black leading-tight sm:text-6xl">Φέρε τους στόχους πιο κοντά.</h1>
-              <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Τα παιδιά μαθαίνουν να αποταμιεύουν θέτοντας πραγματικούς στόχους και παρακολουθώντας την πρόοδό τους κάθε εβδομάδα.</p>
-              {userId ? (
-                <Link to="/goals">
-                  <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Οι στόχοι μου →</Button>
-                </Link>
-              ) : (
-                <Link to="/signup">
-                  <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
-                </Link>
-              )}
+              <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">
+                Μάθε να βάζεις στόχους που πετυχαίνουν: συγκεκριμένους, μετρήσιμους, με σχέδιο και ημερομηνία. Μετά γράψε τη δική σου
+                κάρτα στόχου.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="#karta">
+                  <Button className="h-14 rounded-full bg-white px-8 text-base text-[oklch(0.4_0.2_292)] hover:bg-white/90">Γράψε την κάρτα σου ↓</Button>
+                </a>
+                {userId ? (
+                  <Link to="/goals">
+                    <Button className="h-14 rounded-full bg-primary px-8 text-base text-primary-foreground hover:bg-primary/90">Οι στόχοι μου →</Button>
+                  </Link>
+                ) : (
+                  <Link to="/signup">
+                    <Button className="h-14 rounded-full bg-primary px-8 text-base text-primary-foreground hover:bg-primary/90">Ξεκίνα δωρεάν</Button>
+                  </Link>
+                )}
+              </div>
             </div>
             <HeroArt variant="save" />
           </div>
         </div>
       </section>
 
-      {/* Savings goal demo */}
-      <section className="px-6 py-20 lg:px-16">
-        <div className="mx-auto max-w-5xl">
-          <div className="mx-auto max-w-xl text-center">
-            <p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Ο στόχος της Σοφίας</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Πατίνια</h2>
-            <p className="mt-4 text-lg text-muted-foreground">Χρησιμοποίησε το slider για να δεις πόσο γρήγορα φτάνεις τον στόχο.</p>
-          </div>
-
-          <div className="mx-auto mt-10 max-w-md rounded-2xl bg-card p-7 shadow-lg">
-            {/* Progress bar */}
-            <div className="mb-6">
-              <div className="mb-2 flex justify-between text-sm font-semibold">
-                <span>Εξοικονομήθηκαν: <strong>€{GOAL_SAVED}</strong></span>
-                <span>Στόχος: <strong>€{GOAL_TARGET}</strong></span>
-              </div>
-              <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-[oklch(0.57_0.23_292)] transition-all"
-                  style={{ width: `${progressPct}%` }}
-                />
-              </div>
-              <p className="mt-1 text-right text-sm text-muted-foreground">{progressPct}% ολοκληρώθηκε</p>
-            </div>
-
-            {/* Slider */}
-            <label className="block">
-              <span className="text-sm font-semibold text-muted-foreground">Εβδομαδιαία αποταμίευση: <strong className="text-foreground">€{weeklyAmount}</strong></span>
-              <input
-                type="range"
-                min={1}
-                max={10}
-                step={0.5}
-                value={weeklyAmount}
-                onChange={(e) => setWeeklyAmount(parseFloat(e.target.value))}
-                className="mt-3 w-full accent-[oklch(0.57_0.23_292)]"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>€1</span><span>€10</span>
-              </div>
-            </label>
-
-            {/* Result */}
-            <div className="mt-6 rounded-xl bg-[oklch(0.57_0.23_292)] px-5 py-4 text-center text-primary-foreground">
-              <p className="text-sm opacity-80">Θα φτάσεις τον στόχο σου σε</p>
-              <p className="mt-1 text-3xl font-black">{weeksNeeded} εβδομάδες</p>
-              <p className="text-sm opacity-80">αποταμιεύοντας €{weeklyAmount}/εβδ.</p>
-            </div>
-          </div>
-        </div>
+      {/* Lesson */}
+      <section className="bg-[oklch(0.985_0.015_91)] px-6 py-20 lg:px-16">
+        <SmartLesson />
       </section>
 
-      {/* Habit cards */}
-      <section className="bg-[oklch(0.985_0.015_91)] px-6 py-20 lg:px-16">
+      {/* Goal card */}
+      <section id="karta" className="scroll-mt-6 px-6 py-20 lg:px-16">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center">
-            <p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Μια συνήθεια που μεγαλώνει</p>
-            <h2 className="mt-4 text-4xl font-black sm:text-5xl">Μικρά ποσά. Μεγάλα αποτελέσματα.</h2>
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Η σειρά σου</p>
+            <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Η κάρτα στόχου σου</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Γράψε έναν στόχο και δες τα γράμματα S.M.A.R.T. να συμπληρώνονται. Για τα χρήματα γράψε πραγματικές τιμές σε ευρώ,
+              και η κάρτα υπολογίζει πότε θα τον φτάσεις.
+              {child ? " Τους οικονομικούς στόχους μπορείς να τους στείλεις κατευθείαν στους στόχους σου." : " Μπορείς να την εκτυπώσεις και να την κολλήσεις κάπου που τη βλέπεις."}
+            </p>
           </div>
-          <div className="mt-12 grid gap-6 sm:grid-cols-3">
-            {[
-              ["Θέσε στόχο", "Από παιχνίδια μέχρι ταξίδια — κάθε όνειρο αρχίζει με έναν στόχο."],
-              ["Παρακολούθησε την πρόοδο", "Μια οπτική γραμμή προόδου κρατά τα παιδιά κινητοποιημένα κάθε μέρα."],
-              ["Γιόρτασε τη νίκη", "Όταν φτάνεις τον στόχο, βάλε τον επόμενο."],
-            ].map(([title, copy]) => (
-              <div key={title as string} className="rounded-xl bg-card p-6 shadow-sm">
-                <h3 className="text-xl font-black">{title as string}</h3>
-                <p className="mt-3 leading-relaxed text-muted-foreground">{copy as string}</p>
-              </div>
-            ))}
-          </div>
+          <GoalCardBuilder mode="lesson" onSave={child ? saveToGoals : undefined} saving={saving} />
+          {saveError && <p className="mt-3 text-sm font-bold text-red-600">{saveError}</p>}
         </div>
       </section>
 
       {/* CTA, for visitors only */}
       {!userId && (
-      <section className="bg-background px-6 py-20 text-center">
-        <div className="mx-auto max-w-xl">
-          <h2 className="text-4xl font-black sm:text-5xl">Θέσε τον πρώτο στόχο.</h2>
-          <p className="mt-4 text-lg text-muted-foreground">Εγγράψου δωρεάν και βοήθησε το παιδί σου να φτάσει τους στόχους του.</p>
-          <Link to="/signup">
-            <Button className="mt-8 h-14 rounded-full px-10 text-base">Εγγραφή δωρεάν</Button>
-          </Link>
-        </div>
-      </section>
+        <section className="bg-background px-6 pb-20 text-center">
+          <div className="mx-auto max-w-xl">
+            <h2 className="text-4xl font-black sm:text-5xl">Κράτα τους στόχους σου σε ένα μέρος.</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Στην εφαρμογή βάζεις χρήματα στην άκρη για κάθε στόχο και βλέπεις κάθε εβδομάδα αν είσαι εντός πλάνου. Την εγγραφή την κάνει ο
+              γονιός.
+            </p>
+            <Link to="/signup">
+              <Button className="mt-8 h-14 rounded-full px-10 text-base">Εγγραφή δωρεάν</Button>
+            </Link>
+          </div>
+        </section>
       )}
     </main>
   );
 }
-
