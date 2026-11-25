@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { claimPendingInvite } from "@/hooks/useJFB";
+import { studentEmail } from "@/lib/classes.functions";
 import logo from "@/assets/logo-kidsinbusiness_1.png";
 
 export const Route = createFileRoute("/login")({
@@ -27,9 +28,12 @@ function LoginPage() {
     setError("");
     setLoading(true);
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    // Students of a class sign in with their username (no email).
+    const id = email.trim();
+    const loginEmail = id.includes("@") ? id : studentEmail(id);
+    const { error: authError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
     if (authError) {
-      setError("Λάθος email ή κωδικός. Δοκίμασε ξανά.");
+      setError("Λάθος στοιχεία ή κωδικός. Δοκίμασε ξανά.");
       setLoading(false);
       return;
     }
@@ -54,12 +58,12 @@ function LoginPage() {
 
     const { data: parent } = await supabase
       .from("jfb_parents")
-      .select("id")
+      .select("id, role")
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (parent) {
-      navigate({ to: "/parent-dashboard" });
+      navigate({ to: parent.role === "teacher" ? "/teacher" : "/parent-dashboard" });
       return;
     }
 
@@ -103,12 +107,15 @@ function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-sm font-bold text-gray-600 block mb-1">Email</label>
+              <label className="text-sm font-bold text-gray-600 block mb-1">Email ή όνομα χρήστη</label>
               <input
-                type="email"
+                type="text"
+                inputMode="email"
+                autoCapitalize="none"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="you@example.com ή maria.k"
                 required
                 className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none focus:ring-2"
               />

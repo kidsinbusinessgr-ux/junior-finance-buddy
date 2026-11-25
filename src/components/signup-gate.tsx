@@ -15,7 +15,7 @@ export function SignupCta({ title, text }: { title: string; text?: string }) {
       </div>
       <p className="mt-3 text-xl font-black">{title}</p>
       <p className="mt-2 text-sm text-muted-foreground">
-        {text ?? "Η εγγραφή είναι δωρεάν. Την κάνει ένας γονιός, και μετά μπαίνεις με τον δικό σου λογαριασμό."}
+        {text ?? "Η εγγραφή είναι δωρεάν. Την κάνει ένας γονιός ή μπαίνεις με τον κωδικό της τάξης σου από τον εκπαιδευτικό σου."}
       </p>
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
         <Link

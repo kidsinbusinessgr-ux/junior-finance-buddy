@@ -8,6 +8,7 @@ import { PASSWORD_HINT, authErrorMessage, passwordProblem } from "@/lib/password
 import { Button } from "@/components/ui/button";
 import { checkInviteCode, claimInviteCode } from "@/hooks/useJFB";
 import logo from "@/assets/logo-kidsinbusiness_1.png";
+import { StudentJoin, TeacherSignup } from "@/components/school-signup";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -24,7 +25,8 @@ export const Route = createFileRoute("/signup")({
 });
 
 function SignupPage() {
-  const [tab, setTab] = useState<"parent" | "child">("parent");
+  const [tab, setTab] = useState<"parent" | "child" | "school">("parent");
+  const [schoolRole, setSchoolRole] = useState<"student" | "teacher">("student");
 
   return (
     <div
@@ -67,9 +69,32 @@ function SignupPage() {
           >
             🎒 Παιδί
           </button>
+          <button
+            onClick={() => setTab("school")}
+            className={`flex-1 py-2 rounded-xl text-sm font-black transition-all ${
+              tab === "school"
+                ? "bg-white shadow text-gray-800"
+                : "text-gray-400"
+            }`}
+          >
+            🏫 Σχολείο
+          </button>
         </div>
 
-        {tab === "parent" ? <ParentSignup /> : <ChildSignup />}
+        {tab === "school" && (
+          <div className="mb-4 grid grid-cols-2 gap-2 text-sm font-bold">
+            {([["student", "🎒 Είμαι μαθητής"], ["teacher", "👩‍🏫 Είμαι εκπαιδευτικός"]] as const).map(([k, label]) => (
+              <button
+                key={k}
+                onClick={() => setSchoolRole(k)}
+                className={`rounded-xl border-2 py-2 ${schoolRole === k ? "border-purple-400 bg-white text-gray-800" : "border-transparent text-gray-400"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        {tab === "parent" ? <ParentSignup /> : tab === "child" ? <ChildSignup /> : schoolRole === "teacher" ? <TeacherSignup /> : <StudentJoin />}
 
         <p className="text-center text-sm text-gray-400 font-semibold mt-4">
           Έχεις ήδη λογαριασμό;{" "}

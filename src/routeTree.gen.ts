@@ -31,6 +31,7 @@ import { Route as SaveRouteImport } from './routes/save'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SpendRouteImport } from './routes/spend'
 import { Route as StocksRouteImport } from './routes/stocks'
+import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password.'
 import { Route as LearnIndexRouteImport } from './routes/learn.index'
@@ -150,6 +151,11 @@ const StocksRoute = StocksRouteImport.update({
   path: '/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherRoute = TeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
   '/stocks': typeof StocksRoute
+  '/teacher': typeof TeacherRoute
   '/wallet': typeof WalletRoute
   '/forgot-password/': typeof ForgotPasswordRoute
   '/learn/$lessonId': typeof LearnLessonIdRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
   '/stocks': typeof StocksRoute
+  '/teacher': typeof TeacherRoute
   '/wallet': typeof WalletRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/learn/$lessonId': typeof LearnLessonIdRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
   '/stocks': typeof StocksRoute
+  '/teacher': typeof TeacherRoute
   '/wallet': typeof WalletRoute
   '/forgot-password/': typeof ForgotPasswordRoute
   '/learn/$lessonId': typeof LearnLessonIdRoute
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/spend'
     | '/stocks'
+    | '/teacher'
     | '/wallet'
     | '/forgot-password/'
     | '/learn/$lessonId'
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/spend'
     | '/stocks'
+    | '/teacher'
     | '/wallet'
     | '/forgot-password'
     | '/learn/$lessonId'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/spend'
     | '/stocks'
+    | '/teacher'
     | '/wallet'
     | '/forgot-password/'
     | '/learn/$lessonId'
@@ -408,6 +420,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SpendRoute: typeof SpendRoute
   StocksRoute: typeof StocksRoute
+  TeacherRoute: typeof TeacherRoute
   WalletRoute: typeof WalletRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   StartupsIdRoute: typeof StartupsIdRoute
@@ -572,6 +585,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StocksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teacher': {
+      id: '/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof TeacherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wallet': {
       id: '/wallet'
       path: '/wallet'
@@ -666,6 +686,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SpendRoute: SpendRoute,
   StocksRoute: StocksRoute,
+  TeacherRoute: TeacherRoute,
   WalletRoute: WalletRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   StartupsIdRoute: StartupsIdRoute,

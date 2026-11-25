@@ -12,6 +12,7 @@ import {
 } from "@/hooks/useJFB";
 import { ParentCardControls, ParentRewards } from "@/components/parent-card-controls";
 import { BusinessGuide } from "@/components/business-guide";
+import { TeacherLink } from "@/components/teacher-onboarding";
 
 export const Route = createFileRoute("/parent-dashboard")({
   component: ParentDashboard,
@@ -112,6 +113,8 @@ function ParentDashboard() {
       </div>
 
       {/* Children overview */}
+      <TeacherLink />
+
       <section className="mb-6">
         <h2 className="mb-3 text-lg font-semibold text-[oklch(0.35_0.08_250)]">
           Τα παιδιά μου

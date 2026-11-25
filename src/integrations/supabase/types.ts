@@ -776,6 +776,8 @@ export type Database = {
           current_streak: number
           id: string
           invite_code: string
+          class_id: string | null
+          username: string | null
           last_login_date: string | null
           level: number
           name: string
@@ -796,6 +798,8 @@ export type Database = {
           current_streak?: number
           id?: string
           invite_code: string
+          class_id: string | null
+          username: string | null
           last_login_date?: string | null
           level?: number
           name: string
@@ -816,6 +820,8 @@ export type Database = {
           current_streak?: number
           id?: string
           invite_code?: string
+          class_id?: string | null
+          username?: string | null
           last_login_date?: string | null
           level?: number
           name?: string
@@ -1035,19 +1041,49 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          role: string
+          school: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           name: string
+          role?: string
+          school?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
+          role?: string
+          school?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      jfb_classes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          name: string
+          teacher_id: string
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          id?: string
+          name: string
+          teacher_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          teacher_id?: string
         }
         Relationships: []
       }

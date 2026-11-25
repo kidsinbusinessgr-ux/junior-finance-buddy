@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { createParentProfile, addFirstChild } from "@/hooks/useJFB";
+import { TeacherOnboarding } from "@/components/teacher-onboarding";
 
 export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
@@ -25,6 +26,11 @@ function Onboarding() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Teachers (signed up from the «Σχολείο» tab) make a class instead of adding a child.
+  const [isTeacher, setIsTeacher] = useState(false);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setIsTeacher(user?.user_metadata?.role === "teacher"));
+  }, []);
 
   async function handleStep1() {
     if (!parentName.trim()) return;
@@ -55,6 +61,14 @@ function Onboarding() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isTeacher) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[oklch(0.97_0.01_250)] px-6">
+        <TeacherOnboarding />
+      </div>
+    );
   }
 
   return (
