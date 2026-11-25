@@ -86,16 +86,16 @@ const SMART = [
     question: "Πώς μπορείς να τον πετύχεις;",
     explain: "Γράψε το σχέδιο: πόσα βάζεις στην άκρη κάθε εβδομάδα και από πού έρχονται (χαρτζιλίκι, δουλειές, μια μικρή επιχείρηση). Αν δε βγαίνει, άλλαξε το ποσό ή την ημερομηνία.",
     bad: "Θα δούμε.",
-    good: "Βάζω €6 τη βδομάδα: €4 από το χαρτζιλίκι και €2 από το πλύσιμο του αυτοκινήτου.",
+    good: "Βάζω €6 την εβδομάδα: €4 από το χαρτζιλίκι και €2 από το πλύσιμο του αυτοκινήτου.",
   },
   {
     letter: "R",
     en: "Relevant",
     el: "Σχετικός",
     question: "Γιατί είναι σημαντικός αυτός ο στόχος για σένα;",
-    explain: "Ένας στόχος που σε νοιάζει πραγματικά σε κρατάει όταν βαριέσαι ή όταν σε τραβάει μια άλλη αγορά.",
+    explain: "Όταν ένας στόχος σε ενδιαφέρει πραγματικά, συνεχίζεις να αποταμιεύεις ακόμα κι όταν βαριέσαι ή όταν θέλεις να ξοδέψεις τα χρήματα σε κάτι άλλο.",
     bad: "Επειδή τα έχουν όλοι.",
-    good: "Τρέχω 3 φορές τη βδομάδα και τα ενσύρματα με μπερδεύουν.",
+    good: "Τρέχω τρεις φορές την εβδομάδα και τα καλώδια των ενσύρματων ακουστικών μπερδεύονται.",
   },
   {
     letter: "T",
@@ -116,7 +116,7 @@ const QUIZ = [
     explain: "Ο δεύτερος έχει ποσό, σχέδιο και ημερομηνία. Ο πρώτος είναι μια καλή πρόθεση, αλλά δεν ξέρεις πότε τον πέτυχες.",
   },
   {
-    q: "Θέλεις laptop €600 σε 4 εβδομάδες, και μπορείς να βάζεις €10 τη βδομάδα. Τι λείπει;",
+    q: "Θέλεις laptop €600 σε 4 εβδομάδες και μπορείς να βάζεις €10 την εβδομάδα. Τι λείπει;",
     options: ["Το «Εφικτός»: με αυτό το πλάνο θα μαζέψεις μόνο €40.", "Τίποτα, είναι τέλειος."],
     correct: 0,
     explain: "€10 × 4 = €40. Ή μεγαλώνεις την προθεσμία (60 εβδομάδες), ή βρίσκεις κι άλλα έσοδα, ή διαλέγεις φθηνότερο μοντέλο.",
@@ -165,11 +165,11 @@ export function SmartLesson() {
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl bg-[oklch(0.96_0.03_25)] p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-[oklch(0.5_0.15_25)]">Αόριστο</p>
-            <p className="mt-1 font-semibold">«{s.bad}»</p>
+            <p className="mt-1 font-semibold">«{s.bad.replace(/.$/, "")}».</p>
           </div>
           <div className="rounded-xl bg-[oklch(0.96_0.04_160)] p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-[oklch(0.45_0.13_160)]">SMART</p>
-            <p className="mt-1 font-semibold">«{s.good}»</p>
+            <p className="mt-1 font-semibold">«{s.good.replace(/.$/, "")}».</p>
           </div>
         </div>
         <div className="mt-5 flex justify-between text-sm font-bold">
@@ -222,7 +222,7 @@ export function SmartLesson() {
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["Διάλεξε 3–5 στόχους", "Λίγοι και σημαντικοί στόχοι πετυχαίνουν· δέκα στόχοι μαζί σκορπίζουν τα χρήματα και τη διάθεσή σου. Βάλε οικονομικούς και προσωπικούς."],
-          ["Σπάσε τον μεγάλο στόχο", "Laptop €600; Είναι €15 τη βδομάδα για 40 εβδομάδες. Είτε πρόκειται για €10 είτε για €100, κάθε βήμα χτίζει δυναμική."],
+          ["Σπάσε τον μεγάλο στόχο", "Laptop €600; Είναι €15 την εβδομάδα για 40 εβδομάδες. Είτε πρόκειται για €10 είτε για €100, κάθε βήμα χτίζει δυναμική."],
           ["Αν θέλει χρήματα, κέρδισέ τα", "Κάποιοι στόχοι θέλουν περισσότερα από αποταμίευση. Εκεί μπαίνουν οι δουλειές και η δική σου μικρή επιχείρηση."],
           ["Γιόρτασε και σκέψου", "Όταν τον πετύχεις, γιόρτασέ το και γράψε τι έμαθες. Αυτό χτίζει αυτοπεποίθηση για τον επόμενο, πιο μεγάλο στόχο."],
         ].map(([title, copy], i) => (
@@ -256,10 +256,10 @@ const EMPTY: GoalDraft = { kind: "money", name: "", what: "", price: "", saved: 
 const DRAFT_KEY = "kib-goal-card";
 
 const EXAMPLES: Partial<GoalDraft>[] = [
-  { kind: "money", what: "Ασύρματα ακουστικά", price: "80", weekly: "6", why: "Τρέχω 3 φορές τη βδομάδα και θέλω κάτι που δεν μπερδεύεται." },
-  { kind: "money", what: "Εισιτήριο για τη συναυλία του καλοκαιριού", price: "45", weekly: "5", why: "Πάμε όλη η παρέα και θέλω να το πληρώσω μόνος/η μου." },
+  { kind: "money", what: "Ασύρματα ακουστικά", price: "80", weekly: "6", why: "Τρέχω τρεις φορές την εβδομάδα και θέλω ακουστικά χωρίς καλώδια." },
+  { kind: "money", what: "Εισιτήριο για τη συναυλία του καλοκαιριού", price: "45", weekly: "5", why: "Πηγαίνει όλη η παρέα και θέλω να το πληρώσω με δικά μου χρήματα." },
   { kind: "money", what: "Ταξίδι με τους φίλους μου μετά τις εξετάσεις", price: "250", weekly: "10", why: "Το πρώτο ταξίδι χωρίς γονείς, που θα το έχω οργανώσει εγώ." },
-  { kind: "personal", what: "Να τρέξω 5 χιλιόμετρα χωρίς στάση", measure: "Χιλιόμετρα κάθε Κυριακή, σε εφαρμογή στο κινητό", how: "3 προπονήσεις τη βδομάδα, +500 μέτρα κάθε εβδομάδα", why: "Θέλω να μπω στην ομάδα στίβου του σχολείου." },
+  { kind: "personal", what: "Να τρέξω 5 χιλιόμετρα χωρίς στάση", measure: "Χιλιόμετρα κάθε Κυριακή, σε εφαρμογή στο κινητό", how: "3 προπονήσεις την εβδομάδα, +500 μέτρα κάθε εβδομάδα", why: "Θέλω να μπω στην ομάδα στίβου του σχολείου." },
 ];
 
 function num(s: string) {
@@ -313,7 +313,7 @@ function printCard(d: GoalDraft) {
     ["Στόχος (Συγκεκριμένος)", d.what],
     d.kind === "money"
       ? ["Πόσο κοστίζει (Μετρήσιμος)", p.price ? `${euro(p.price)}${p.saved ? ` · έχω ήδη ${euro(p.saved)}` : ""}` : ""]
-      : ["Πώς θα μετράω την πρόοδο (Μετρήσιμος)", d.measure],
+      : ["Πώς θα μετρώ την πρόοδο (Μετρήσιμος)", d.measure],
     d.kind === "money"
       ? ["Το σχέδιό μου (Εφικτός)", p.weekly ? `${euro(p.weekly)} κάθε εβδομάδα${p.weeksNeeded ? `, σε ${p.weeksNeeded} εβδομάδες` : ""}` : ""]
       : ["Το σχέδιό μου (Εφικτός)", d.how],
@@ -439,7 +439,7 @@ export function GoalCardBuilder({
                 </div>
                 {mode === "lesson" && (
                   <div>
-                    <p className={label}>Έχεις ήδη μαζέψει; (€)</p>
+                    <p className={label}>Πόσα έχεις ήδη μαζέψει; (€)</p>
                     <input className={field} type="number" inputMode="decimal" min={0} value={d.saved} onChange={set("saved")} placeholder="0" />
                   </div>
                 )}
@@ -457,7 +457,7 @@ export function GoalCardBuilder({
               </div>
               <div>
                 <p className={label}>{tag("A")} Πώς θα τον πετύχεις; Ποια βήματα θα κάνεις;</p>
-                <input className={field} value={d.how} onChange={set("how")} maxLength={100} placeholder="π.χ. 3 προπονήσεις τη βδομάδα" />
+                <input className={field} value={d.how} onChange={set("how")} maxLength={100} placeholder="π.χ. 3 προπονήσεις την εβδομάδα" />
               </div>
             </>
           )}
@@ -494,15 +494,15 @@ export function GoalCardBuilder({
             ) : (
               <>
                 <p className="font-bold">
-                  Με {euro(p.weekly)} τη βδομάδα φτάνεις τα {euro(p.price)} σε {p.weeksNeeded}{" "}
+                  Με {euro(p.weekly)} την εβδομάδα φτάνεις τα {euro(p.price)} σε {p.weeksNeeded}{" "}
                   {p.weeksNeeded === 1 ? "εβδομάδα" : "εβδομάδες"}, γύρω στις {formatDate(p.reachBy as Date)}.
                 </p>
-                {p.weeksNeeded > 104 && <p className="mt-1 text-white/85">Αυτό είναι πάνω από δύο χρόνια. Σπάσ' τον σε μικρότερο στόχο ή βρες κι άλλα έσοδα.</p>}
+                {p.weeksNeeded > 104 && <p className="mt-1 text-white/85">Αυτό είναι πάνω από δύο χρόνια. Χώρισέ τον σε μικρότερους στόχους ή βρες κι άλλα έσοδα.</p>}
                 {p.deadlinePast && <p className="mt-1 text-white/85">Η ημερομηνία που διάλεξες έχει περάσει.</p>}
                 {p.fits === false && p.needWeekly !== null && (
                   <p className="mt-1 text-white/85">
-                    Για να προλάβεις τις {formatDate(d.deadline)} χρειάζεσαι {euro(p.needWeekly)} τη βδομάδα. Αύξησε το ποσό, βρες έξτρα
-                    έσοδα ή μετέθεσε την ημερομηνία.
+                    Για να προλάβεις τις {formatDate(d.deadline)} χρειάζεσαι {euro(p.needWeekly)} την εβδομάδα. Αύξησε το ποσό, βρες έξτρα
+                    έσοδα ή διάλεξε πιο μακρινή ημερομηνία.
                   </p>
                 )}
                 {p.fits === true && <p className="mt-1 text-white/85">Προλαβαίνεις την ημερομηνία σου.</p>}
@@ -547,14 +547,14 @@ export function GoalCardBuilder({
           )}
         </div>
         {onSave && !allDone && (
-          <p className="mt-2 text-xs font-semibold text-gray-400">Συμπλήρωσε και τα πέντε γράμματα S.M.A.R.T. για να το αποθηκεύσεις.</p>
+          <p className="mt-2 text-xs font-semibold text-gray-400">Συμπλήρωσε και τα πέντε γράμματα S.M.A.R.T. για να τον αποθηκεύσεις.</p>
         )}
       </div>
 
       {mode === "lesson" && (
         <aside className="space-y-4">
           <div className="rounded-2xl bg-card p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Πόσο SMART είναι;</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Πόσο SMART είναι ο στόχος σου;</p>
             <ul className="mt-3 space-y-2">
               {SMART.map((s) => (
                 <li key={s.letter} className="flex items-center gap-3 text-sm font-semibold">

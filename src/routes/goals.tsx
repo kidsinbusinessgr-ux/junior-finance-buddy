@@ -186,7 +186,7 @@ function GoalsPage() {
 
         {activeGoals.length >= MAX_SUGGESTED && (
           <p className="rounded-xl bg-[oklch(0.89_0.11_51/0.2)] px-4 py-3 text-sm font-semibold text-gray-700">
-            Έχεις {activeGoals.length} ενεργούς στόχους. Οι περισσότεροι πετυχαίνουν καλύτερα με 3–5 στόχους: ολοκλήρωσε κάποιον πριν βάλεις
+            Έχεις {activeGoals.length} ενεργούς στόχους. Τα καλύτερα αποτελέσματα έρχονται με 3–5 στόχους· ολοκλήρωσε κάποιον πριν βάλεις
             καινούριο.
           </p>
         )}
@@ -240,7 +240,7 @@ function GoalsPage() {
                   <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-bold">
                     {goal.weekly_coins ? (
                       <span className="rounded-lg bg-gray-100 px-2 py-1 text-gray-600">
-                        Πλάνο: {goal.weekly_coins} 🪙 ({euro(coinsToEuros(goal.weekly_coins))}) τη βδομάδα
+                        Πλάνο: {goal.weekly_coins} 🪙 ({euro(coinsToEuros(goal.weekly_coins))}) την εβδομάδα
                       </span>
                     ) : null}
                     {status && (
@@ -374,7 +374,7 @@ function GoalsPage() {
               className="mb-1 w-full rounded-xl border border-gray-200 px-4 py-3 font-semibold text-gray-800 focus:outline-none"
             />
             {depositGoal.weekly_coins ? (
-              <p className="text-xs font-semibold text-gray-400">Το πλάνο σου λέει {depositGoal.weekly_coins} 🪙 τη βδομάδα.</p>
+              <p className="text-xs font-semibold text-gray-400">Σύμφωνα με το πλάνο σου, βάζεις {depositGoal.weekly_coins} 🪙 την εβδομάδα.</p>
             ) : null}
             {depositAmount && parseInt(depositAmount) > child.coins && (
               <p className="mb-2 text-xs font-bold text-red-500">Δεν έχεις αρκετά κέρματα.</p>
@@ -411,7 +411,7 @@ function GoalsPage() {
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
               maxLength={300}
-              placeholder="π.χ. ότι €6 τη βδομάδα φτάνουν, αν τα βάζω στην άκρη μόλις πάρω χαρτζιλίκι"
+              placeholder="π.χ. ότι €6 την εβδομάδα φτάνουν, αν τα βάζω στην άκρη μόλις πάρω χαρτζιλίκι"
               className="mt-1 min-h-[80px] w-full resize-none rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-800 focus:outline-none"
             />
             <div className="mt-4 flex gap-3">
