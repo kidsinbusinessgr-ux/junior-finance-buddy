@@ -110,7 +110,10 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password", "/privacy", "/pricing"];
+// Pages anyone can see without an account. /earn, /save, /spend and /invest
+// explain the app (and /save holds the goal-setting lesson); they show
+// personal data only when someone is signed in.
+const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password", "/privacy", "/pricing", "/earn", "/save", "/spend", "/invest"];
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
