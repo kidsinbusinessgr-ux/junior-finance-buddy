@@ -190,7 +190,7 @@ export default function BuildPage() {
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παράδειγμα:</p>
-              <p className="mt-1 text-muted-foreground">«Οι μαθητές ξεχνούν να φέρουν φαγητό στο σχολείο και αναγκάζονται να αγοράζουν ακριβά και ανθυγιεινά τρόφιμα.»</p>
+              <p className="mt-1 text-muted-foreground">«Οι μαθητές ξεχνούν να φέρουν φαγητό στο σχολείο και αναγκάζονται να αγοράζουν ακριβά και ανθυγιεινά τρόφιμα».</p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold">Περίγραψε το πρόβλημα <span className="text-destructive">*</span></label>
@@ -215,7 +215,7 @@ export default function BuildPage() {
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παράδειγμα:</p>
-              <p className="mt-1 text-muted-foreground">«App που οι γονείς φτιάχνουν το μενού της εβδομάδας και εμείς παραδίνουμε το φαγητό στο σχολείο το πρωί.»</p>
+              <p className="mt-1 text-muted-foreground">«App που οι γονείς φτιάχνουν το μενού της εβδομάδας και εμείς παραδίνουμε το φαγητό στο σχολείο το πρωί».</p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold">Η λύση σου <span className="text-destructive">*</span></label>
@@ -240,7 +240,7 @@ export default function BuildPage() {
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παράδειγμα:</p>
-              <p className="mt-1 text-muted-foreground">«Γονείς 30-45 που δουλεύουν πλήρη ωράριο, έχουν παιδιά σε δημοτικό/γυμνάσιο στην πόλη και δεν έχουν χρόνο να φτιάχνουν φαγητό κάθε μέρα.»</p>
+              <p className="mt-1 text-muted-foreground">«Γονείς 30-45 που δουλεύουν πλήρη ωράριο, έχουν παιδιά σε δημοτικό/γυμνάσιο στην πόλη και δεν έχουν χρόνο να φτιάχνουν φαγητό κάθε μέρα».</p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold">Target customer <span className="text-destructive">*</span></label>

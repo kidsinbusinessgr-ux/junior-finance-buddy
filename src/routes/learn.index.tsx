@@ -21,8 +21,8 @@ export const Route = createFileRoute("/learn/")({
 const MODULE_1 = [
   {
     id: 1,
-    title: "Τι είναι τα χρήματα;",
-    desc: "Από που έρχονται, πού πάνε και γιατί η κατανόησή τους αλλάζει τη ζωή σου.",
+    title: "Γιατί ένα διαμάντι αξίζει περισσότερο από το νερό;",
+    desc: "Τι καθορίζει την τιμή των πραγμάτων, γιατί τα χρήματα χάνουν αξία με τον χρόνο και πώς διαφέρει το Bitcoin από το ευρώ.",
     xp: 100,
     duration: "5 λεπτά",
     unlocked: true,
@@ -31,8 +31,8 @@ const MODULE_1 = [
   },
   {
     id: 2,
-    title: "Ανάγκες vs Επιθυμίες",
-    desc: "Πώς να ξεχωρίζεις τι χρειάζεσαι από αυτό που θέλεις — και γιατί έχει σημασία.",
+    title: "Ανάγκες και επιθυμίες",
+    desc: "Πώς ξεχωρίζεις αυτό που χρειάζεσαι από αυτό που απλώς θέλεις, και γιατί έχει σημασία.",
     xp: 150,
     duration: "6 λεπτά",
     unlocked: true,
@@ -42,7 +42,7 @@ const MODULE_1 = [
   {
     id: 3,
     title: "Πώς λειτουργεί η αποταμίευση",
-    desc: "Η δύναμη του να αποταμιεύεις νωρίς — compound interest και πρακτικές στρατηγικές.",
+    desc: "Γιατί αξίζει να αποταμιεύεις νωρίς, ο κανόνας του 72 και πρακτικοί τρόποι για να βάζεις χρήματα στην άκρη.",
     xp: 150,
     duration: "6 λεπτά",
     unlocked: true,
@@ -51,8 +51,8 @@ const MODULE_1 = [
   },
   {
     id: 4,
-    title: "Το πρώτο μου budget",
-    desc: "Φτιάξε το προσωπικό σου budget και μάθε να ελέγχεις τα χρήματά σου.",
+    title: "Ο πρώτος μου προϋπολογισμός",
+    desc: "Φτιάξε τον προσωπικό σου προϋπολογισμό και μάθε να ελέγχεις τα χρήματά σου.",
     xp: 200,
     duration: "7 λεπτά",
     unlocked: true,
@@ -62,7 +62,7 @@ const MODULE_1 = [
   {
     id: 5,
     title: "Τι είναι επιχείρηση;",
-    desc: "Πώς μια ιδέα γίνεται επιχείρηση — τα βασικά στοιχεία που κάθε νέος πρέπει να γνωρίζει.",
+    desc: "Πώς μια ιδέα γίνεται επιχείρηση: τα βασικά που αξίζει να ξέρεις.",
     xp: 200,
     duration: "7 λεπτά",
     unlocked: true,
@@ -72,7 +72,7 @@ const MODULE_1 = [
   {
     id: 6,
     title: "Χρήματα και ευτυχία",
-    desc: "Η σχέση μεταξύ χρημάτων και ευτυχίας — τι λέει η επιστήμη και πώς να χρησιμοποιείς τα χρήματα έξυπνα.",
+    desc: "Τι λέει η επιστήμη για τα χρήματα και την ευτυχία, και πώς να τα χρησιμοποιείς έξυπνα.",
     xp: 250,
     duration: "8 λεπτά",
     unlocked: true,
@@ -84,8 +84,8 @@ const MODULE_1 = [
 const MODULE_2 = [
   {
     id: 7,
-    title: "Brainstorming: Βρες την ιδέα σου",
-    desc: "Τεχνικές για να βρεις ιδέες startup που λύνουν πραγματικά προβλήματα.",
+    title: "Brainstorming: βρες την ιδέα σου",
+    desc: "Τεχνικές για να βρεις ιδέες που λύνουν πραγματικά προβλήματα.",
     xp: 200,
     duration: "7 λεπτά",
     unlocked: true,
@@ -95,7 +95,7 @@ const MODULE_2 = [
   {
     id: 8,
     title: "Business Model Canvas",
-    desc: "Το εργαλείο που χρησιμοποιούν Airbnb, Spotify, Apple — 9 κουτιά που εξηγούν κάθε επιχείρηση.",
+    desc: "Εννέα κουτιά που εξηγούν κάθε επιχείρηση σε μία σελίδα.",
     xp: 250,
     duration: "8 λεπτά",
     unlocked: true,
@@ -104,8 +104,8 @@ const MODULE_2 = [
   },
   {
     id: 9,
-    title: "Marketing & Branding",
-    desc: "Πώς χτίζεις brand και βρίσκεις πελάτες χωρίς budget — social media στρατηγική για teens.",
+    title: "Marketing και branding",
+    desc: "Πώς χτίζεις ένα brand και βρίσκεις πελάτες στα social media, χωρίς χρήματα για διαφήμιση.",
     xp: 250,
     duration: "8 λεπτά",
     unlocked: true,
@@ -114,8 +114,8 @@ const MODULE_2 = [
   },
   {
     id: 10,
-    title: "Pricing & Break-even",
-    desc: "Πώς ορίζεις τιμή, υπολογίζεις break-even point και επιλέγεις τη σωστή στρατηγική τιμολόγησης.",
+    title: "Τιμολόγηση και νεκρό σημείο",
+    desc: "Πώς ορίζεις την τιμή, πώς υπολογίζεις το νεκρό σημείο και ποια στρατηγική τιμολόγησης να διαλέξεις.",
     xp: 300,
     duration: "9 λεπτά",
     unlocked: true,
@@ -124,8 +124,8 @@ const MODULE_2 = [
   },
   {
     id: 11,
-    title: "Pitch: Πούλησε την ιδέα σου",
-    desc: "Πώς παρουσιάζεις την ιδέα σου σε 2 λεπτά — δομή pitch, storytelling, και τι ψάχνουν οι επενδυτές.",
+    title: "Pitch: πούλησε την ιδέα σου",
+    desc: "Πώς παρουσιάζεις την ιδέα σου σε δύο λεπτά: η δομή, η ιστορία και τι ψάχνουν οι επενδυτές.",
     xp: 300,
     duration: "9 λεπτά",
     unlocked: true,
@@ -155,9 +155,9 @@ function LearnPage() {
         <div className="mx-auto max-w-[1440px]">
           <BrightlyNav active="learn" />
           <div className="mx-auto max-w-3xl pt-20 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">2 Modules · 11 Μαθήματα</p>
+            <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">2 ενότητες · 11 μαθήματα</p>
             <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Μάθε. Σκέψου. Δράσε.</h1>
-            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Χρηματοοικονομική παιδεία & Startup Mindset — real case studies, mental models, XP.</p>
+            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Χρηματοοικονομική παιδεία και επιχειρηματική σκέψη, με αληθινά παραδείγματα και XP.</p>
             {freeLaunchActive() && (
               <p className="mx-auto mt-5 inline-block rounded-full bg-white/15 px-5 py-2 text-sm font-black">
                 🎉 Είσαι από τους πρώτους! Όλα τα μαθήματα είναι ανοιχτά δωρεάν{FREE_LAUNCH.endsOn ? ` ${freeLaunchUntil()}` : ""}.
@@ -281,17 +281,17 @@ function LearnPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-5xl">📈</span>
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.17em] text-[oklch(0.75_0.15_280)]">Νέο — Διαδραστικό</p>
-                    <h2 className="text-2xl font-black sm:text-3xl">Επενδύσεις με Αληθινές Τιμές</h2>
+                    <p className="text-xs font-black uppercase tracking-[0.17em] text-[oklch(0.75_0.15_280)]">Νέο · Διαδραστικό</p>
+                    <h2 className="text-2xl font-black sm:text-3xl">Επενδύσεις με αληθινές τιμές</h2>
                   </div>
                 </div>
                 <p className="mt-4 max-w-xl text-[oklch(0.9_0.03_260)] leading-relaxed">
-                  Μάθε τι είναι μετοχές, δες <strong>πραγματικές τιμές</strong> από Apple, Netflix, Roblox και άλλες εταιρείες που ξέρεις — και χρησιμοποίησε τα εικονικά νομίσματά σου για να εξασκηθείς στο να επενδύεις.
+                  Μάθε τι είναι μετοχές, δες <strong>πραγματικές τιμές</strong> από Apple, Netflix, Roblox και άλλες εταιρείες που ξέρεις, και χρησιμοποίησε τα εικονικά νομίσματά σου για να εξασκηθείς στο να επενδύεις.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">📊 Γραφήματα 30 ημερών</span>
-                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">🎮 Εικονικό Portfolio</span>
-                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">💡 Μαθήματα Επενδύσεων</span>
+                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">🎮 Εικονικό χαρτοφυλάκιο</span>
+                  <span className="rounded-full bg-[oklch(1_0_0/0.1)] px-4 py-1.5 text-sm font-bold">💡 Μαθήματα επενδύσεων</span>
                 </div>
                 <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[oklch(0.6_0.22_280)] px-6 py-3 font-black text-white transition-all group-hover:bg-[oklch(0.65_0.22_280)]">
                   Ξεκίνα τώρα →

@@ -13,9 +13,9 @@ export const Route = createFileRoute("/spend")({
   head: () => ({
     meta: [
       { title: "Η κάρτα μου — Kids in Business" },
-      { name: "description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ τη και δες τα κέρματά σου." },
+      { name: "description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα κέρματά σου." },
       { property: "og:title", content: "Η κάρτα μου — Kids in Business" },
-      { property: "og:description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ τη και δες τα κέρματά σου." },
+      { property: "og:description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα κέρματά σου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
