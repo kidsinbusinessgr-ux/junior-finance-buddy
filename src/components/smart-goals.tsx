@@ -308,32 +308,36 @@ function escapeHtml(s: string) {
 
 function printCard(d: GoalDraft) {
   const p = planFor(d);
-  const rows: [string, string][] = [
-    ["Όνομα", d.name],
-    ["Στόχος (Συγκεκριμένος)", d.what],
+  // [letter, colour, label, value]; the colours match the Business Model Canvas worksheet
+  const rows: [string, string, string, string][] = [
+    ["★", "#9b85c9", "Όνομα", d.name],
+    ["S", "#f2a516", "Στόχος (Συγκεκριμένος)", d.what],
     d.kind === "money"
-      ? ["Πόσο κοστίζει (Μετρήσιμος)", p.price ? `${euro(p.price)}${p.saved ? ` · έχω ήδη ${euro(p.saved)}` : ""}` : ""]
-      : ["Πώς θα μετρώ την πρόοδο (Μετρήσιμος)", d.measure],
+      ? ["M", "#ef6f9a", "Πόσο κοστίζει (Μετρήσιμος)", p.price ? `${euro(p.price)}${p.saved ? ` · έχω ήδη ${euro(p.saved)}` : ""}` : ""]
+      : ["M", "#ef6f9a", "Πώς θα μετρώ την πρόοδο (Μετρήσιμος)", d.measure],
     d.kind === "money"
-      ? ["Το σχέδιό μου (Εφικτός)", p.weekly ? `${euro(p.weekly)} κάθε εβδομάδα${p.weeksNeeded ? `, σε ${p.weeksNeeded} εβδομάδες` : ""}` : ""]
-      : ["Το σχέδιό μου (Εφικτός)", d.how],
-    ["Γιατί είναι σημαντικός (Σχετικός)", d.why],
-    ["Θα τον έχω πετύχει στις (Με ημερομηνία)", d.deadline ? formatDate(d.deadline) : ""],
+      ? ["A", "#f38a6d", "Το σχέδιό μου (Εφικτός)", p.weekly ? `${euro(p.weekly)} κάθε εβδομάδα${p.weeksNeeded ? `, σε ${p.weeksNeeded} εβδομάδες` : ""}` : ""]
+      : ["A", "#f38a6d", "Το σχέδιό μου (Εφικτός)", d.how],
+    ["R", "#cf72c2", "Γιατί είναι σημαντικός (Σχετικός)", d.why],
+    ["T", "#4fb1c7", "Θα τον έχω πετύχει στις (Με ημερομηνία)", d.deadline ? formatDate(d.deadline) : ""],
   ];
   const w = window.open("", "_blank", "width=720,height=900");
   if (!w) return;
   w.document.write(`<!doctype html><html lang="el"><head><meta charset="utf-8"><title>Κάρτα στόχου</title>
 <style>
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:40px;color:#2b2540}
-.card{border:3px solid #7c4dff;border-radius:24px;padding:32px;max-width:560px;margin:auto}
-h1{margin:0 0 4px;font-size:28px;color:#5b2fd6}.sub{margin:0 0 24px;color:#777;font-size:14px}
-.row{border-bottom:1px dashed #c9bdf5;padding:12px 0}.k{font-size:12px;font-weight:700;letter-spacing:.06em;color:#7c4dff;text-transform:uppercase}
-.v{font-size:18px;font-weight:600;min-height:24px;margin-top:4px}.sign{margin-top:40px;display:flex;justify-content:space-between;font-size:13px;color:#777}
-.sign span{border-top:1px solid #999;padding-top:6px;width:45%}.foot{text-align:center;margin-top:24px;font-size:12px;color:#999}
-</style></head><body><div class="card"><h1>Κάρτα στόχου</h1><p class="sub">Η Περιπέτεια των Στόχων · S.M.A.R.T.</p>
-${rows.map(([k, v]) => `<div class="row"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div></div>`).join("")}
-<div class="sign"><span>Υπογραφή</span><span>Ημερομηνία</span></div></div><p class="foot">kidsinbusiness.gr</p>
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:30px;color:#3a2f2a;background:#fff}
+.card{background:#fffaf3;border:3px solid #f2709c;border-radius:24px;overflow:hidden;max-width:580px;margin:auto}
+.head{background:linear-gradient(90deg,#f7a35c,#f2709c);color:#fff;padding:22px 28px}
+h1{margin:0;font-size:30px}.sub{margin:4px 0 0;font-size:14px;opacity:.95}.body{padding:18px 24px 26px}
+.row{display:flex;gap:14px;align-items:flex-start;background:#fff;border:2px solid;border-radius:14px;padding:10px 14px;margin-bottom:10px}
+.l{flex:none;width:34px;height:34px;border-radius:50%;color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center}
+.k{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.v{font-size:18px;font-weight:600;min-height:24px;margin-top:2px}.sign{margin-top:28px;display:flex;justify-content:space-between;font-size:13px;color:#777}
+.sign span{border-top:1px solid #999;padding-top:6px;width:45%}.foot{text-align:center;margin-top:18px;font-size:12px;color:#999}
+</style></head><body><div class="card"><div class="head"><h1>Κάρτα στόχου</h1><p class="sub">Η Περιπέτεια των Στόχων · S.M.A.R.T.</p></div><div class="body">
+${rows.map(([l, c, k, v]) => `<div class="row" style="border-color:${c}"><div class="l" style="background:${c}">${l}</div><div><div class="k" style="color:${c}">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div></div></div>`).join("")}
+<div class="sign"><span>Υπογραφή</span><span>Ημερομηνία</span></div></div></div><p class="foot">kidsinbusiness.gr</p>
 <script>window.onload=function(){window.print()}<\/script></body></html>`);
   w.document.close();
 }
