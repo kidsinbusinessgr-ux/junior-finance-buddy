@@ -189,7 +189,7 @@ function InvestmentsPage() {
         <MyStartupInvestments childId={child.id} />
 
         <p className="text-center text-xs text-muted-foreground">
-          💡 Μοίρασε τα κέρματά σου σε διαφορετικές επενδύσεις. Αν μία πάει άσχημα, οι άλλες σε προστατεύουν.
+          💡 Μοίρασε τα KidsCoins σου σε διαφορετικές επενδύσεις. Αν μία πάει άσχημα, οι άλλες σε προστατεύουν.
         </p>
       </main>
 

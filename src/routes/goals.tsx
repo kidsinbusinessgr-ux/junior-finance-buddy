@@ -377,7 +377,7 @@ function GoalsPage() {
               <p className="text-xs font-semibold text-gray-400">Σύμφωνα με το πλάνο σου, βάζεις {depositGoal.weekly_coins} 🪙 την εβδομάδα.</p>
             ) : null}
             {depositAmount && parseInt(depositAmount) > child.coins && (
-              <p className="mb-2 text-xs font-bold text-red-500">Δεν έχεις αρκετά κέρματα.</p>
+              <p className="mb-2 text-xs font-bold text-red-500">Δεν έχεις αρκετά KidsCoins.</p>
             )}
             <div className="mb-4" />
             <div className="flex gap-3">

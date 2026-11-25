@@ -195,7 +195,7 @@ function ChildDashboard() {
             {/* Coins + Level */}
             <div className="mt-6 flex items-end gap-5">
               <div className="rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
-                <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">Κέρματα</p>
+                <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">KidsCoins</p>
                 <p className="mt-1 text-4xl font-black">🪙 {child.coins}</p>
               </div>
               <div className="flex-1 rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
@@ -356,7 +356,7 @@ function ChildDashboard() {
           >
             <Wallet size={22} className="text-[oklch(0.4_0.14_214)]" />
             <p className="font-black text-foreground">Πορτοφόλι</p>
-            <p className="text-xs text-muted-foreground">Κέρματα · Δουλειές</p>
+            <p className="text-xs text-muted-foreground">KidsCoins · Δουλειές</p>
           </Link>
           <Link
             to="/goals"

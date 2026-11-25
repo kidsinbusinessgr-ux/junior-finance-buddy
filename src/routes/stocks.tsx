@@ -26,10 +26,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { VAPID_PUBLIC, saveSubscription, subscriptionKey } from "@/lib/push-client";
 
 const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], string> = {
-  login: "Συνδέσου για να επενδύσεις τα κέρματά σου.",
-  no_child: "Μόνο ο λογαριασμός μαθητή μπορεί να επενδύσει κέρματα.",
+  login: "Συνδέσου για να επενδύσεις τα KidsCoins σου.",
+  no_child: "Μόνο ο λογαριασμός μαθητή μπορεί να επενδύσει KidsCoins.",
   no_price: "Δε βρέθηκε τιμή για αυτή τη μετοχή τώρα. Δοκίμασε ξανά σε λίγο.",
-  not_enough: "Δεν έχεις αρκετά κέρματα.",
+  not_enough: "Δεν έχεις αρκετά KidsCoins.",
   failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
 };
 
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/stocks")({
       {
         name: "description",
         content:
-          "Μάθε τι είναι οι μετοχές και επένδυσε τα εικονικά κέρματά σου σε εταιρείες που ξέρεις.",
+          "Μάθε τι είναι οι μετοχές και επένδυσε τα εικονικά KidsCoins σου σε εταιρείες που ξέρεις.",
       },
     ],
   }),
@@ -329,11 +329,11 @@ function StocksPage() {
               Μάθε. Επένδυσε.<br />Δες πώς μεγαλώνουν.
             </h1>
             <p className="mt-5 text-lg text-[oklch(0.85_0.04_260)]">
-              Αληθινές τιμές αγοράς · Εικονικά κέρματα · 100% εκπαιδευτικό
+              Αληθινές τιμές αγοράς · Εικονικά KidsCoins · 100% εκπαιδευτικό
             </p>
             <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 text-sm font-black">
               <span className="text-xl">🪙</span>
-              <span>{coins} κέρματα διαθέσιμα</span>
+              <span>{coins} KidsCoins διαθέσιμα</span>
             </div>
           </div>
         </div>
@@ -499,7 +499,7 @@ function StocksPage() {
                                 [q.ticker]: Number(e.target.value),
                               }))
                             }
-                            placeholder="Κέρματα 🪙"
+                            placeholder="KidsCoins 🪙"
                             className="h-9 flex-1 rounded-xl border border-border bg-background px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[oklch(0.57_0.23_292)]"
                           />
                           <Button
@@ -697,7 +697,7 @@ function StocksPage() {
                                         <p>
                                           <span className="font-black">Χρυσός κανόνας: </span>
                                           <span className="text-muted-foreground">
-                                            Μη βάζεις ποτέ όλα τα κέρματά σου σε μία μετοχή. Μοίρασε τον κίνδυνο.
+                                            Μη βάζεις ποτέ όλα τα KidsCoins σου σε μία μετοχή. Μοίρασε τον κίνδυνο.
                                           </span>
                                         </p>
                                       </div>
@@ -844,7 +844,7 @@ function StocksPage() {
               </div>
               <div className="rounded-2xl bg-card p-5 ring-1 ring-border">
                 <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                  Διαθέσιμα κέρματα
+                  Διαθέσιμα KidsCoins
                 </p>
                 <p className="mt-2 text-3xl font-black">{coins} 🪙</p>
               </div>
@@ -855,7 +855,7 @@ function StocksPage() {
                 <p className="text-5xl">📭</p>
                 <p className="mt-4 text-lg font-black">Δεν έχεις μετοχές ακόμα</p>
                 <p className="mt-2 text-muted-foreground">
-                  Πήγαινε στην καρτέλα Αγορά και επένδυσε τα κέρματά σου.
+                  Πήγαινε στην καρτέλα Αγορά και επένδυσε τα KidsCoins σου.
                 </p>
                 <Button
                   onClick={() => setTab("📊 Αγορά")}
@@ -929,7 +929,7 @@ function StocksPage() {
             <div className="rounded-2xl bg-muted p-5 text-sm text-muted-foreground">
               <p className="font-black text-foreground">📌 Υπενθύμιση</p>
               <p className="mt-1.5 leading-relaxed">
-                Αυτό είναι <strong>εκπαιδευτική προσομοίωση</strong> με εικονικά κέρματα. Οι τιμές
+                Αυτό είναι <strong>εκπαιδευτική προσομοίωση</strong> με εικονικά KidsCoins. Οι τιμές
                 είναι πραγματικές, αλλά δε γίνεται καμία πραγματική αγοραπωλησία. Για να επενδύσεις
                 πραγματικά χρήματα χρειάζεσαι ηλικία 18+ και λογαριασμό χρηματιστηρίου.
               </p>

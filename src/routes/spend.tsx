@@ -13,9 +13,9 @@ export const Route = createFileRoute("/spend")({
   head: () => ({
     meta: [
       { title: "Η κάρτα μου – Kids in Business" },
-      { name: "description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα κέρματά σου." },
+      { name: "description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα KidsCoins σου." },
       { property: "og:title", content: "Η κάρτα μου – Kids in Business" },
-      { property: "og:description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα κέρματά σου." },
+      { property: "og:description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα KidsCoins σου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -27,13 +27,13 @@ export const Route = createFileRoute("/spend")({
 const FACTS = [
   {
     Icon: Coins,
-    title: "Κέρματα, όχι χρήματα",
-    copy: "Η κάρτα είναι εικονική. Δείχνει τα κέρματα της εφαρμογής και δε συνδέεται με καμία τράπεζα.",
+    title: "KidsCoins, όχι χρήματα",
+    copy: "Η κάρτα είναι εικονική. Δείχνει τα KidsCoins της εφαρμογής και δε συνδέεται με καμία τράπεζα.",
   },
   {
     Icon: Wallet,
     title: "Το χαρτζιλίκι μπαίνει στην κάρτα",
-    copy: "Όταν ο γονιός σου στέλνει κέρματα ή κερδίζεις από μαθήματα και δουλειές, το υπόλοιπο της κάρτας αλλάζει αμέσως.",
+    copy: "Όταν ο γονιός σου στέλνει KidsCoins ή κερδίζεις από μαθήματα και δουλειές, το υπόλοιπο της κάρτας αλλάζει αμέσως.",
   },
   {
     Icon: ShoppingBag,
@@ -48,7 +48,7 @@ const FACTS = [
   {
     Icon: TrendingUp,
     title: "Με αυτά επενδύεις",
-    copy: "Τα ίδια κέρματα τα χρησιμοποιείς για μετοχές με αληθινές τιμές και για τα startups των συμμαθητών σου.",
+    copy: "Τα ίδια KidsCoins τα χρησιμοποιείς για μετοχές με αληθινές τιμές και για τα startups των συμμαθητών σου.",
   },
 ];
 
@@ -134,7 +134,7 @@ function SpendPage() {
               <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Η κάρτα μου</p>
               <h1 className="text-5xl font-black leading-tight sm:text-6xl">Μάθε να ξοδεύεις, πριν πάρεις αληθινή κάρτα.</h1>
               <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">
-                Η κάρτα Kids in Business είναι εικονική. Δουλεύει με τα κέρματα της εφαρμογής, όχι με πραγματικά χρήματα.
+                Η κάρτα Kids in Business είναι εικονική. Δουλεύει με τα KidsCoins της εφαρμογής, όχι με πραγματικά χρήματα.
               </p>
               {child ? (
                 <a href="#card">

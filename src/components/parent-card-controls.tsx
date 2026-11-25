@@ -75,7 +75,7 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
           )}
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-[oklch(0.35_0.08_250)]">Όριο ανά εβδομάδα (κέρματα)</label>
+            <label className="mb-1 block text-sm font-semibold text-[oklch(0.35_0.08_250)]">Όριο ανά εβδομάδα (KidsCoins)</label>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -94,7 +94,7 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
               </button>
             </div>
             <p className="mt-1 text-xs text-[oklch(0.5_0.04_250)]">
-              Αυτή την εβδομάδα: {spent ?? "…"} κέρματα με την κάρτα{limitNum ? ` από ${limitNum}` : ""}. Άφησέ το κενό για να μην υπάρχει όριο.
+              Αυτή την εβδομάδα: {spent ?? "…"} KidsCoins με την κάρτα{limitNum ? ` από ${limitNum}` : ""}. Άφησέ το κενό για να μην υπάρχει όριο.
             </p>
           </div>
           {msg && <p className="text-xs font-bold text-[oklch(0.45_0.12_250)]">{msg}</p>}
@@ -142,7 +142,7 @@ export function ParentCardControls({ children, onChanged }: { children: ParentCh
         <CreditCard className="h-5 w-5" /> Η κάρτα του παιδιού
       </h2>
       <p className="mb-3 text-sm text-[oklch(0.5_0.04_250)]">
-        Εικονική κάρτα με τα κέρματα της εφαρμογής. Με αυτήν το παιδί πληρώνει τις ανταμοιβές του Καταστήματος.
+        Εικονική κάρτα με τα KidsCoins της εφαρμογής. Με αυτήν το παιδί πληρώνει τις ανταμοιβές του Καταστήματος.
       </p>
       <div className="flex flex-col gap-3">
         {children.map((c) => (
@@ -175,7 +175,7 @@ export function ParentRewards({ parentId }: { parentId: string }) {
   const add = async () => {
     const n = parseInt(cost, 10);
     if (!name.trim() || !Number.isFinite(n) || n <= 0) {
-      setError("Γράψε όνομα και κόστος σε κέρματα.");
+      setError("Γράψε όνομα και κόστος σε KidsCoins.");
       return;
     }
     setBusy(true);
@@ -204,7 +204,7 @@ export function ParentRewards({ parentId }: { parentId: string }) {
         <Gift className="h-5 w-5" /> Ανταμοιβές στο Κατάστημα
       </h2>
       <p className="mb-4 text-sm text-[oklch(0.5_0.04_250)]">
-        Ό,τι βάλεις εδώ, το παιδί μπορεί να το «αγοράσει» με την κάρτα του. Π.χ. «1 ώρα παιχνίδι» για 30 κέρματα.
+        Ό,τι βάλεις εδώ, το παιδί μπορεί να το «αγοράσει» με την κάρτα του. Π.χ. «1 ώρα παιχνίδι» για 30 KidsCoins.
       </p>
       {rewards.length === 0 ? (
         <p className="mb-4 text-sm text-[oklch(0.55_0.04_250)]">Δεν έχεις βάλει ακόμα ανταμοιβές.</p>
@@ -238,7 +238,7 @@ export function ParentRewards({ parentId }: { parentId: string }) {
           value={cost}
           onChange={(e) => setCost(e.target.value)}
           className="w-full rounded-xl border border-[oklch(0.85_0.04_250)] p-2.5 text-[oklch(0.3_0.08_250)] sm:w-28"
-          aria-label="Κόστος σε κέρματα"
+          aria-label="Κόστος σε KidsCoins"
         />
         <button
           disabled={busy}

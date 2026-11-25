@@ -15,9 +15,9 @@ const INVEST_LIMIT = 200;
 
 // Database error messages from jfb_invest_in_startup → what the child sees.
 function investErrorText(message: string): string {
-  if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά κέρματα.";
+  if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά KidsCoins.";
   if (message.includes("Own startup")) return "Δεν μπορείς να επενδύσεις στο δικό σου startup.";
-  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} coins σε αυτό το startup. Μοίρασε τα κέρματά σου και σε άλλα.`;
+  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} coins σε αυτό το startup. Μοίρασε τα KidsCoins σου και σε άλλα.`;
   if (message.includes("child account")) return "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.";
   return "Κάτι πήγε στραβά. Δοκίμασε ξανά.";
 }
@@ -275,7 +275,7 @@ export default function StartupPage() {
         {/* Invest CTA */}
         <div className="mt-10 rounded-2xl border-2 border-[oklch(0.55_0.17_173)] bg-[oklch(0.96_0.03_173)] p-6">
           <h3 className="text-xl font-black">Πιστεύεις σε αυτή την ιδέα;</h3>
-          <p className="mt-1 text-muted-foreground">Επένδυσε εικονικά κέρματα και δείξε ότι πιστεύεις στην ιδέα.</p>
+          <p className="mt-1 text-muted-foreground">Επένδυσε εικονικά KidsCoins και δείξε ότι πιστεύεις στην ιδέα.</p>
 
           {!userLoading && !userId ? (
             <Link to="/login">
@@ -301,13 +301,13 @@ export default function StartupPage() {
                 disabled={!child || myInvested >= INVEST_LIMIT}
                 onClick={() => { setInvesting(true); setSuccess(false); setInvestError(null); }}
               >
-                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτό το startup" : "🪙 Επένδυσε κέρματα"}
+                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτό το startup" : "🪙 Επένδυσε KidsCoins"}
               </Button>
             </>
           ) : (
             <div className="mt-4 space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-bold">Πόσα κέρματα;</label>
+                <label className="mb-2 block text-sm font-bold">Πόσα KidsCoins;</label>
                 <div className="flex gap-2">
                   {COIN_OPTIONS.map((c) => {
                     const tooMuch = c > (child?.coins ?? 0) + (child?.invest_capital ?? 0) || myInvested + c > INVEST_LIMIT;
@@ -327,7 +327,7 @@ export default function StartupPage() {
                 </div>
                 {roundIsOpen && (
                   <p className="mt-2 rounded-xl bg-[oklch(0.96_0.05_70)] px-3 py-2 text-xs font-bold">
-                    🎯 Τώρα τρέχει γύρος χρηματοδότησης («όλα ή τίποτα»). Τα κέρματά σου φυλάγονται μέχρι να κλείσει:
+                    🎯 Τώρα τρέχει γύρος χρηματοδότησης («όλα ή τίποτα»). Τα KidsCoins σου φυλάγονται μέχρι να κλείσει:
                     αν ο γύρος πιάσει τον στόχο, γίνονται μερίδια· αν όχι, σου επιστρέφονται όλα.
                   </p>
                 )}
@@ -337,8 +337,8 @@ export default function StartupPage() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {(child?.invest_capital ?? 0) > 0
-                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά κέρματα και μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup."
-                    : "Τα κέρματα φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup."}
+                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά KidsCoins και μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup."
+                    : "Τα KidsCoins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup."}
                 </p>
               </div>
               {investError && (

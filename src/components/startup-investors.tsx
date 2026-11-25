@@ -61,7 +61,7 @@ export function SharesInfo({ startup }: { startup: ShareNumbers }) {
             <div className="h-full rounded-full bg-[oklch(0.7_0.17_70)]" style={{ width: `${Math.min(100, (startup.round_raised / goal) * 100)}%` }} />
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Λήγει σε {daysLeft(startup.round_ends_at!)} {daysLeft(startup.round_ends_at!) === 1 ? "μέρα" : "μέρες"}. «Όλα ή τίποτα»: αν πιάσει τον στόχο, τα κέρματα γίνονται μερίδια και η εταιρεία κερδίζει φήμη· αν όχι, επιστρέφονται σε όσους επένδυσαν.
+            Λήγει σε {daysLeft(startup.round_ends_at!)} {daysLeft(startup.round_ends_at!) === 1 ? "μέρα" : "μέρες"}. «Όλα ή τίποτα»: αν πιάσει τον στόχο, τα KidsCoins γίνονται μερίδια και η εταιρεία κερδίζει φήμη· αν όχι, επιστρέφονται σε όσους επένδυσαν.
           </p>
         </div>
       )}
@@ -215,7 +215,7 @@ export function FounderMoneyTools({ startup, onChanged }: { startup: ShareNumber
           <p className="mt-1 text-sm text-muted-foreground">Ο γύρος σου είναι ανοιχτός. Δείξε το startup σου στους φίλους σου.</p>
         ) : (
           <>
-            <p className="mt-1 text-xs text-muted-foreground">Βάλε στόχο για 7 μέρες. «Όλα ή τίποτα»: αν τον πιάσεις, τα κέρματα μπαίνουν στο ταμείο και η εταιρεία κερδίζει +10 φήμη και ένα 🏆· αν όχι, επιστρέφονται στους επενδυτές.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Βάλε στόχο για 7 μέρες. «Όλα ή τίποτα»: αν τον πιάσεις, τα KidsCoins μπαίνουν στο ταμείο και η εταιρεία κερδίζει +10 φήμη και ένα 🏆· αν όχι, επιστρέφονται στους επενδυτές.</p>
             <div className="mt-2 flex gap-2">
               {GOALS.map((g) => (
                 <button key={g} disabled={busy}

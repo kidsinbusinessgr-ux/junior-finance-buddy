@@ -90,7 +90,7 @@ export function MonthlyStatement({
 
   let insight = "";
   if (s && (s.totalIn > 0 || s.totalOut < 0)) {
-    if (s.totalIn === 0) insight = "Αυτόν τον μήνα δεν μπήκαν κέρματα, μόνο βγήκαν.";
+    if (s.totalIn === 0) insight = "Αυτόν τον μήνα δεν μπήκαν KidsCoins, μόνο βγήκαν.";
     else {
       const kept = Math.round(((s.totalIn + s.totalOut) / s.totalIn) * 100);
       insight = kept >= 0

@@ -439,7 +439,7 @@ export function GoalCardBuilder({
                   <p className={label}>{tag("M")} Πόσο κοστίζει; (€)</p>
                   <input className={field} type="number" inputMode="decimal" min={1} value={d.price} onChange={set("price")} placeholder="80" />
                   {mode === "app" && p.price > 0 && (
-                    <p className="mt-1 text-xs font-semibold text-gray-400">= {eurosToCoins(p.price)} 🪙 στην εφαρμογή (1 🪙 = €0,10)</p>
+                    <p className="mt-1 text-xs font-semibold text-gray-400">= {eurosToCoins(p.price)} 🪙 KidsCoins στην εφαρμογή (1 🪙 = €0,10)</p>
                   )}
                 </div>
                 {mode === "lesson" && (

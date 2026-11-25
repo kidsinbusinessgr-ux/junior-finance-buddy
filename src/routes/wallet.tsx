@@ -34,7 +34,7 @@ export const Route = createFileRoute("/wallet")({
   head: () => ({
     meta: [
       { title: "Πορτοφόλι – Kids in Business" },
-      { name: "description", content: "Τα κέρματά σου, οι δουλειές και το κατάστημα" },
+      { name: "description", content: "Τα KidsCoins σου, οι δουλειές και το κατάστημα" },
     ],
   }),
   component: WalletPage,
@@ -183,7 +183,7 @@ function WalletPage() {
           : m.includes("over_limit")
           ? "Ξεπερνάς το όριο της εβδομάδας που έβαλε ο γονιός σου."
           : m.includes("Not enough")
-          ? "Δεν έχεις αρκετά κέρματα."
+          ? "Δεν έχεις αρκετά KidsCoins."
           : "Η πληρωμή δεν έγινε. Δοκίμασε ξανά.",
       });
       return;
@@ -396,7 +396,7 @@ function WalletPage() {
         {tab === "shop" && (
           <div className="space-y-3">
             <p className="px-1 text-sm text-muted-foreground">
-              Ανταμοιβές που έβαλε ο γονιός σου. Πληρώνεις με την κάρτα σου και τα κέρματα φεύγουν αμέσως.
+              Ανταμοιβές που έβαλε ο γονιός σου. Πληρώνεις με την κάρτα σου και τα KidsCoins φεύγουν αμέσως.
             </p>
             {(cardLocked || limitLeft !== null) && (
               <div className="rounded-2xl bg-secondary px-4 py-3 text-sm font-bold text-muted-foreground">
@@ -404,7 +404,7 @@ function WalletPage() {
                   ? child.card_parent_locked
                     ? "🔒 Ο γονιός σου κλείδωσε την κάρτα. Δεν μπορείς να πληρώσεις τώρα."
                     : "🔒 Έχεις κλειδώσει την κάρτα σου. Ξεκλείδωσέ τη για να πληρώσεις."
-                  : `Όριο εβδομάδας: σου μένουν ${limitLeft} από ${child.card_weekly_limit} κέρματα.`}
+                  : `Όριο εβδομάδας: σου μένουν ${limitLeft} από ${child.card_weekly_limit} KidsCoins.`}
               </div>
             )}
             {shopMsg && (
@@ -439,7 +439,7 @@ function WalletPage() {
                       {isPaying ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
                       ) : !canAfford ? (
-                        "Λίγα κέρματα"
+                        "Λίγα KidsCoins"
                       ) : !fitsLimit ? (
                         "Πάνω από το όριο"
                       ) : (

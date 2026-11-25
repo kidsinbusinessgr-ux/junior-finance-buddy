@@ -107,7 +107,7 @@ function EarnPage() {
             <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Σήμερα στη λίστα</h2>
             {child && (
               <p className="mt-4 rounded-2xl bg-[oklch(0.95_0.05_173)] px-5 py-3 text-sm font-bold text-[oklch(0.35_0.1_173)]">
-                Αυτές είναι ιδέες για δουλειές. Τις δικές σου δουλειές, που σου δίνουν κέρματα, τις βρίσκεις στο{" "}
+                Αυτές είναι ιδέες για δουλειές. Τις δικές σου δουλειές, που σου δίνουν KidsCoins, τις βρίσκεις στο{" "}
                 <Link to="/wallet" className="underline">Πορτοφόλι</Link> και τις στέλνεις στον γονιό σου για έγκριση.
               </p>
             )}
