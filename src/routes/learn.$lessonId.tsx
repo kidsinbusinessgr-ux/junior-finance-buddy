@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Award, CheckCircle2, Star, XCircle } from "lucid
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { completeLesson, useChild } from "@/hooks/useJFB";
+import { BusinessModelCanvas } from "@/components/bmc-canvas";
 
 export const Route = createFileRoute("/learn/$lessonId")({
   component: LessonPage,
@@ -21,6 +22,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
+  workshop?: "bmc"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -396,14 +398,17 @@ const lessons: Record<string, Lesson> = {
     ],
   },
   "8": {
-    id: 8, title: "Business Model Canvas", emoji: "🗺️", xp: 250, color: "oklch(0.55_0.17_173)",
+    id: 8, title: "Business Model Canvas", emoji: "🗺️", xp: 250, color: "oklch(0.55_0.17_173)", workshop: "bmc",
     slides: [
       { heading: "Ένα επιχειρηματικό σχέδιο σε μία σελίδα", body: "Το Business Model Canvas (BMC) είναι ένας χάρτης που δείχνει ολόκληρη την επιχείρησή σου σε εννέα κουτιά. Αντί να γράψεις ένα επιχειρηματικό σχέδιο 50 σελίδων, το BMC σε βάζει να σκεφτείς τα βασικά σε μισή ώρα. Το χρησιμοποιούν μικρές και μεγάλες εταιρείες σε όλο τον κόσμο.", emoji: "📋" },
-      { heading: "Τα εννέα κουτιά", body: "1) Πελάτες: ποιοι είναι; 2) Αξία: τι τους προσφέρεις; 3) Κανάλια: πώς τους φτάνεις; 4) Σχέση: πώς τους κρατάς; 5) Έσοδα: πώς πληρώνεσαι; 6) Πόροι: τι χρειάζεσαι; 7) Δραστηριότητες: τι κάνεις κάθε μέρα; 8) Συνεργάτες: ποιοι σε βοηθούν; 9) Κόστος: τι πληρώνεις;", emoji: "🔲" },
+      { heading: "Τα εννέα κουτιά, με τη σειρά", body: "Τα συμπληρώνουμε πάντα με αυτή τη σειρά: 1) Τμήματα πελατών: για ποιον το φτιάχνεις; 2) Πρόταση αξίας: γιατί να διαλέξουν εσένα; 3) Κανάλια: πώς σε βρίσκουν; 4) Σχέσεις με πελάτες: πώς τους κρατάς κοντά; 5) Ροές εσόδων: ποιος πληρώνει και πόσο; 6) Βασικοί πόροι: τι χρειάζεσαι; 7) Βασικές δραστηριότητες: τι κάνεις κάθε μέρα; 8) Βασικοί συνεργάτες: ποιος σε βοηθάει; 9) Δομή κόστους: πού ξοδεύεις χρήματα; Ξεκινάμε από τους πελάτες, γιατί όλα τα άλλα εξαρτώνται από αυτούς.", emoji: "🔲" },
       { heading: "Παράδειγμα: Spotify", body: "Πελάτες: ακροατές και καλλιτέχνες. Αξία: μουσική παντού, χωρίς να αγοράζεις κάθε τραγούδι. Κανάλια: η εφαρμογή. Έσοδα: συνδρομή περίπου €10 τον μήνα, και διαφημίσεις για όσους τη χρησιμοποιούν δωρεάν. Κόστος: τα πνευματικά δικαιώματα της μουσικής. Αυτά τα κουτιά εξηγούν μια εταιρεία που αξίζει δεκάδες δισεκατομμύρια. Τώρα σκέψου: πώς θα ήταν το δικό σου BMC;", emoji: "🎵" },
+      { heading: "Πώς το συμπληρώνεις", body: "Στο επόμενο βήμα θα φτιάξεις το δικό σου canvas με post-it. Τέσσερις κανόνες: 1) Μία ιδέα σε κάθε post-it. 2) Λίγες λέξεις, μέχρι 7. 3) Συγκεκριμένα, όχι γενικά: «Τουρίστες 30–50 με παιδιά», όχι «όλος ο κόσμος». 4) Αν δεν ξέρεις κάτι, γράψε «;». Είναι μια υπόθεση που θα ελέγξεις, ρωτώντας πραγματικούς πελάτες.", emoji: "🟨" },
     ],
     questions: [
-      { q: "Ποιο κουτί του BMC απαντά στην ερώτηση «Πώς κερδίζω χρήματα;»;", options: ["Κανάλια", "Έσοδα", "Πόροι", "Σχέση με τους πελάτες"], correct: 1, explain: "Σωστά. Το κουτί «Έσοδα» (Revenue Streams) δείχνει όλους τους τρόπους με τους οποίους η επιχείρηση βγάζει χρήματα." },
+      { q: "Ποιο κουτί του BMC απαντά στην ερώτηση «Πώς κερδίζω χρήματα;»;", options: ["Κανάλια", "Ροές εσόδων", "Βασικοί πόροι", "Σχέσεις με πελάτες"], correct: 1, explain: "Σωστά. Το κουτί «Ροές εσόδων» (Revenue Streams) δείχνει όλους τους τρόπους με τους οποίους η επιχείρηση βγάζει χρήματα." },
+      { q: "Ποιο post-it είναι σωστό για το κουτί «Τμήματα πελατών»;", options: ["Όλος ο κόσμος", "Έφηβοι 13–17 που παίζουν μπάσκετ στη γειτονιά", "Όποιος έχει κινητό", "Πολλοί άνθρωποι"], correct: 1, explain: "Σωστά. «Όλοι» δεν είναι πελάτης. Όσο πιο συγκεκριμένος είσαι, τόσο πιο εύκολα βρίσκεις τι χρειάζεται ο πελάτης σου." },
+      { q: "Ποιο από αυτά μπαίνει στις «Βασικές δραστηριότητες» και όχι στους «Βασικούς πόρους»;", options: ["Η ιστοσελίδα", "Ο εξοπλισμός", "Φτιάχνω και στέλνω τις παραγγελίες", "Οι γνώσεις της ομάδας"], correct: 2, explain: "Σωστά. Πόροι είναι αυτά που έχεις (ουσιαστικά). Δραστηριότητες είναι αυτά που κάνεις (ρήματα)." },
       { q: "Γιατί είναι χρήσιμο το BMC σε σχέση με ένα επιχειρηματικό σχέδιο 50 σελίδων;", options: ["Γιατί είναι πιο εντυπωσιακό", "Γιατί σε βάζει να σκεφτείς γρήγορα τα βασικά και να τα δεις όλα μαζί", "Γιατί το ζητούν οι τράπεζες", "Γιατί δε χρειάζεται να σκεφτείς πολύ"], correct: 1, explain: "Ακριβώς. Το BMC δίνει μια ολοκληρωμένη εικόνα της επιχείρησης σε μία σελίδα, ιδανική για να ελέγξεις αν η ιδέα σου στέκει." },
       { q: "Στο BMC του Spotify, τι γράφει το κουτί «Αξία» για τους ακροατές;", options: ["Τη συνδρομή των €10 τον μήνα", "Μουσική παντού, χωρίς να αγοράζεις κάθε τραγούδι", "Την εφαρμογή στο κινητό", "Τις διαφημίσεις"], correct: 1, explain: "Σωστά. Η «αξία» είναι αυτό που λύνει το πρόβλημα του πελάτη. Το Spotify λύνει το «θέλω μουσική παντού και φθηνά»." },
     ],
@@ -451,7 +456,7 @@ const lessons: Record<string, Lesson> = {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-type Phase = "intro" | "theory" | "quiz" | "result";
+type Phase = "intro" | "theory" | "workshop" | "quiz" | "result";
 
 function LessonPage() {
   const { lessonId } = Route.useParams();
@@ -548,7 +553,7 @@ function LessonPage() {
               <Star size={14} /> {lesson.xp} XP
             </span>
             <span className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-secondary-foreground">
-              📖 {lesson.slides.length} διαφάνειες + {totalQuestions} ερωτήσεις
+              📖 {lesson.slides.length} διαφάνειες{lesson.workshop ? " + canvas" : ""} + {totalQuestions} ερωτήσεις
             </span>
           </div>
           <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
@@ -602,11 +607,42 @@ function LessonPage() {
               <Button onClick={() => setSlideIdx((i) => i + 1)} className="h-12 flex-1 rounded-full">
                 Επόμενο <ArrowRight size={18} />
               </Button>
+            ) : lesson.workshop ? (
+              <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
+                Φτιάξε το canvas σου ✏️
+              </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
                 Πάμε quiz! 🎯
               </Button>
             )}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  // ── Workshop (an interactive exercise before the quiz) ─────────────────────
+  if (phase === "workshop") {
+    return (
+      <main className="min-h-screen bg-background">
+        <section style={{ background: `oklch(${lesson.color})` }} className="px-6 pb-20 pt-5 text-primary-foreground lg:px-16">
+          <div className="mx-auto max-w-[1440px]">
+            <BrightlyNav active="learn" />
+          </div>
+        </section>
+        <section className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
+          <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
+            <ArrowLeft size={14} /> Μαθήματα
+          </Link>
+          <BusinessModelCanvas />
+          <div className="mx-auto mt-8 flex max-w-xl gap-4">
+            <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
+              <ArrowLeft size={18} /> Διαφάνειες
+            </Button>
+            <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
+              Πάμε quiz! 🎯
+            </Button>
           </div>
         </section>
       </main>
