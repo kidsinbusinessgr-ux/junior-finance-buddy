@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { adSchema, costingSchema, ideaSchema } from "./startup-plan";
 
 // Startups are created here on the server: the founder is the signed-in child
 // (their name is used, not typed in), the texts are checked for bad words, and
@@ -14,9 +15,11 @@ const startupSchema = z.object({
   solution: z.string().trim().min(10).max(500),
   customer: z.string().trim().min(10).max(500),
   model: z.string().trim().min(10).max(500),
+  competitors: z.string().trim().max(300).default(""),
+  usp: z.string().trim().max(300).default(""),
 });
 
-export type CreateStartupInput = z.infer<typeof startupSchema>;
+export type CreateStartupInput = z.input<typeof startupSchema>;
 
 export type CreateStartupResult =
   | { ok: true; id: string }
@@ -40,7 +43,7 @@ export const createStartup = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!child) return { ok: false, reason: "no_child" };
 
-    const texts = [data.name, data.problem, data.solution, data.customer, data.model];
+    const texts = [data.name, data.problem, data.solution, data.customer, data.model, data.competitors, data.usp];
     if (texts.some((t) => containsBadWords(t))) return { ok: false, reason: "bad_words" };
 
     const { count } = await admin
@@ -61,6 +64,7 @@ export const createStartup = createServerFn({ method: "POST" })
         model: data.model,
         coins_raised: 0,
         child_id: child.id,
+        plan: { competitors: data.competitors, usp: data.usp },
       } as never)
       .select("id")
       .single();
@@ -238,4 +242,47 @@ export const saveStartupDrawing = createServerFn({ method: "POST" })
       return { ok: false, reason: "failed" };
     }
     return { ok: true, imageUrl };
+  });
+
+// ── Business plan (idea, costing, ad) ─────────────────────────────────────────
+// The founder fills the plan step by step on the startup's page. Each part is
+// checked here (owner, sizes, polite words) and merged into startups.plan.
+
+const planSchema = z.discriminatedUnion("part", [
+  z.object({ startupId: z.string().uuid(), part: z.literal("idea"), value: ideaSchema }),
+  z.object({ startupId: z.string().uuid(), part: z.literal("costing"), value: costingSchema }),
+  z.object({ startupId: z.string().uuid(), part: z.literal("ad"), value: adSchema }),
+]);
+
+export type SavePlanInput = z.input<typeof planSchema>;
+export type SavePlanResult = { ok: true } | { ok: false; reason: "login" | "not_owner" | "bad_words" | "failed" };
+
+export const saveStartupPlan = createServerFn({ method: "POST" })
+  .inputValidator((data: SavePlanInput) => planSchema.parse(data))
+  .handler(async ({ data }): Promise<SavePlanResult> => {
+    const owned = await ownStartup(data.startupId);
+    if ("error" in owned) return { ok: false, reason: owned.error! };
+    const { containsBadWords } = await import("./buddy-safety");
+
+    const texts: string[] =
+      data.part === "idea"
+        ? [data.value.competitors, data.value.usp]
+        : data.part === "costing"
+          ? [data.value.unit, ...data.value.fixed.map((i) => i.name), ...data.value.variable.map((i) => i.name)]
+          : [data.value.headline, data.value.text, data.value.cta, data.value.where];
+    if (texts.some((t) => containsBadWords(t))) return { ok: false, reason: "bad_words" };
+
+    const { data: row } = await owned.admin.from("startups").select("plan").eq("id", data.startupId).single();
+    const current = ((row as { plan?: Record<string, unknown> } | null)?.plan ?? {}) as Record<string, unknown>;
+    const next = data.part === "idea" ? { ...current, ...data.value } : { ...current, [data.part]: data.value };
+
+    const { error } = await owned.admin
+      .from("startups")
+      .update({ plan: next } as never)
+      .eq("id", data.startupId);
+    if (error) {
+      console.error("plan save failed", error.message);
+      return { ok: false, reason: "failed" };
+    }
+    return { ok: true };
   });

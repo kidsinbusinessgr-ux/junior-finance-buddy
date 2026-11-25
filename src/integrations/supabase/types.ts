@@ -1416,6 +1416,7 @@ export type Database = {
           name: string
           problem: string
           image_url: string | null
+          plan: Json
           solution: string
         }
         Insert: {
@@ -1443,6 +1444,7 @@ export type Database = {
           name: string
           problem: string
           image_url?: string | null
+          plan?: Json
           solution: string
         }
         Update: {
@@ -1470,6 +1472,7 @@ export type Database = {
           name?: string
           problem?: string
           image_url?: string | null
+          plan?: Json
           solution?: string
         }
         Relationships: []

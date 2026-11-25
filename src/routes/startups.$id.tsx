@@ -8,7 +8,10 @@ import { useChild, useCurrentUser } from "@/hooks/useJFB";
 import { CompanyStats, FounderDecision, FounderReminder } from "@/components/startup-company";
 import { FounderMoneyTools, MyStake, SharesInfo, sharePrice } from "@/components/startup-investors";
 import { StartupReactions } from "@/components/startup-community";
-import { StartupDrawing } from "@/components/startup-drawing";
+import { CostingSummary } from "@/components/startup-costing";
+import { AdPreview } from "@/components/startup-ad";
+import { FounderPlan } from "@/components/startup-plan-panel";
+import { readPlan } from "@/lib/startup-plan";
 
 // Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
 const INVEST_LIMIT = 200;
@@ -17,7 +20,7 @@ const INVEST_LIMIT = 200;
 function investErrorText(message: string): string {
   if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά KidsCoins.";
   if (message.includes("Own startup")) return "Δεν μπορείς να επενδύσεις στο δικό σου startup.";
-  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} coins σε αυτό το startup. Μοίρασε τα KidsCoins σου και σε άλλα.`;
+  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} KidsCoins σε αυτό το startup. Μοίρασε τα KidsCoins σου και σε άλλα.`;
   if (message.includes("child account")) return "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.";
   return "Κάτι πήγε στραβά. Δοκίμασε ξανά.";
 }
@@ -56,6 +59,7 @@ type Startup = {
   rounds_won: number;
   last_dividend_at: string | null;
   image_url: string | null;
+  plan: unknown;
 };
 
 type Investment = {
@@ -83,7 +87,6 @@ export default function StartupPage() {
   const [selectedCoins, setSelectedCoins] = useState(10);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [drawingOpen, setDrawingOpen] = useState(false);
 
   const fetchData = async () => {
     const [{ data: s }, { data: inv }] = await Promise.all([
@@ -154,6 +157,9 @@ export default function StartupPage() {
   );
 
   const totalInvestors = investments.length;
+  const plan = readPlan(startup.plan);
+  const isFounder = Boolean(child) && startup.child_id === child?.id;
+  const adInfo = { name: startup.name, emoji: startup.emoji, imageUrl: startup.image_url, costing: plan.costing, usp: plan.usp };
   const roundIsOpen = startup.round_goal !== null && startup.round_ends_at !== null && new Date(startup.round_ends_at) > new Date();
 
   return (
@@ -187,6 +193,13 @@ export default function StartupPage() {
         </div>
       </section>
 
+      {/* Founder: phases 2 and 3 of the business plan */}
+      {isFounder && (
+        <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+          <FounderPlan startup={startup} onChange={setStartup} />
+        </section>
+      )}
+
       <section className="mx-auto max-w-2xl px-6 py-12">
         {/* Success banner */}
         {success && (
@@ -196,33 +209,6 @@ export default function StartupPage() {
               <p className="font-black">Επένδυσες επιτυχώς!</p>
               <p className="text-sm">Ευχαριστούμε για την υποστήριξη.</p>
             </div>
-          </div>
-        )}
-
-        {/* Founder: draw the product so everyone sees how it looks */}
-        {child && startup.child_id === child.id && (
-          <div className="mb-8">
-            {drawingOpen ? (
-              <StartupDrawing
-                startupId={startup.id}
-                imageUrl={startup.image_url}
-                onSaved={(url) => { setStartup({ ...startup, image_url: url }); setDrawingOpen(false); }}
-                onClose={() => setDrawingOpen(false)}
-              />
-            ) : startup.image_url ? (
-              <Button variant="outline" className="w-full rounded-full font-bold" onClick={() => setDrawingOpen(true)}>
-                🎨 Άλλαξε τη ζωγραφιά του προϊόντος σου
-              </Button>
-            ) : (
-              <div className="rounded-2xl border-2 border-dashed border-[oklch(0.57_0.23_292)] bg-[oklch(0.97_0.03_292)] p-5 text-center">
-                <p className="text-3xl">🎨</p>
-                <p className="mt-2 font-black">Πώς μοιάζει το προϊόν σου;</p>
-                <p className="mt-1 text-sm text-muted-foreground">Ζωγράφισέ το, για να το δουν όλοι στη σελίδα της εταιρείας σου.</p>
-                <Button className="mt-4 rounded-full font-black" onClick={() => setDrawingOpen(true)}>
-                  Ζωγράφισε το προϊόν σου
-                </Button>
-              </div>
-            )}
           </div>
         )}
 
@@ -263,13 +249,17 @@ export default function StartupPage() {
             { label: "🔍 Το πρόβλημα", content: startup.problem },
             { label: "💡 Η λύση μας", content: startup.solution },
             { label: "🎯 Ο πελάτης μας", content: startup.customer },
+            { label: "⭐ Τι μας κάνει να ξεχωρίζουμε", content: plan.usp ?? "" },
+            { label: "🏁 Ο ανταγωνισμός", content: plan.competitors ?? "" },
             { label: "💰 Πώς κερδίζουμε χρήματα", content: startup.model },
-          ].map((block) => (
+          ].filter((block) => block.content.trim()).map((block) => (
             <div key={block.label} className="rounded-2xl border bg-card p-6">
               <h3 className="mb-2 text-sm font-black uppercase tracking-widest text-muted-foreground">{block.label}</h3>
               <p className="text-base leading-relaxed">{block.content}</p>
             </div>
           ))}
+          {plan.costing && <CostingSummary costing={plan.costing} />}
+          {plan.ad && !isFounder && <AdPreview design={plan.ad} info={adInfo} />}
         </div>
 
         {/* Invest CTA */}
