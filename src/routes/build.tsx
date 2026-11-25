@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { createStartup, type CreateStartupResult } from "@/lib/startups.functions";
-import { IDEA_SPARKS } from "@/lib/startup-plan";
+import { IDEA_SPARKS, WORKBOOK_URL } from "@/lib/startup-plan";
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
 
 const CREATE_ERRORS: Record<Exclude<CreateStartupResult, { ok: true }>["reason"], string> = {
@@ -204,7 +204,7 @@ export default function BuildPage() {
             {[
               ["1", "Η ιδέα", "Πρόβλημα, πελάτες, τι σε κάνει να ξεχωρίζεις", true],
               ["2", "Το σχέδιο", "Σχεδίασε το προϊόν, κοστολόγησέ το, βρες το break-even", false],
-              ["3", "Η διαφήμιση", "Φτιάξε την αφίσα ή το post του προϊόντος σου", false],
+              ["3", "Διαφήμιση και δράση", "Η αφίσα σου, το pitch σου και το πλάνο της εβδομάδας", false],
             ].map(([n, t, d, now]) => (
               <div key={n as string} className={`rounded-2xl px-4 py-3 ${now ? "bg-white text-foreground" : "bg-white/15"}`}>
                 <p className="font-black">Φάση {n as string} · {t as string}</p>
@@ -275,6 +275,9 @@ export default function BuildPage() {
                   <p className="text-xs text-muted-foreground sm:col-span-2">
                     Γράψε όλες τις ιδέες σου σε ένα χαρτί, μεγάλες και μικρές. Μετά κράτα αυτή που σε ενθουσιάζει και μπορείς πραγματικά να κάνεις.
                   </p>
+                  <a href={WORKBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[oklch(0.5_0.2_292)] underline sm:col-span-2">
+                    📘 Περισσότερες ιδέες και σελίδα για brainstorming υπάρχουν στο Kids in Business Workbook
+                  </a>
                 </div>
               )}
             </div>
@@ -395,7 +398,7 @@ export default function BuildPage() {
 
             <div className="rounded-2xl bg-[oklch(0.95_0.05_173)] p-4 text-sm text-[oklch(0.3_0.1_173)]">
               <p className="font-black">Μετά τη δημοσίευση συνεχίζεις στη σελίδα του startup σου:</p>
-              <p className="mt-1">🎨 Σχεδίασε το προϊόν · 🧮 Κοστολόγηση και break-even · 📣 Η διαφήμισή σου</p>
+              <p className="mt-1">🎨 Σχεδίασε το προϊόν · 🧮 Κοστολόγηση και break-even · 📣 Η διαφήμισή σου · 🗓️ Σχέδιο δράσης</p>
             </div>
 
             {error && (

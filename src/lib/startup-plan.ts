@@ -34,11 +34,22 @@ export type AdDesign = z.infer<typeof adSchema>;
 
 export const ideaSchema = z.object({ competitors: text(300), usp: text(300) });
 
+export const DAYS = ["Δευτέρα", "Τρίτη", "Τετάρτη", "Πέμπτη", "Παρασκευή", "Σάββατο", "Κυριακή"] as const;
+export const actionSchema = z.object({
+  days: z.array(z.object({ text: text(120), done: z.boolean() })).length(7), // the weekly plan, Monday to Sunday
+  pitch: text(400), // what the founder says in 30 seconds
+});
+export type ActionPlan = z.infer<typeof actionSchema>;
+
+// Where the workbook is sold, for those who want the printed version.
+export const WORKBOOK_URL = "https://kidsinbusiness.gr/product/kidsin-business-workbook/";
+
 export type StartupPlan = {
   competitors?: string;
   usp?: string;
   costing?: Costing;
   ad?: AdDesign;
+  action?: ActionPlan;
 };
 
 // What the page reads from the database, cleaned: unknown or broken parts are dropped.
@@ -51,6 +62,8 @@ export function readPlan(raw: unknown): StartupPlan {
   if (c.success) out.costing = c.data;
   const a = adSchema.safeParse(p.ad);
   if (a.success) out.ad = a.data;
+  const ac = actionSchema.safeParse(p.action);
+  if (ac.success) out.action = ac.data;
   return out;
 }
 

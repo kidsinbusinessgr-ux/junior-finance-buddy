@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { StartupDrawing } from "@/components/startup-drawing";
 import { StartupCosting } from "@/components/startup-costing";
 import { StartupAd } from "@/components/startup-ad";
+import { StartupAction } from "@/components/startup-action";
 import { readPlan, type StartupPlan } from "@/lib/startup-plan";
 
 // Phases 2 and 3 of the business plan, for the founder on their startup's
@@ -13,11 +14,14 @@ export type PlanStartup = {
   id: string;
   name: string;
   emoji: string;
+  solution: string;
+  customer: string;
+  model: string;
   image_url: string | null;
   plan: unknown;
 };
 
-type PlanTab = "draw" | "costing" | "ad";
+type PlanTab = "draw" | "costing" | "ad" | "action";
 
 export function FounderPlan<S extends PlanStartup>({ startup, onChange }: { startup: S; onChange: (s: S) => void }) {
   const plan = readPlan(startup.plan);
@@ -25,14 +29,16 @@ export function FounderPlan<S extends PlanStartup>({ startup, onChange }: { star
     draw: Boolean(startup.image_url),
     costing: Boolean(plan.costing),
     ad: Boolean(plan.ad),
+    action: Boolean(plan.action?.days.some((d) => d.text.trim())),
   };
-  const [tab, setTab] = useState<PlanTab>(() => (!done.draw ? "draw" : !done.costing ? "costing" : "ad"));
+  const [tab, setTab] = useState<PlanTab>(() => (!done.draw ? "draw" : !done.costing ? "costing" : !done.ad ? "ad" : "action"));
   const [drawingOpen, setDrawingOpen] = useState(false);
   const savePlan = (next: StartupPlan) => onChange({ ...startup, plan: next });
   const tabs: { key: PlanTab; label: string; phase: string }[] = [
     { key: "draw", label: "🎨 Σχεδίασε", phase: "Φάση 2" },
     { key: "costing", label: "🧮 Κοστολόγηση", phase: "Φάση 2" },
     { key: "ad", label: "📣 Διαφήμιση", phase: "Φάση 3" },
+    { key: "action", label: "🗓️ Δράση", phase: "Φάση 3" },
   ];
   const count = Object.values(done).filter(Boolean).length;
   const info = { name: startup.name, emoji: startup.emoji, imageUrl: startup.image_url, costing: plan.costing, usp: plan.usp };
@@ -44,9 +50,9 @@ export function FounderPlan<S extends PlanStartup>({ startup, onChange }: { star
           <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Το business plan μου</p>
           <h2 className="text-2xl font-black">Συνέχισε το σχέδιό σου</h2>
         </div>
-        <p className="text-sm font-bold text-muted-foreground">Η ιδέα ✓ · {count} από 3 βήματα έτοιμα</p>
+        <p className="text-sm font-bold text-muted-foreground">Η ιδέα ✓ · {count} από 4 βήματα έτοιμα</p>
       </div>
-      <div className="mt-5 grid grid-cols-3 gap-2">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -97,6 +103,14 @@ export function FounderPlan<S extends PlanStartup>({ startup, onChange }: { star
           <StartupCosting startupId={startup.id} initial={plan.costing} onSaved={(costing) => savePlan({ ...plan, costing })} />
         )}
         {tab === "ad" && <StartupAd startupId={startup.id} info={info} initial={plan.ad} onSaved={(ad) => savePlan({ ...plan, ad })} />}
+        {tab === "action" && (
+          <StartupAction
+            startupId={startup.id}
+            info={{ name: startup.name, solution: startup.solution, customer: startup.customer, model: startup.model, plan }}
+            initial={plan.action}
+            onSaved={(action) => savePlan({ ...plan, action })}
+          />
+        )}
       </div>
     </div>
   );

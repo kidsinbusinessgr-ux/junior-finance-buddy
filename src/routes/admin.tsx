@@ -168,7 +168,7 @@ function AdminPage() {
                   <StatCard emoji="✍️" label="Συγκατάθεση γονιού" value={beta.parentsWithConsent} sub="γονείς με αποδοχή απορρήτου" />
                   <StatCard emoji="🚀" label="Startups" value={beta.startups} sub={`${beta.startupsByKids} από παιδιά`} />
                   <StatCard emoji="🧠" label="Αποφάσεις ιδρυτών" value={beta.decisions} sub={`${beta.decisions7d} τις τελευταίες 7 μέρες`} />
-                  <StatCard emoji="🤝" label="Επενδύσεις σε γύρους" value={beta.pledges} sub={`${beta.pledgedCoins} coins`} />
+                  <StatCard emoji="🤝" label="Επενδύσεις σε γύρους" value={beta.pledges} sub={`${beta.pledgedCoins} KidsCoins`} />
                   <StatCard emoji="📈" label="Παιδιά με μετοχές" value={beta.stockHolders} sub="έχουν τουλάχιστον μία" />
                   <StatCard emoji="📚" label="Μαθήματα" value={beta.lessonsDone} sub="ολοκληρώσεις" />
                   <StatCard emoji="💬" label="Σχόλια" value={beta.feedbackCount} sub="από το κουμπί «Η γνώμη σου»" />

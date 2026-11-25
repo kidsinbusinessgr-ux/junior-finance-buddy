@@ -186,7 +186,7 @@ export default function StartupPage() {
               <span className="text-3xl">🪙</span>
               <div className="text-left">
                 <p className="text-3xl font-black">{startup.coins_raised.toLocaleString()}</p>
-                <p className="text-xs text-[oklch(0.82_0.08_292)]">virtual coins · {totalInvestors} επενδυτές</p>
+                <p className="text-xs text-[oklch(0.82_0.08_292)]">εικονικά KidsCoins · {totalInvestors} επενδυτές</p>
               </div>
             </div>
           </div>
@@ -249,6 +249,7 @@ export default function StartupPage() {
             { label: "🔍 Το πρόβλημα", content: startup.problem },
             { label: "💡 Η λύση μας", content: startup.solution },
             { label: "🎯 Ο πελάτης μας", content: startup.customer },
+            { label: "🎤 Το pitch μας", content: plan.action?.pitch ?? "" },
             { label: "⭐ Τι μας κάνει να ξεχωρίζουμε", content: plan.usp ?? "" },
             { label: "🏁 Ο ανταγωνισμός", content: plan.competitors ?? "" },
             { label: "💰 Πώς κερδίζουμε χρήματα", content: startup.model },

@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { adSchema, costingSchema, ideaSchema } from "./startup-plan";
+import { actionSchema, adSchema, costingSchema, ideaSchema } from "./startup-plan";
 
 // Startups are created here on the server: the founder is the signed-in child
 // (their name is used, not typed in), the texts are checked for bad words, and
@@ -252,6 +252,7 @@ const planSchema = z.discriminatedUnion("part", [
   z.object({ startupId: z.string().uuid(), part: z.literal("idea"), value: ideaSchema }),
   z.object({ startupId: z.string().uuid(), part: z.literal("costing"), value: costingSchema }),
   z.object({ startupId: z.string().uuid(), part: z.literal("ad"), value: adSchema }),
+  z.object({ startupId: z.string().uuid(), part: z.literal("action"), value: actionSchema }),
 ]);
 
 export type SavePlanInput = z.input<typeof planSchema>;
@@ -269,7 +270,9 @@ export const saveStartupPlan = createServerFn({ method: "POST" })
         ? [data.value.competitors, data.value.usp]
         : data.part === "costing"
           ? [data.value.unit, ...data.value.fixed.map((i) => i.name), ...data.value.variable.map((i) => i.name)]
-          : [data.value.headline, data.value.text, data.value.cta, data.value.where];
+          : data.part === "ad"
+            ? [data.value.headline, data.value.text, data.value.cta, data.value.where]
+            : [data.value.pitch, ...data.value.days.map((d) => d.text)];
     if (texts.some((t) => containsBadWords(t))) return { ok: false, reason: "bad_words" };
 
     const { data: row } = await owned.admin.from("startups").select("plan").eq("id", data.startupId).single();

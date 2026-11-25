@@ -11,6 +11,7 @@ import {
   type PendingSubmission,
 } from "@/hooks/useJFB";
 import { ParentCardControls, ParentRewards } from "@/components/parent-card-controls";
+import { BusinessGuide } from "@/components/business-guide";
 
 export const Route = createFileRoute("/parent-dashboard")({
   component: ParentDashboard,
@@ -281,9 +282,11 @@ function ParentDashboard() {
           onClick={handleGiveCapital}
           className="w-full rounded-2xl bg-[oklch(0.57_0.23_292)] py-3 font-bold text-white disabled:opacity-50"
         >
-          {capitalState === "done" ? "✅ Δόθηκε!" : capitalState === "sending" ? "Αποστολή…" : capitalState === "error" ? "Κάτι πήγε στραβά, δοκίμασε ξανά" : `Δώσε 🚀 ${capitalAmount} επενδυτικά coins`}
+          {capitalState === "done" ? "✅ Δόθηκε!" : capitalState === "sending" ? "Αποστολή…" : capitalState === "error" ? "Κάτι πήγε στραβά, δοκίμασε ξανά" : `Δώσε 🚀 ${capitalAmount} επενδυτικά KidsCoins`}
         </button>
       </section>
+
+      <BusinessGuide />
     </div>
   );
 }

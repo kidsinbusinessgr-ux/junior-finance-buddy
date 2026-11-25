@@ -126,7 +126,7 @@ export function MyStake({
     const res = data as unknown as { payout: number; invested: number };
     const diff = res.payout - res.invested;
     setMessage(
-      `💸 Πούλησες το μερίδιό σου για 🪙 ${res.payout}. ${diff >= 0 ? `Κέρδισες ${diff} coins!` : `Έχασες ${-diff} coins. Συμβαίνει και αυτό στις επενδύσεις.`}`,
+      `💸 Πούλησες το μερίδιό σου για 🪙 ${res.payout}. ${diff >= 0 ? `Κέρδισες ${diff} KidsCoins!` : `Έχασες ${-diff} KidsCoins. Συμβαίνει και αυτό στις επενδύσεις.`}`,
     );
     setHolding(null);
     onChanged();
