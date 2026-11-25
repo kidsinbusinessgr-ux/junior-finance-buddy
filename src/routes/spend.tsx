@@ -189,7 +189,7 @@ function SpendPage() {
                   {error && <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm font-bold text-destructive">{error}</p>}
                 </>
               ) : (
-                !loading && (
+                (!loading || !userId) && (
                   <p className="rounded-xl bg-muted px-4 py-3 text-center text-sm text-muted-foreground">
                     {userId
                       ? "Την κάρτα τη σχεδιάζει το παιδί από τον δικό του λογαριασμό."
