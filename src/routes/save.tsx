@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { HeroArt } from "@/components/hero-art";
+import { SignupGate } from "@/components/signup-gate";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { GoalCardBuilder, SmartLesson, eurosToCoins, planFor, type GoalDraft } from "@/components/smart-goals";
@@ -98,7 +99,9 @@ function SavePage() {
               {child ? " Τους οικονομικούς στόχους μπορείς να τους στείλεις κατευθείαν στους στόχους σου." : " Μπορείς να την εκτυπώσεις και να την κολλήσεις κάπου όπου θα τη βλέπεις."}
             </p>
           </div>
-          <GoalCardBuilder mode="lesson" onSave={child ? saveToGoals : undefined} saving={saving} />
+          <SignupGate title="Φτιάξε την κάρτα του στόχου σου" text="Κάνε δωρεάν εγγραφή για να γράψεις τον δικό σου στόχο, να δεις πότε θα τον φτάσεις και να εκτυπώσεις την κάρτα σου.">
+            <GoalCardBuilder mode="lesson" onSave={child ? saveToGoals : undefined} saving={saving} />
+          </SignupGate>
           {saveError && <p className="mt-3 text-sm font-bold text-red-600">{saveError}</p>}
         </div>
       </section>

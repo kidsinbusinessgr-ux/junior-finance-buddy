@@ -5,7 +5,7 @@ import { HeroArt } from "@/components/hero-art";
 import { BusinessModelCanvas } from "@/components/bmc-canvas";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
-import { useChild } from "@/hooks/useJFB";
+import { useChild, useCurrentUser } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/earn")({
   head: () => ({
@@ -62,6 +62,7 @@ function EarnPage() {
   const [tasks, setTasks] = useState(initialTasks);
   // A signed-in child sees a way to their real chores (sent to the parent for approval).
   const { child } = useChild();
+  const { userId } = useCurrentUser();
 
   const toggle = (id: number) =>
     setTasks((prev) =>
@@ -189,7 +190,7 @@ function EarnPage() {
               )}
             </p>
           </div>
-          <BusinessModelCanvas />
+          <BusinessModelCanvas locked={!userId} />
         </div>
       </section>
 

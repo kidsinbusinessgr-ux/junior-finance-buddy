@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Lightbulb, Plus, Printer, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Check, Lightbulb, Lock, Plus, Printer, RotateCcw, X } from "lucide-react";
+import { SignupCta } from "@/components/signup-gate";
 
 // The Business Model Canvas from the Kids in Business worksheet: the nine
 // boxes keep their places, teens add short post-its to each one, and the
@@ -445,7 +446,8 @@ function Cell({
   );
 }
 
-export function BusinessModelCanvas() {
+// locked: visitors see the Airbnb example only, and a free sign-up to fill their own.
+export function BusinessModelCanvas({ locked = false }: { locked?: boolean } = {}) {
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [loaded, setLoaded] = useState(false);
   const [view, setView] = useState<"mine" | "airbnb">("mine");
@@ -465,7 +467,7 @@ export function BusinessModelCanvas() {
     }
   }, [draft, loaded]);
 
-  const showAirbnb = view === "airbnb";
+  const showAirbnb = locked || view === "airbnb";
   const activeBox = BOXES.find((b) => b.id === active) ?? BY_STEP[0];
   const nextBox = BY_STEP.find((b) => b.step === activeBox.step + 1);
   const filled = BOXES.filter((b) => draft.notes[b.id].length > 0).length;
@@ -493,9 +495,10 @@ export function BusinessModelCanvas() {
           <button
             type="button"
             onClick={() => setView("mine")}
-            className={`rounded-full px-4 py-1.5 ${!showAirbnb ? "bg-[#f2709c] text-white" : "text-[#8a7d75]"}`}
+            disabled={locked}
+            className={`inline-flex items-center gap-1 rounded-full px-4 py-1.5 ${!showAirbnb ? "bg-[#f2709c] text-white" : "text-[#8a7d75]"} disabled:opacity-60`}
           >
-            Το δικό μου
+            {locked && <Lock size={13} />} Το δικό μου
           </button>
           <button
             type="button"
@@ -561,7 +564,8 @@ export function BusinessModelCanvas() {
 
       {showAirbnb ? (
         <p className="mt-5 rounded-xl bg-white p-4 text-sm">
-          Έτσι φαίνεται ένα συμπληρωμένο canvas. Η Airbnb ξεκίνησε το 2007 με 3 στρώματα αέρα σε ένα σαλόνι. Πάτα «Το δικό μου» για να γράψεις το δικό σου.
+          Έτσι φαίνεται ένα συμπληρωμένο canvas. Η Airbnb ξεκίνησε το 2007 με 3 στρώματα αέρα σε ένα σαλόνι.
+          {locked ? "" : " Πάτα «Το δικό μου» για να γράψεις το δικό σου."}
         </p>
       ) : (
         <>
@@ -618,7 +622,12 @@ export function BusinessModelCanvas() {
           </div>
         </>
       )}
-      {showAirbnb && (
+      {locked && (
+        <div className="mt-6">
+          <SignupCta title="Φτιάξε το δικό σου canvas" text="Κάνε δωρεάν εγγραφή για να γράψεις τα δικά σου post-it, να ελέγξεις αν δένει το canvas σου και να το εκτυπώσεις." />
+        </div>
+      )}
+      {showAirbnb && !locked && (
         <button
           type="button"
           onClick={() => printCanvas(AIRBNB_PROBLEM, airbnbNotes)}
