@@ -324,6 +324,7 @@ function printCard(d: GoalDraft) {
   if (!w) return;
   w.document.write(`<!doctype html><html lang="el"><head><meta charset="utf-8"><title>Κάρτα στόχου</title>
 <style>
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:40px;color:#2b2540}
 .card{border:3px solid #7c4dff;border-radius:24px;padding:32px;max-width:560px;margin:auto}
 h1{margin:0 0 4px;font-size:28px;color:#5b2fd6}.sub{margin:0 0 24px;color:#777;font-size:14px}

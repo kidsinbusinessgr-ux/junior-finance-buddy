@@ -276,6 +276,7 @@ ${notes[b.id].map((n) => `<div class="note">${escapeHtml(n)}</div>`).join("")}</
   w.document.write(`<!doctype html><html lang="el"><head><meta charset="utf-8"><title>Business Model Canvas</title>
 <style>
 @page{size:A4 landscape;margin:10mm}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;color:#3a2f2a;background:#fffaf3}
 h1{margin:0 0 4px;font-size:24px;color:#f08a5d}.p{margin:0 0 10px;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:1fr 1fr .8fr;gap:8px;height:165mm}
