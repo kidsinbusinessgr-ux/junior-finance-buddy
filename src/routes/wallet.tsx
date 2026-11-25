@@ -33,8 +33,8 @@ import {
 export const Route = createFileRoute("/wallet")({
   head: () => ({
     meta: [
-      { title: "Πορτοφόλι — Kids in Business" },
-      { name: "description", content: "Τα KidsCoins σου, οι δουλειές και το κατάστημα" },
+      { title: "Πορτοφόλι – Kids in Business" },
+      { name: "description", content: "Τα κέρματά σου, οι δουλειές και το κατάστημα" },
     ],
   }),
   component: WalletPage,
@@ -303,7 +303,7 @@ function WalletPage() {
             {/* Free / obligatory */}
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-black text-muted-foreground">ΥΠΟΧΡΕΩΤΙΚΕΣ · Δωρεάν</span>
+                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-black text-muted-foreground">ΥΠΟΧΡΕΩΤΙΚΕΣ · Χωρίς αμοιβή</span>
                 <div className="h-px flex-1 bg-border" />
               </div>
               {freeChores.length === 0 ? (
@@ -320,17 +320,17 @@ function WalletPage() {
                   ))}
                 </div>
               )}
-              <p className="mt-2 px-1 text-xs text-muted-foreground">Αυτές είναι οι υποχρεώσεις σου — δεν πληρώνονται.</p>
+              <p className="mt-2 px-1 text-xs text-muted-foreground">Αυτές είναι οι υποχρεώσεις σου και δεν πληρώνονται.</p>
             </div>
 
             {/* Paid extras */}
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <span className="rounded-full bg-[oklch(0.88_0.1_292)] px-3 py-1 text-xs font-black text-[oklch(0.36_0.18_292)]">ΕΞΤΡΑ · Πληρώνονται</span>
+                <span className="rounded-full bg-[oklch(0.88_0.1_292)] px-3 py-1 text-xs font-black text-[oklch(0.36_0.18_292)]">ΕΞΤΡΑ · Με αμοιβή</span>
                 <div className="h-px flex-1 bg-border" />
               </div>
               {paidChores.length === 0 ? (
-                <p className="text-sm text-muted-foreground px-1">Δεν υπάρχουν εξτρα δουλειές ακόμα.</p>
+                <p className="text-sm text-muted-foreground px-1">Δεν υπάρχουν έξτρα δουλειές ακόμα.</p>
               ) : (
                 <div className="rounded-2xl bg-card ring-1 ring-border">
                   {paidChores.map((chore) => {

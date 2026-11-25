@@ -25,8 +25,8 @@ import {
 export const Route = createFileRoute("/child-dashboard")({
   head: () => ({
     meta: [
-      { title: "Αρχική — Kids in Business" },
-      { name: "description", content: "Το dashboard σου στο Kids in Business" },
+      { title: "Αρχική – Kids in Business" },
+      { name: "description", content: "Η αρχική σου σελίδα στο Kids in Business" },
     ],
   }),
   component: ChildDashboard,
@@ -195,7 +195,7 @@ function ChildDashboard() {
             {/* Coins + Level */}
             <div className="mt-6 flex items-end gap-5">
               <div className="rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
-                <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">KidsCoins</p>
+                <p className="text-xs font-black uppercase tracking-widest text-[oklch(0.86_0.1_292)]">Κέρματα</p>
                 <p className="mt-1 text-4xl font-black">🪙 {child.coins}</p>
               </div>
               <div className="flex-1 rounded-2xl bg-[oklch(0.46_0.18_292)] px-5 py-4">
@@ -282,7 +282,7 @@ function ChildDashboard() {
         {pendingSubmissionIds.length > 0 && (
           <section className="mt-4 rounded-2xl bg-[oklch(0.95_0.04_292)] p-4 ring-1 ring-[oklch(0.85_0.05_292)]">
             <p className="text-sm font-black text-gray-600">
-              ⏳ {pendingSubmissionIds.length} δουλειές αναμένουν έγκριση γονέα…
+              ⏳ {pendingSubmissionIds.length} δουλειές περιμένουν έγκριση από τον γονιό σου…
             </p>
           </section>
         )}
@@ -356,7 +356,7 @@ function ChildDashboard() {
           >
             <Wallet size={22} className="text-[oklch(0.4_0.14_214)]" />
             <p className="font-black text-foreground">Πορτοφόλι</p>
-            <p className="text-xs text-muted-foreground">Coins · Δουλειές</p>
+            <p className="text-xs text-muted-foreground">Κέρματα · Δουλειές</p>
           </Link>
           <Link
             to="/goals"
@@ -373,7 +373,7 @@ function ChildDashboard() {
           <div className="flex items-center justify-between">
             <h2 className="font-black">Επιτεύγματα</h2>
             <span className="text-xs font-bold text-[oklch(0.7_0.2_60)]">
-              {earnedBadges.length}/{allBadges.length} ξεκλείδωτα
+              {earnedBadges.length}/{allBadges.length} ξεκλειδωμένα
             </span>
           </div>
           <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
@@ -404,7 +404,7 @@ function ChildDashboard() {
         {/* Recent Activity */}
         <section className="mt-6 rounded-2xl bg-card p-5 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <h2 className="font-black">Πρόσφατη Δραστηριότητα</h2>
+            <h2 className="font-black">Πρόσφατη δραστηριότητα</h2>
             <Link
               to="/wallet"
               className="flex items-center gap-1 text-xs font-bold text-muted-foreground"

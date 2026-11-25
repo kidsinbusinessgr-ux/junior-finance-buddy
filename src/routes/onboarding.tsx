@@ -75,7 +75,7 @@ function Onboarding() {
       {step === 1 && (
         <div className="w-full max-w-sm">
           <h1 className="mb-2 text-center text-3xl font-bold text-[oklch(0.3_0.08_250)]">
-            Καλωσήρθες! 👋
+            Καλώς ήρθες! 👋
           </h1>
           <p className="mb-8 text-center text-[oklch(0.5_0.04_250)]">
             Ας φτιάξουμε τον λογαριασμό σου.
@@ -121,7 +121,7 @@ function Onboarding() {
             className="mb-5 w-full rounded-2xl border border-[oklch(0.85_0.04_250)] p-4 text-lg text-[oklch(0.3_0.08_250)] outline-none focus:border-[oklch(0.55_0.18_250)]"
           />
           <label className="mb-2 block text-sm font-medium text-[oklch(0.4_0.08_250)]">
-            Επίλεξε avatar
+            Διάλεξε εικονίδιο
           </label>
           <div className="mb-6 grid grid-cols-8 gap-2">
             {AVATARS.map((a) => (
@@ -173,7 +173,7 @@ function Onboarding() {
             onClick={() => navigate({ to: "/parent-dashboard" })}
             className="w-full rounded-2xl bg-[oklch(0.55_0.18_250)] py-4 text-lg font-bold text-white"
           >
-            Πάμε στο dashboard →
+            Πάμε στον πίνακα →
           </button>
         </div>
       )}

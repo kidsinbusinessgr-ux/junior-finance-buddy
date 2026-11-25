@@ -20,7 +20,7 @@ const navigation = [
   { label: "Επενδύσεις", to: "/stocks" as const, key: "invest" },
   { label: "Μαθήματα", to: "/learn" as const, key: "learn" },
   { label: "Startups", to: "/startups/" as const, key: "startups" },
-  { label: "Φτιάξε Startup", to: "/build" as const, key: "build" },
+  { label: "Φτιάξε startup", to: "/build" as const, key: "build" },
 ];
 
 export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
@@ -80,7 +80,7 @@ export function BrightlyNav({ active, tone = "dark" }: BrightlyNavProps) {
               {item.label}
             </Link>
           ))}
-          <Link to="/parent-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-secondary"><LayoutDashboard size={16} /> Πίνακας γονέα</Link>
+          <Link to="/parent-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-secondary"><LayoutDashboard size={16} /> Πίνακας γονιού</Link>
           {!isLoggedIn && <Link to="/login" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 hover:bg-secondary">Σύνδεση</Link>}
           {!isLoggedIn && <Link to="/signup" onClick={() => setMenuOpen(false)} className="mt-2 rounded-full bg-primary px-3 py-3 text-center font-bold text-primary-foreground">Ξεκίνα τώρα</Link>}
           {isLoggedIn && <button onClick={handleSignOut} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-secondary text-sm"><LogOut size={15} /> Αποσύνδεση</button>}

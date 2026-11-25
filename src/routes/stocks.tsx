@@ -26,10 +26,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { VAPID_PUBLIC, saveSubscription, subscriptionKey } from "@/lib/push-client";
 
 const TRADE_ERRORS: Record<Exclude<MarketTradeResult, { ok: true }>["reason"], string> = {
-  login: "Συνδέσου για να επενδύσεις τα νομίσματά σου.",
-  no_child: "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει νομίσματα.",
+  login: "Συνδέσου για να επενδύσεις τα κέρματά σου.",
+  no_child: "Μόνο ο λογαριασμός μαθητή μπορεί να επενδύσει κέρματα.",
   no_price: "Δε βρέθηκε τιμή για αυτή τη μετοχή τώρα. Δοκίμασε ξανά σε λίγο.",
-  not_enough: "Δεν έχεις αρκετά νομίσματα.",
+  not_enough: "Δεν έχεις αρκετά κέρματα.",
   failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
 };
 
@@ -38,11 +38,11 @@ const FOLLOWED_KEY = "jfb-push-ticker";
 export const Route = createFileRoute("/stocks")({
   head: () => ({
     meta: [
-      { title: "Επενδύσεις — Kids in Business" },
+      { title: "Επενδύσεις – Kids in Business" },
       {
         name: "description",
         content:
-          "Μάθε τι είναι οι μετοχές και επένδυσε τα εικονικά νομίσματά σου σε εταιρείες που αγαπάς.",
+          "Μάθε τι είναι οι μετοχές και επένδυσε τα εικονικά κέρματά σου σε εταιρείες που ξέρεις.",
       },
     ],
   }),
@@ -74,7 +74,7 @@ const LESSON_CARDS = [
   {
     icon: "⏳",
     title: "Η δύναμη του χρόνου",
-    body: "Οι μακροπρόθεσμοι επενδυτές κερδίζουν περισσότερο. Αν ο Warren Buffett (ο πιο διάσημος επενδυτής) είχε βγάλει τα χρήματά του στα 30, δε θα ήταν σχεδόν πλούσιος σήμερα.",
+    body: "Οι μακροπρόθεσμοι επενδυτές κερδίζουν περισσότερο. Ο Warren Buffett, ο πιο διάσημος επενδυτής, απέκτησε το μεγαλύτερο μέρος της περιουσίας του μετά τα 50, επειδή άφησε τις επενδύσεις του να μεγαλώνουν για δεκαετίες.",
   },
 ];
 
@@ -329,11 +329,11 @@ function StocksPage() {
               Μάθε. Επένδυσε.<br />Δες πώς μεγαλώνουν.
             </h1>
             <p className="mt-5 text-lg text-[oklch(0.85_0.04_260)]">
-              Αληθινές τιμές αγοράς · Εικονικά νομίσματα · 100% εκπαιδευτικό
+              Αληθινές τιμές αγοράς · Εικονικά κέρματα · 100% εκπαιδευτικό
             </p>
             <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 text-sm font-black">
               <span className="text-xl">🪙</span>
-              <span>{coins} νομίσματα διαθέσιμα</span>
+              <span>{coins} κέρματα διαθέσιμα</span>
             </div>
           </div>
         </div>
@@ -499,7 +499,7 @@ function StocksPage() {
                                 [q.ticker]: Number(e.target.value),
                               }))
                             }
-                            placeholder="Νομίσματα 🪙"
+                            placeholder="Κέρματα 🪙"
                             className="h-9 flex-1 rounded-xl border border-border bg-background px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[oklch(0.57_0.23_292)]"
                           />
                           <Button
@@ -516,7 +516,7 @@ function StocksPage() {
                         <div className="mt-5 border-t border-border pt-4" onClick={(e) => e.stopPropagation()}>
                           <div className="mb-3 flex items-center justify-between">
                             <div>
-                              <p className="text-sm font-black">Πορεία τιμής — 30 ημέρες</p>
+                              <p className="text-sm font-black">Πορεία τιμής · 30 ημέρες</p>
                               <p className="text-xs text-muted-foreground">Πραγματικές τιμές κλεισίματος</p>
                             </div>
                             {loadingHistory && (
@@ -535,7 +535,7 @@ function StocksPage() {
                                 return (
                                   <div className="mb-4 grid grid-cols-3 gap-2 text-center text-sm">
                                     <div className="rounded-xl bg-muted p-2.5">
-                                      <p className="text-xs text-muted-foreground font-semibold">Πριν 30 μέρες</p>
+                                      <p className="text-xs text-muted-foreground font-semibold">Πριν από 30 μέρες</p>
                                       <p className="font-black mt-0.5">€{fmt(startP)}</p>
                                     </div>
                                     <div className={`rounded-xl p-2.5 ${isUp ? "bg-green-50 dark:bg-green-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
@@ -619,13 +619,13 @@ function StocksPage() {
                                 let explanation: string;
                                 if (absChg < 1.5) {
                                   icon = "😐";
-                                  explanation = "Η τιμή παρέμεινε σχεδόν σταθερή αυτόν τον μήνα — η αγορά δεν έχει αποφασίσει ακόμα.";
+                                  explanation = "Η τιμή έμεινε σχεδόν σταθερή αυτόν τον μήνα· η αγορά δεν έχει πάρει ακόμα θέση.";
                                 } else if (isUp) {
                                   icon = "🚀";
-                                  explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙! Η μετοχή ανέβηκε γιατί οι επενδυτές πιστεύουν ότι η εταιρεία πάει καλά.`;
+                                  explanation = `Αν είχες επενδύσει 100 🪙 πριν από έναν μήνα, τώρα θα είχες ${simulated} 🪙! Η μετοχή ανέβηκε γιατί οι επενδυτές πιστεύουν ότι η εταιρεία πάει καλά.`;
                                 } else {
                                   icon = "📉";
-                                  explanation = `Αν είχες επενδύσει 100 🪙 πριν έναν μήνα, τώρα θα είχες ${simulated} 🪙. Η τιμή έπεσε — μπορεί να είναι καλή στιγμή για αγορά, αλλά πάντα υπάρχει ρίσκο.`;
+                                  explanation = `Αν είχες επενδύσει 100 🪙 πριν από έναν μήνα, τώρα θα είχες ${simulated} 🪙. Η τιμή έπεσε – μπορεί να είναι καλή στιγμή για αγορά, αλλά πάντα υπάρχει ρίσκο.`;
                                 }
                                 return (
                                   <div className={`mt-3 rounded-xl px-4 py-3 text-sm leading-relaxed ${isUp && absChg >= 1.5 ? "bg-green-50 dark:bg-green-950/30" : !isUp && absChg >= 1.5 ? "bg-orange-50 dark:bg-orange-950/30" : "bg-muted"}`}>
@@ -663,8 +663,8 @@ function StocksPage() {
                                           <span className="font-black">{trendUp ? "Ανοδική τάση: " : "Καθοδική τάση: "}</span>
                                           <span className="text-muted-foreground">
                                             {trendUp
-                                              ? "Η τιμή ανεβαίνει τελευταία — οι επενδυτές πιστεύουν στην εταιρεία."
-                                              : "Η τιμή κατεβαίνει — μπορεί να είναι ευκαιρία, αλλά κοίτα γιατί πέφτει."}
+                                              ? "Η τιμή ανεβαίνει τον τελευταίο καιρό: οι επενδυτές πιστεύουν στην εταιρεία."
+                                              : "Η τιμή πέφτει. Μπορεί να είναι ευκαιρία, αλλά πρώτα ψάξε γιατί πέφτει."}
                                           </span>
                                         </p>
                                       </div>
@@ -674,8 +674,8 @@ function StocksPage() {
                                           <span className="font-black">{isVolatile ? "Υψηλή αστάθεια: " : "Σταθερή τιμή: "}</span>
                                           <span className="text-muted-foreground">
                                             {isVolatile
-                                              ? `Η τιμή κυμάνθηκε ${fmt(volatility, 0)}% αυτόν τον μήνα — ριψοκίνδυνη αλλά με δυνατότητα μεγάλου κέρδους.`
-                                              : "Η τιμή κινείται ομαλά — πιο ασφαλής επιλογή για αρχάριους."}
+                                              ? `Η τιμή κυμάνθηκε ${fmt(volatility, 0)}% αυτόν τον μήνα – ριψοκίνδυνη αλλά με δυνατότητα μεγάλου κέρδους.`
+                                              : "Η τιμή κινείται ομαλά: πιο ασφαλής επιλογή για αρχάριους."}
                                           </span>
                                         </p>
                                       </div>
@@ -685,10 +685,10 @@ function StocksPage() {
                                           <span className="font-black">Πότε να αγοράσω; </span>
                                           <span className="text-muted-foreground">
                                             {isUp && absChg > 5
-                                              ? "Η τιμή έχει ήδη ανέβει πολύ — ίσως περίμενε να πέσει λίγο πριν αγοράσεις."
+                                              ? "Η τιμή έχει ήδη ανέβει πολύ. Ίσως αξίζει να περιμένεις λίγο πριν αγοράσεις."
                                               : !isUp && absChg > 5
-                                              ? "Η τιμή έχει πέσει — μπορεί να είναι καλή στιγμή για είσοδο."
-                                              : "Η τιμή είναι σχετικά σταθερή — καλή στιγμή για να εξετάσεις αγορά."}
+                                              ? "Η τιμή έχει πέσει. Μπορεί να είναι καλή στιγμή για να αγοράσεις."
+                                              : "Η τιμή είναι σχετικά σταθερή. Είναι καλή στιγμή να σκεφτείς μια αγορά."}
                                           </span>
                                         </p>
                                       </div>
@@ -697,7 +697,7 @@ function StocksPage() {
                                         <p>
                                           <span className="font-black">Χρυσός κανόνας: </span>
                                           <span className="text-muted-foreground">
-                                            Μη βάζεις ποτέ όλα τα νομίσματά σου σε μία μετοχή. Μοίρασε τον κίνδυνο.
+                                            Μη βάζεις ποτέ όλα τα κέρματά σου σε μία μετοχή. Μοίρασε τον κίνδυνο.
                                           </span>
                                         </p>
                                       </div>
@@ -798,7 +798,7 @@ function StocksPage() {
                                             ? "Καλή στιγμή για αγορά!"
                                             : buddy.signal === "wait"
                                             ? "Περίμενε λίγο ακόμα"
-                                            : "Παρακολούθα την τιμή"}
+                                            : "Παρακολούθησε την τιμή"}
                                         </span>
                                       </div>
                                       <p className="text-sm leading-relaxed">{buddy.message}</p>
@@ -844,7 +844,7 @@ function StocksPage() {
               </div>
               <div className="rounded-2xl bg-card p-5 ring-1 ring-border">
                 <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                  Διαθέσιμα νομίσματα
+                  Διαθέσιμα κέρματα
                 </p>
                 <p className="mt-2 text-3xl font-black">{coins} 🪙</p>
               </div>
@@ -855,7 +855,7 @@ function StocksPage() {
                 <p className="text-5xl">📭</p>
                 <p className="mt-4 text-lg font-black">Δεν έχεις μετοχές ακόμα</p>
                 <p className="mt-2 text-muted-foreground">
-                  Πήγαινε στην καρτέλα Αγορά και επένδυσε τα νομίσματά σου.
+                  Πήγαινε στην καρτέλα Αγορά και επένδυσε τα κέρματά σου.
                 </p>
                 <Button
                   onClick={() => setTab("📊 Αγορά")}
@@ -917,7 +917,7 @@ function StocksPage() {
                           variant="outline"
                           className="h-8 rounded-xl px-4 text-xs font-black"
                         >
-                          {trading === h.ticker ? "..." : "Πώλησε"}
+                          {trading === h.ticker ? "…" : "Πούλησε"}
                         </Button>
                       </div>
                     </div>
@@ -929,7 +929,7 @@ function StocksPage() {
             <div className="rounded-2xl bg-muted p-5 text-sm text-muted-foreground">
               <p className="font-black text-foreground">📌 Υπενθύμιση</p>
               <p className="mt-1.5 leading-relaxed">
-                Αυτό είναι <strong>εκπαιδευτική προσομοίωση</strong> με εικονικά νομίσματα. Οι τιμές
+                Αυτό είναι <strong>εκπαιδευτική προσομοίωση</strong> με εικονικά κέρματα. Οι τιμές
                 είναι πραγματικές, αλλά δε γίνεται καμία πραγματική αγοραπωλησία. Για να επενδύσεις
                 πραγματικά χρήματα χρειάζεσαι ηλικία 18+ και λογαριασμό χρηματιστηρίου.
               </p>

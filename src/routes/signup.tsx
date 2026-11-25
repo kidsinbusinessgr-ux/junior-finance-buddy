@@ -12,9 +12,9 @@ import logo from "@/assets/logo-kidsinbusiness_1.png";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Εγγραφή — Kids in Business" },
+      { title: "Εγγραφή – Kids in Business" },
       { name: "description", content: "Δημιούργησε λογαριασμό στο Kids in Business και ξεκίνα να χτίζεις οικονομικές δεξιότητες με το παιδί σου." },
-      { property: "og:title", content: "Εγγραφή — Kids in Business" },
+      { property: "og:title", content: "Εγγραφή – Kids in Business" },
       { property: "og:description", content: "Δημιούργησε λογαριασμό στο Kids in Business και ξεκίνα να χτίζεις οικονομικές δεξιότητες με το παιδί σου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,7 +55,7 @@ function SignupPage() {
                 : "text-gray-400"
             }`}
           >
-            👨‍👩‍👧 Γονέας
+            👨‍👩‍👧 Γονιός
           </button>
           <button
             onClick={() => setTab("child")}
@@ -138,14 +138,14 @@ function ParentSignup() {
   return (
     <div className="bg-white rounded-3xl p-6 ring-1 ring-border shadow-sm">
       <div className="grid grid-cols-3 gap-2 mb-5">
-        {[{ icon: "📚", label: "6+ μαθήματα" }, { icon: "🪙", label: "Virtual wallet" }, { icon: "📈", label: "Επενδύσεις" }].map((b) => (
+        {[{ icon: "📚", label: "11 μαθήματα" }, { icon: "🪙", label: "Virtual wallet" }, { icon: "📈", label: "Επενδύσεις" }].map((b) => (
           <div key={b.label} className="bg-gray-50 rounded-2xl p-3 text-center">
             <p className="text-xl">{b.icon}</p>
             <p className="text-xs font-black text-gray-600 mt-1">{b.label}</p>
           </div>
         ))}
       </div>
-      <h2 className="font-black text-gray-800 text-xl mb-5">Λογαριασμός γονέα</h2>
+      <h2 className="font-black text-gray-800 text-xl mb-5">Λογαριασμός γονιού</h2>
       {error && <div className="bg-red-50 text-red-600 text-sm font-semibold rounded-xl px-4 py-3 mb-4">{error}</div>}
       <form onSubmit={handleSignup} className="space-y-4">
         <div>
@@ -213,7 +213,7 @@ function ChildSignup() {
     // Checked by a database function, since a logged-out child can't read the table.
     const name = await checkInviteCode(inviteCode.trim().toUpperCase());
     if (!name) {
-      setError("Ο κωδικός δε βρέθηκε ή έχει ήδη χρησιμοποιηθεί. Ρώτα τον γονέα σου.");
+      setError("Ο κωδικός δε βρέθηκε ή έχει ήδη χρησιμοποιηθεί. Ρώτα τον γονιό σου.");
       setLoading(false);
       return;
     }
@@ -286,7 +286,7 @@ function ChildSignup() {
         <>
           <h2 className="font-black text-gray-800 text-xl mb-2">Είσαι μαθητής;</h2>
           <p className="text-sm text-gray-400 mb-5">
-            Ζήτα από τον γονέα σου τον <span className="font-bold text-purple-600">κωδικό πρόσβασης</span> (6 γράμματα) που βλέπει στο dashboard του.
+            Ζήτα από τον γονιό σου τον <span className="font-bold text-purple-600">κωδικό πρόσβασης</span> (6 γράμματα) που βλέπει στον πίνακά του.
           </p>
           {error && <div className="bg-red-50 text-red-600 text-sm font-semibold rounded-xl px-4 py-3 mb-4">{error}</div>}
           <form onSubmit={handleCodeSubmit} className="space-y-4">
@@ -310,11 +310,11 @@ function ChildSignup() {
       ) : (
         <>
           <h2 className="font-black text-gray-800 text-xl mb-1">Γεια σου, {childName}! 👋</h2>
-          <p className="text-sm text-gray-400 mb-5">Διάλεξε email και κωδικό για να μπαίνεις μόνος σου.</p>
+          <p className="text-sm text-gray-400 mb-5">Διάλεξε email και κωδικό για να συνδέεσαι με τον δικό σου λογαριασμό.</p>
           {error && <div className="bg-red-50 text-red-600 text-sm font-semibold rounded-xl px-4 py-3 mb-4">{error}</div>}
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-bold text-gray-600 block mb-1">Email σου</label>
+              <label className="text-sm font-bold text-gray-600 block mb-1">Το email σου</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="w-full rounded-xl px-4 py-3 border border-gray-200 font-semibold text-gray-800 focus:outline-none" />
             </div>
             <div>

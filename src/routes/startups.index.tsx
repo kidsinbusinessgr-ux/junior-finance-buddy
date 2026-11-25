@@ -11,7 +11,7 @@ import { stageFor } from "@/lib/startup-stages";
 export const Route = createFileRoute("/startups/")({
   head: () => ({
     meta: [
-      { title: "Startups — Kids in Business" },
+      { title: "Startups – Kids in Business" },
       { name: "description", content: "Δες τα startups που έφτιαξαν οι μαθητές μας. Επένδυσε εικονικά κέρματα στις ιδέες που πιστεύεις." },
     ],
   }),
@@ -85,7 +85,7 @@ export default function StartupsPage() {
             <p className="mt-4 text-xl font-black">Δεν υπάρχουν startups ακόμα.</p>
             <p className="mt-2 text-muted-foreground">Γίνε ο/η πρώτος/η που θα φτιάξει ένα.</p>
             <Link to="/build">
-              <Button className="mt-6 h-12 rounded-full px-8 font-black">🚀 Φτιάξε το πρώτο Startup</Button>
+              <Button className="mt-6 h-12 rounded-full px-8 font-black">🚀 Φτιάξε το πρώτο startup</Button>
             </Link>
           </div>
         )}
@@ -126,7 +126,7 @@ export default function StartupsPage() {
         {/* Rest */}
         {rest.length > 0 && (
           <>
-            <h2 className="mb-6 text-2xl font-black">Όλα τα Startups</h2>
+            <h2 className="mb-6 text-2xl font-black">Όλα τα startups</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {rest.map((s) => (
                 <Link key={s.id} to="/startups/$id" params={{ id: s.id }}>

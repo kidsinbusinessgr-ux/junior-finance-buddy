@@ -9,10 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kids in Business — Χρηματοοικονομική παιδεία για νέους" },
-      { name: "description", content: "Η εφαρμογή που διδάσκει στα παιδιά ηλικίας 12—17 χρόνων πώς να κερδίζουν, αποταμιεύουν και επενδύουν με έξυπνο τρόπο." },
-      { property: "og:title", content: "Kids in Business — Χρηματοοικονομική παιδεία για νέους" },
-      { property: "og:description", content: "Η εφαρμογή που διδάσκει στα παιδιά ηλικίας 12—17 χρόνων πώς να κερδίζουν, αποταμιεύουν και επενδύουν με έξυπνο τρόπο." },
+      { title: "Kids in Business – Χρηματοοικονομική παιδεία για νέους" },
+      { name: "description", content: "Η εφαρμογή που μαθαίνει στους νέους 12–17 ετών να κερδίζουν, να αποταμιεύουν και να επενδύουν με σύνεση." },
+      { property: "og:title", content: "Kids in Business – Χρηματοοικονομική παιδεία για νέους" },
+      { property: "og:description", content: "Η εφαρμογή που μαθαίνει στους νέους 12–17 ετών να κερδίζουν, να αποταμιεύουν και να επενδύουν με σύνεση." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -58,7 +58,7 @@ function Index() {
 
           <div id="top" className="grid items-center gap-4 pb-12 pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:pt-28">
             <div className="relative z-10 max-w-[620px]">
-              <p className="mb-5 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Για ηλικίες 12—17</p>
+              <p className="mb-5 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Για ηλικίες 12–17</p>
               <h1 className="text-5xl font-black leading-[0.99] tracking-tight sm:text-6xl lg:text-7xl">{currentTitle}</h1>
               <p className="mt-7 max-w-xl text-xl leading-relaxed text-[oklch(0.96_0.02_292)] lg:text-2xl">{currentCopy}</p>
               {!isLoggedIn && (
@@ -98,8 +98,8 @@ function Index() {
           </div>
         </div>
         <div className="relative mx-auto max-w-5xl px-6 pb-8 pt-8 text-center">
-          <p className="text-3xl font-black leading-tight sm:text-4xl">Επιχειρηματικότητα και χρηματοοικονομική παιδεία για νέους ηλικίας 12—17</p>
-          <p className="mt-3 text-xs text-[oklch(0.89_0.06_292)]">Διδάσκουμε τα παιδιά να σκέφτονται σαν επιχειρηματίες</p>
+          <p className="text-3xl font-black leading-tight sm:text-4xl">Επιχειρηματικότητα και χρηματοοικονομική παιδεία για νέους ηλικίας 12–17</p>
+          <p className="mt-3 text-xs text-[oklch(0.89_0.06_292)]">Μαθαίνουμε στους νέους να σκέφτονται σαν επιχειρηματίες</p>
         </div>
       </section>
 

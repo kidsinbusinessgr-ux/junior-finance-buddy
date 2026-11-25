@@ -23,7 +23,7 @@ import {
 export const Route = createFileRoute("/goals")({
   head: () => ({
     meta: [
-      { title: "Στόχοι — Kids in Business" },
+      { title: "Στόχοι – Kids in Business" },
       { name: "description", content: "Οι αποταμιευτικοί σου στόχοι" },
     ],
   }),

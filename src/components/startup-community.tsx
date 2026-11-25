@@ -65,7 +65,7 @@ export function StartupReactions({ startupId, canReact, isFounder = false }: { s
       </div>
       {isFounder ? (
         <p className="mt-2 text-xs text-muted-foreground">Τις αντιδράσεις τις δίνουν οι άλλοι μαθητές. Δείξε το startup σου στους φίλους σου.</p>
-      ) : !canReact && <p className="mt-2 text-xs text-muted-foreground">Συνδέσου ως παιδί για να αντιδράσεις.</p>}
+      ) : !canReact && <p className="mt-2 text-xs text-muted-foreground">Συνδέσου ως μαθητής για να αντιδράσεις.</p>}
     </div>
   );
 }
@@ -152,7 +152,7 @@ export function SeasonBoard() {
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           Κερδίζει όποια εταιρεία ανεβάσει περισσότερο την αξία της μέσα στον μήνα. Βραβεία για τον ιδρυτή:
-          🥇 🚀100 · 🥈 🚀50 · 🥉 🚀25 επενδυτικά coins. Κάθε μήνα ο αγώνας ξεκινά από την αρχή.
+          🥇 🚀100 · 🥈 🚀50 · 🥉 🚀25 επενδυτικά κέρματα. Κάθε μήνα ο αγώνας ξεκινά από την αρχή.
         </p>
         <ol className="mt-3 space-y-2">
           {rows.map((r, i) => (

@@ -9,9 +9,9 @@ import { useChild, useLessonProgress, useSubscription } from "@/hooks/useJFB";
 export const Route = createFileRoute("/learn/")({
   head: () => ({
     meta: [
-      { title: "Μάθε — Kids in Business" },
+      { title: "Μάθε – Kids in Business" },
       { name: "description", content: "Χρηματοοικονομική παιδεία & Επιχειρηματικότητα για νέους 12–17. Χρήματα, budget, startup mindset, business model, marketing, pricing, pitch." },
-      { property: "og:title", content: "Μάθε — Kids in Business" },
+      { property: "og:title", content: "Μάθε – Kids in Business" },
       { property: "og:type", content: "website" },
     ],
   }),

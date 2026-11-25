@@ -402,7 +402,7 @@ export async function completeLesson(
 
 // ── Parent load coins manually ──────────────────────────────────
 export async function parentLoadCoins(childId: string, amount: number): Promise<void> {
-  await callRpc("jfb_parent_give_coins", { p_child_id: childId, p_amount: amount, p_note: "Φόρτωση από γονέα" });
+  await callRpc("jfb_parent_give_coins", { p_child_id: childId, p_amount: amount, p_note: "Φόρτωση από τον γονιό" });
 }
 
 // ── Onboarding helpers ──────────────────────────────────────────

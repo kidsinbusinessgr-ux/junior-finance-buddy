@@ -9,9 +9,9 @@ import { createSavingsGoal, useChild, useCurrentUser } from "@/hooks/useJFB";
 export const Route = createFileRoute("/save")({
   head: () => ({
     meta: [
-      { title: "Αποταμίευσε — Kids in Business" },
+      { title: "Αποταμίευσε – Kids in Business" },
       { name: "description", content: "Μάθε να βάζεις στόχους S.M.A.R.T. και γράψε τη δική σου κάρτα στόχου." },
-      { property: "og:title", content: "Αποταμίευσε — Kids in Business" },
+      { property: "og:title", content: "Αποταμίευσε – Kids in Business" },
       { property: "og:description", content: "Μάθε να βάζεις στόχους S.M.A.R.T. και γράψε τη δική σου κάρτα στόχου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

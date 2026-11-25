@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/payment-cancel")({
   head: () => ({
-    meta: [{ title: "Ακύρωση πληρωμής — Kids in Business" }],
+    meta: [{ title: "Ακύρωση πληρωμής – Kids in Business" }],
   }),
   component: PaymentCancelPage,
 });

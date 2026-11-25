@@ -9,10 +9,10 @@ import { useChild } from "@/hooks/useJFB";
 export const Route = createFileRoute("/earn")({
   head: () => ({
     meta: [
-      { title: "Κέρδισε — Kids in Business" },
-      { name: "description", content: "Μάθε πώς τα παιδιά κερδίζουν τα πρώτα τους χρήματα κάνοντας δουλειές στο σπίτι." },
-      { property: "og:title", content: "Κέρδισε — Kids in Business" },
-      { property: "og:description", content: "Μάθε πώς τα παιδιά κερδίζουν τα πρώτα τους χρήματα κάνοντας δουλειές στο σπίτι." },
+      { title: "Κέρδισε – Kids in Business" },
+      { name: "description", content: "Μάθε πώς να κερδίσεις τα πρώτα σου χρήματα με δουλειές στο σπίτι και στη γειτονιά." },
+      { property: "og:title", content: "Κέρδισε – Kids in Business" },
+      { property: "og:description", content: "Μάθε πώς να κερδίσεις τα πρώτα σου χρήματα με δουλειές στο σπίτι και στη γειτονιά." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -22,33 +22,33 @@ export const Route = createFileRoute("/earn")({
 
 const taskGroups = [
   {
-    category: "🏠 Σπίτι & Γειτονιά",
+    category: "🏠 Σπίτι και γειτονιά",
     tasks: [
       { id: 1,  label: "Τακτοποίηση σπιτιού", amount: "€2,00" },
       { id: 2,  label: "Πλύσιμο αυτοκινήτου γείτονα", amount: "€8,00" },
-      { id: 3,  label: "Κηπουρική / πότισμα φυτών", amount: "€5,00" },
+      { id: 3,  label: "Κηπουρική και πότισμα φυτών", amount: "€5,00" },
       { id: 4,  label: "Φύλαξη κατοικίδιου (ανά μέρα)", amount: "€10,00" },
-      { id: 5,  label: "Βοήθεια σε ψώνια ηλικιωμένου", amount: "€5,00" },
-      { id: 6,  label: "Τύλιγμα & παράδοση δώρων", amount: "€4,00" },
+      { id: 5,  label: "Βοήθεια σε ηλικιωμένο με τα ψώνια", amount: "€5,00" },
+      { id: 6,  label: "Τύλιγμα και παράδοση δώρων", amount: "€4,00" },
     ],
   },
   {
-    category: "📱 Ψηφιακές Δουλειές",
+    category: "📱 Ψηφιακές δουλειές",
     tasks: [
-      { id: 7,  label: "Post για Instagram τοπικής επιχείρησης", amount: "€15,00" },
-      { id: 8,  label: "Σχεδιασμός αφίσας / flyer (Canva)", amount: "€10,00" },
-      { id: 9,  label: "Βοήθεια ηλικιωμένου με κινητό / υπολογιστή", amount: "€8,00" },
-      { id: 10, label: "Επεξεργασία φωτογραφιών για event", amount: "€12,00" },
-      { id: 11, label: "Δημιουργία σύντομου βίντεο (Reels / TikTok)", amount: "€20,00" },
+      { id: 7,  label: "Αναρτήσεις στο Instagram για τοπική επιχείρηση", amount: "€15,00" },
+      { id: 8,  label: "Σχεδιασμός αφίσας ή φυλλαδίου (Canva)", amount: "€10,00" },
+      { id: 9,  label: "Βοήθεια σε ηλικιωμένο με το κινητό ή τον υπολογιστή", amount: "€8,00" },
+      { id: 10, label: "Επεξεργασία φωτογραφιών από εκδήλωση", amount: "€12,00" },
+      { id: 11, label: "Σύντομο βίντεο για Reels ή TikTok", amount: "€20,00" },
     ],
   },
   {
-    category: "📚 Γνώσεις & Skills",
+    category: "📚 Γνώσεις και δεξιότητες",
     tasks: [
       { id: 12, label: "Μαθήματα σε μικρότερα παιδιά (ανά ώρα)", amount: "€8,00" },
-      { id: 13, label: "Μαθήματα κιθάρας / ζωγραφικής (ανά ώρα)", amount: "€8,00" },
-      { id: 14, label: "Διοργάνωση mini workshop στη γειτονιά", amount: "€20,00" },
-      { id: 15, label: "Μετάφραση κειμένου (αγγλικά-ελληνικά)", amount: "€10,00" },
+      { id: 13, label: "Μαθήματα κιθάρας ή ζωγραφικής (ανά ώρα)", amount: "€8,00" },
+      { id: 14, label: "Μικρό εργαστήριο στη γειτονιά", amount: "€20,00" },
+      { id: 15, label: "Μετάφραση κειμένου (αγγλικά–ελληνικά)", amount: "€10,00" },
     ],
   },
 ];
@@ -82,7 +82,7 @@ function EarnPage() {
             <div className="max-w-xl">
               <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[oklch(0.91_0.07_292)]">Κέρδισε</p>
               <h1 className="text-5xl font-black leading-tight sm:text-6xl">Μετάτρεψε τη δουλειά σε αξία.</h1>
-              <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Τα παιδιά μαθαίνουν την αξία της εργασίας ολοκληρώνοντας δουλειές και κερδίζοντας τα πρώτα τους χρήματα.</p>
+              <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Μαθαίνεις την αξία της εργασίας, κάνοντας δουλειές και κερδίζοντας τα πρώτα σου χρήματα.</p>
               {child ? (
                 <Link to="/wallet">
                   <Button className="mt-8 h-14 rounded-full bg-primary px-10 text-base text-primary-foreground hover:bg-primary/90">Οι δουλειές μου →</Button>
@@ -106,7 +106,7 @@ function EarnPage() {
             <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Σήμερα στη λίστα</h2>
             {child && (
               <p className="mt-4 rounded-2xl bg-[oklch(0.95_0.05_173)] px-5 py-3 text-sm font-bold text-[oklch(0.35_0.1_173)]">
-                Αυτές είναι ιδέες για δουλειές. Τις δικές σου δουλειές, που σου δίνουν coins, τις βρίσκεις στο{" "}
+                Αυτές είναι ιδέες για δουλειές. Τις δικές σου δουλειές, που σου δίνουν κέρματα, τις βρίσκεις στο{" "}
                 <Link to="/wallet" className="underline">Πορτοφόλι</Link> και τις στέλνεις στον γονιό σου για έγκριση.
               </p>
             )}
@@ -159,7 +159,7 @@ function EarnPage() {
           <div className="mt-12 grid gap-6 sm:grid-cols-3">
             {[
               ["Υπευθυνότητα", "Η ολοκλήρωση δουλειών χτίζει την αίσθηση της υπευθυνότητας από νωρίς."],
-              ["Αυτοπεποίθηση", "Τα παιδιά νιώθουν υπερήφανα βλέποντας τους κόπους τους να αποδίδουν."],
+              ["Αυτοπεποίθηση", "Νιώθεις περηφάνια όταν βλέπεις τον κόπο σου να αποδίδει."],
               ["Αξία χρημάτων", "Όταν κερδίζεις κάτι μόνος σου, μαθαίνεις να το εκτιμάς αληθινά."],
             ].map(([title, copy]) => (
               <div key={title as string} className="rounded-xl bg-card p-6 shadow-sm">

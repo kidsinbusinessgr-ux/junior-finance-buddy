@@ -7,7 +7,7 @@ import { activatePremium } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/payment-success")({
   head: () => ({
-    meta: [{ title: "Πληρωμή επιτυχής — Kids in Business" }],
+    meta: [{ title: "Η πληρωμή ολοκληρώθηκε – Kids in Business" }],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
     session_id: (search.session_id as string) ?? "",
@@ -25,7 +25,7 @@ function PaymentSuccessPage() {
   useEffect(() => {
     if (!session_id) {
       setStatus("error");
-      setErrorMsg("Δε βρέθηκε ID συνεδρίας. Παρακαλώ επικοινωνήστε μαζί μας.");
+      setErrorMsg("Δε βρέθηκε η πληρωμή. Επικοινώνησε μαζί μας.");
       return;
     }
 
@@ -40,8 +40,8 @@ function PaymentSuccessPage() {
             result.reason === "login"
               ? "Συνδέσου στον λογαριασμό σου και άνοιξε ξανά αυτή τη σελίδα για να ενεργοποιηθεί η συνδρομή."
               : result.reason === "unpaid"
-                ? "Η πληρωμή δεν ολοκληρώθηκε. Παρακαλώ δοκιμάστε ξανά."
-                : "Αυτή η πληρωμή δεν αντιστοιχεί σε αυτόν τον λογαριασμό. Επικοινωνήστε μαζί μας.",
+                ? "Η πληρωμή δεν ολοκληρώθηκε. Δοκίμασε ξανά."
+                : "Αυτή η πληρωμή δεν αντιστοιχεί σε αυτόν τον λογαριασμό. Επικοινώνησε μαζί μας.",
           );
           return;
         }
@@ -52,7 +52,7 @@ function PaymentSuccessPage() {
       } catch (err) {
         console.error("Payment verification error:", err);
         setStatus("error");
-        setErrorMsg("Παρουσιάστηκε σφάλμα κατά την επαλήθευση. Αν χρεωθήκατε, επικοινωνήστε μαζί μας.");
+        setErrorMsg("Κάτι πήγε στραβά στον έλεγχο της πληρωμής. Αν χρεώθηκες, επικοινώνησε μαζί μας.");
       }
     })();
   }, [session_id]);
@@ -62,7 +62,7 @@ function PaymentSuccessPage() {
       <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
         <Loader2 size={48} className="animate-spin text-[oklch(0.57_0.23_292)]" />
         <p className="text-lg font-black">Επαλήθευση πληρωμής…</p>
-        <p className="text-muted-foreground">Παρακαλώ περιμένετε λίγα δευτερόλεπτα.</p>
+        <p className="text-muted-foreground">Περίμενε λίγα δευτερόλεπτα.</p>
       </main>
     );
   }
@@ -101,11 +101,11 @@ function PaymentSuccessPage() {
 
       <div>
         <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.57_0.23_292)]">
-          Πληρωμή επιτυχής
+          Η πληρωμή ολοκληρώθηκε
         </p>
         <h1 className="mt-3 text-4xl font-black sm:text-5xl">Καλώς ήρθες στο Premium! 🎉</h1>
         <p className="mt-4 max-w-md text-lg text-muted-foreground">
-          Η συνδρομή σου ενεργοποιήθηκε. Τώρα έχεις πρόσβαση σε όλα τα μαθήματα και εργαλεία.
+          Η συνδρομή σου ενεργοποιήθηκε. Τώρα έχεις πρόσβαση σε όλα τα μαθήματα και τα εργαλεία.
         </p>
       </div>
 
@@ -117,14 +117,14 @@ function PaymentSuccessPage() {
         </Link>
         <Link to="/parent-dashboard">
           <Button variant="outline" className="h-12 rounded-full px-10 font-black">
-            Dashboard γονέα
+            Πίνακας γονιού
           </Button>
         </Link>
       </div>
 
       <div className="mt-4 rounded-xl bg-muted px-6 py-4 text-sm text-muted-foreground">
         <p>
-          Θα λάβεις επιβεβαίωση στο email σου από το Stripe.{" "}
+          Θα λάβεις επιβεβαίωση στο email σου από τη Stripe.{" "}
           <a href="mailto:kidsinbusinessgr@gmail.com" className="font-semibold underline">
             Επικοινώνησε μαζί μας
           </a>{" "}

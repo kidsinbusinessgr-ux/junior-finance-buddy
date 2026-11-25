@@ -7,10 +7,10 @@ import { useCurrentUser } from "@/hooks/useJFB";
 export const Route = createFileRoute("/invest")({
   head: () => ({
     meta: [
-      { title: "Επένδυσε — Kids in Business" },
-      { name: "description", content: "Μάθε στα παιδιά τα βασικά της επένδυσης και της ανάπτυξης χρημάτων με χρόνο." },
-      { property: "og:title", content: "Επένδυσε — Kids in Business" },
-      { property: "og:description", content: "Μάθε στα παιδιά τα βασικά της επένδυσης και της ανάπτυξης χρημάτων με χρόνο." },
+      { title: "Επένδυσε – Kids in Business" },
+      { name: "description", content: "Μάθε τα βασικά της επένδυσης και πώς μεγαλώνουν τα χρήματα με τον χρόνο." },
+      { property: "og:title", content: "Επένδυσε – Kids in Business" },
+      { property: "og:description", content: "Μάθε τα βασικά της επένδυσης και πώς μεγαλώνουν τα χρήματα με τον χρόνο." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -29,7 +29,7 @@ function InvestPage() {
           <div className="mx-auto max-w-3xl pb-3 pt-20 text-center">
             <p className="text-sm font-black uppercase tracking-[0.17em] text-[oklch(0.86_0.1_292)]">Επενδύσεις για νέους</p>
             <h1 className="mt-5 text-5xl font-black leading-tight sm:text-6xl">Τα χρήματα που δουλεύουν για σένα.</h1>
-            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Μάθε πώς οι έξυπνοι επενδυτές αφήνουν τον χρόνο να κάνει τη δουλειά τους — ακόμα και από τα 12.</p>
+            <p className="mt-6 text-xl leading-relaxed text-[oklch(0.96_0.02_292)]">Μάθε πώς οι έξυπνοι επενδυτές αφήνουν τον χρόνο να κάνει τη δουλειά γι' αυτούς, ακόμα κι αν είσαι μόλις 12.</p>
           </div>
         </div>
       </section>
@@ -42,7 +42,7 @@ function InvestPage() {
               {
                 Icon: Sprout,
                 title: "Ανατοκισμός",
-                copy: "Μάθε πώς τα χρήματα αυξάνονται με τον χρόνο χάρη στον ανατοκισμό — το μεγαλύτερο μυστικό της επένδυσης.",
+                copy: "Μάθε πώς τα χρήματα αυξάνονται με τον χρόνο χάρη στον ανατοκισμό, το μεγαλύτερο μυστικό της επένδυσης.",
               },
               {
                 Icon: TrendingUp,

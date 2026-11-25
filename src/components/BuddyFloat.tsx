@@ -186,7 +186,7 @@ export function BuddyFloat() {
               maxLength={500}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && send()}
-              placeholder="Γράψε εδώ..."
+              placeholder="Γράψε εδώ…"
               disabled={loading}
               style={{
                 flex: 1, borderRadius: "20px", border: "1.5px solid #a78bfa",

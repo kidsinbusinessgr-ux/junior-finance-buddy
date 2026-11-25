@@ -12,9 +12,9 @@ import { XP_LEVELS, useChild, useCurrentUser } from "@/hooks/useJFB";
 export const Route = createFileRoute("/spend")({
   head: () => ({
     meta: [
-      { title: "Η κάρτα μου — Kids in Business" },
+      { title: "Η κάρτα μου – Kids in Business" },
       { name: "description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα κέρματά σου." },
-      { property: "og:title", content: "Η κάρτα μου — Kids in Business" },
+      { property: "og:title", content: "Η κάρτα μου – Kids in Business" },
       { property: "og:description", content: "Η εικονική κάρτα Kids in Business: σχεδίασέ την και δες τα κέρματά σου." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -111,7 +111,7 @@ function SpendPage() {
       .eq("id", child.id);
     setSaving(false);
     if (err) {
-      setError(err.message.includes("card_color_locked") ? "Αυτό το χρώμα ξεκλειδώνει σε μεγαλύτερο επίπεδο." : "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.");
+      setError(err.message.includes("card_color_locked") ? "Αυτό το χρώμα ξεκλειδώνεται σε υψηλότερο επίπεδο." : "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.");
       return;
     }
     setSaved(true);
@@ -225,7 +225,7 @@ function SpendPage() {
                         key={c.id}
                         disabled={locked}
                         onClick={() => pick(() => setColor(c.id))}
-                        title={locked ? `Ξεκλειδώνει στο επίπεδο ${need} (${tierFor(need).label})` : c.label}
+                        title={locked ? `Ξεκλειδώνεται στο επίπεδο ${need} (${tierFor(need).label})` : c.label}
                         className="flex flex-col items-center gap-1.5 disabled:cursor-not-allowed"
                       >
                         <span

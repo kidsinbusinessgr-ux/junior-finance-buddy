@@ -10,7 +10,7 @@ export const PRIVACY_VERSION = "2026-11-19";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Πολιτική Απορρήτου — Kids in Business" },
+      { title: "Πολιτική Απορρήτου – Kids in Business" },
       { name: "description", content: "Ποια δεδομένα κρατά η εφαρμογή Kids in Business Finance Buddy, γιατί, και ποια δικαιώματα έχετε." },
     ],
   }),

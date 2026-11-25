@@ -14,7 +14,7 @@ import { stageFor } from "@/lib/startup-stages";
 export const Route = createFileRoute("/investments")({
   head: () => ({
     meta: [
-      { title: "Επενδύσεις — Kids in Business" },
+      { title: "Επενδύσεις – Kids in Business" },
       { name: "description", content: "Οι μετοχές και τα startups σου σε ένα σημείο" },
     ],
   }),
@@ -189,7 +189,7 @@ function InvestmentsPage() {
         <MyStartupInvestments childId={child.id} />
 
         <p className="text-center text-xs text-muted-foreground">
-          💡 Μοίρασε τα coins σου σε διαφορετικές επενδύσεις. Αν μία πάει άσχημα, οι άλλες σε προστατεύουν.
+          💡 Μοίρασε τα κέρματά σου σε διαφορετικές επενδύσεις. Αν μία πάει άσχημα, οι άλλες σε προστατεύουν.
         </p>
       </main>
 

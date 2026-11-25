@@ -8,7 +8,7 @@ import logo from "@/assets/logo-kidsinbusiness_1.png";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Σύνδεση — Kids in Business" },
+      { title: "Σύνδεση – Kids in Business" },
       { name: "description", content: "Συνδέσου στον λογαριασμό σου στο Kids in Business." },
     ],
   }),

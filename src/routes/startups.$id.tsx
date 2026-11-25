@@ -25,7 +25,7 @@ function investErrorText(message: string): string {
 export const Route = createFileRoute("/startups/$id")({
   head: () => ({
     meta: [
-      { title: "Startup Pitch — Kids in Business" },
+      { title: "Startup Pitch – Kids in Business" },
     ],
   }),
   component: StartupPage,
@@ -148,7 +148,7 @@ export default function StartupPage() {
       <div className="py-24 text-center">
         <div className="text-6xl">😕</div>
         <p className="mt-4 text-xl font-black">Το startup δε βρέθηκε</p>
-        <Link to="/startups"><Button className="mt-6 rounded-full">← Πίσω στα Startups</Button></Link>
+        <Link to="/startups"><Button className="mt-6 rounded-full">← Πίσω στα startups</Button></Link>
       </div>
     </main>
   );
@@ -260,9 +260,9 @@ export default function StartupPage() {
         {/* Pitch content */}
         <div className="space-y-6">
           {[
-            { label: "🔍 Το Πρόβλημα", content: startup.problem },
-            { label: "💡 Η Λύση μας", content: startup.solution },
-            { label: "🎯 Ο Πελάτης μας", content: startup.customer },
+            { label: "🔍 Το πρόβλημα", content: startup.problem },
+            { label: "💡 Η λύση μας", content: startup.solution },
+            { label: "🎯 Ο πελάτης μας", content: startup.customer },
             { label: "💰 Πώς κερδίζουμε χρήματα", content: startup.model },
           ].map((block) => (
             <div key={block.label} className="rounded-2xl border bg-card p-6">
@@ -301,13 +301,13 @@ export default function StartupPage() {
                 disabled={!child || myInvested >= INVEST_LIMIT}
                 onClick={() => { setInvesting(true); setSuccess(false); setInvestError(null); }}
               >
-                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτό το startup" : "🪙 Επένδυσε Coins"}
+                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτό το startup" : "🪙 Επένδυσε κέρματα"}
               </Button>
             </>
           ) : (
             <div className="mt-4 space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-bold">Πόσα coins;</label>
+                <label className="mb-2 block text-sm font-bold">Πόσα κέρματα;</label>
                 <div className="flex gap-2">
                   {COIN_OPTIONS.map((c) => {
                     const tooMuch = c > (child?.coins ?? 0) + (child?.invest_capital ?? 0) || myInvested + c > INVEST_LIMIT;
@@ -327,7 +327,7 @@ export default function StartupPage() {
                 </div>
                 {roundIsOpen && (
                   <p className="mt-2 rounded-xl bg-[oklch(0.96_0.05_70)] px-3 py-2 text-xs font-bold">
-                    🎯 Τώρα τρέχει γύρος χρηματοδότησης («όλα ή τίποτα»). Τα coins σου φυλάγονται μέχρι να κλείσει:
+                    🎯 Τώρα τρέχει γύρος χρηματοδότησης («όλα ή τίποτα»). Τα κέρματά σου φυλάγονται μέχρι να κλείσει:
                     αν ο γύρος πιάσει τον στόχο, γίνονται μερίδια· αν όχι, σου επιστρέφονται όλα.
                   </p>
                 )}
@@ -337,7 +337,7 @@ export default function StartupPage() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {(child?.invest_capital ?? 0) > 0
-                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά coins, μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup."
+                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά κέρματα και μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup."
                     : "Τα κέρματα φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup."}
                 </p>
               </div>
@@ -378,7 +378,7 @@ export default function StartupPage() {
         {/* Back */}
         <div className="mt-10">
           <Link to="/startups">
-            <Button variant="outline" className="rounded-full">← Όλα τα Startups</Button>
+            <Button variant="outline" className="rounded-full">← Όλα τα startups</Button>
           </Link>
         </div>
       </section>

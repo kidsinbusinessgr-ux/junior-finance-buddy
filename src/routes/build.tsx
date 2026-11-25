@@ -16,7 +16,7 @@ const CREATE_ERRORS: Record<Exclude<CreateStartupResult, { ok: true }>["reason"]
 export const Route = createFileRoute("/build")({
   head: () => ({
     meta: [
-      { title: "Φτιάξε το Startup σου — Kids in Business" },
+      { title: "Φτιάξε το startup σου – Kids in Business" },
       { name: "description", content: "Δημιούργησε το δικό σου startup και παρουσίασέ το στην κοινότητα." },
     ],
   }),
@@ -104,7 +104,7 @@ export default function BuildPage() {
           <div className="mx-auto max-w-xl pt-16 text-center">
             <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.86_0.1_173)]">Startup Builder</p>
             <h1 className="mt-3 text-4xl font-black sm:text-5xl">Φτιάξε το startup σου</h1>
-            <p className="mt-4 text-lg text-[oklch(0.96_0.02_173)]">5 βήματα και η ιδέα σου γίνεται pitch page.</p>
+            <p className="mt-4 text-lg text-[oklch(0.96_0.02_173)]">Σε 5 βήματα η ιδέα σου γίνεται σελίδα παρουσίασης.</p>
           </div>
         </div>
       </section>
@@ -142,7 +142,7 @@ export default function BuildPage() {
 
       {/* Form */}
       <section className="mx-auto max-w-xl px-6 py-10">
-        {/* Step 0 — Όνομα */}
+        {/* Step 0 – Όνομα */}
         {step === 0 && (
           <div className="space-y-6">
             <div>
@@ -181,7 +181,7 @@ export default function BuildPage() {
           </div>
         )}
 
-        {/* Step 1 — Πρόβλημα */}
+        {/* Step 1 – Πρόβλημα */}
         {step === 1 && (
           <div className="space-y-6">
             <div>
@@ -206,7 +206,7 @@ export default function BuildPage() {
           </div>
         )}
 
-        {/* Step 2 — Λύση */}
+        {/* Step 2 – Λύση */}
         {step === 2 && (
           <div className="space-y-6">
             <div>
@@ -215,7 +215,7 @@ export default function BuildPage() {
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παράδειγμα:</p>
-              <p className="mt-1 text-muted-foreground">«App που οι γονείς φτιάχνουν το μενού της εβδομάδας και εμείς παραδίνουμε το φαγητό στο σχολείο το πρωί».</p>
+              <p className="mt-1 text-muted-foreground">«Εφαρμογή όπου οι γονείς διαλέγουν το μενού της εβδομάδας και εμείς φέρνουμε το φαγητό στο σχολείο το πρωί».</p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold">Η λύση σου <span className="text-destructive">*</span></label>
@@ -231,7 +231,7 @@ export default function BuildPage() {
           </div>
         )}
 
-        {/* Step 3 — Πελάτης */}
+        {/* Step 3 – Πελάτης */}
         {step === 3 && (
           <div className="space-y-6">
             <div>
@@ -240,13 +240,13 @@ export default function BuildPage() {
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παράδειγμα:</p>
-              <p className="mt-1 text-muted-foreground">«Γονείς 30-45 που δουλεύουν πλήρη ωράριο, έχουν παιδιά σε δημοτικό/γυμνάσιο στην πόλη και δεν έχουν χρόνο να φτιάχνουν φαγητό κάθε μέρα».</p>
+              <p className="mt-1 text-muted-foreground">«Γονείς 30–45 που δουλεύουν πλήρη ωράριο, έχουν παιδιά σε δημοτικό/γυμνάσιο στην πόλη και δεν έχουν χρόνο να φτιάχνουν φαγητό κάθε μέρα».</p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold">Target customer <span className="text-destructive">*</span></label>
               <textarea
                 className="min-h-[120px] w-full resize-none rounded-xl border bg-background px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[oklch(0.57_0.23_292)]"
-                placeholder="Ποιος είναι ο ιδανικός πελάτης σου; Ηλικία, lifestyle, πρόβλημα…"
+                placeholder="Ποιος είναι ο ιδανικός πελάτης σου; Ηλικία, τρόπος ζωής, πρόβλημα…"
                 value={form.customer}
                 onChange={(e) => set("customer", e.target.value)}
                 maxLength={300}
@@ -261,11 +261,11 @@ export default function BuildPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-black">Πώς βγάζεις χρήματα;</h2>
-              <p className="mt-1 text-muted-foreground">Ποιο είναι το business model σου; Πώς χρεώνεις;</p>
+              <p className="mt-1 text-muted-foreground">Ποιο είναι το επιχειρηματικό σου μοντέλο; Πώς χρεώνεις;</p>
             </div>
             <div className="rounded-xl border bg-muted/30 p-4 text-sm">
               <p className="font-bold">💡 Παραδείγματα:</p>
-              <p className="mt-1 text-muted-foreground">Subscription €8/μήνα · Χρέωση ανά παραγγελία €3 · Freemium + premium πλάνο · Commission 10% σε κάθε πώληση</p>
+              <p className="mt-1 text-muted-foreground">Συνδρομή €8 τον μήνα · €3 ανά παραγγελία · Δωρεάν βασική έκδοση και πληρωμένη premium · Προμήθεια 10% σε κάθε πώληση</p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold">Business model <span className="text-destructive">*</span></label>

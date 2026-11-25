@@ -167,7 +167,7 @@ function ParentDashboard() {
                     {sub.jfb_children?.name} — {sub.jfb_chores?.name}
                   </p>
                   <p className="text-sm text-[oklch(0.5_0.04_250)]">
-                    🪙 {sub.jfb_chores?.coins} νομίσματα
+                    🪙 {sub.jfb_chores?.coins} κέρματα
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -251,7 +251,7 @@ function ParentDashboard() {
         </h2>
         <p className="mb-4 mt-1 text-sm text-[oklch(0.5_0.04_250)]">
           Μια ανταμοιβή που μπορεί να χρησιμοποιηθεί μόνο για επενδύσεις σε startups άλλων παιδιών.
-          Αν η επένδυση πάει καλά, το παιδί κερδίζει κανονικά coins. Αν πάει άσχημα, μαθαίνει τι σημαίνει ρίσκο.
+          Αν η επένδυση πάει καλά, το παιδί κερδίζει κανονικά κέρματα. Αν πάει άσχημα, μαθαίνει τι σημαίνει ρίσκο.
         </p>
         <select
           value={capitalChild}
