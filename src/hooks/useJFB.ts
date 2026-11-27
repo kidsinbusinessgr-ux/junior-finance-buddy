@@ -659,11 +659,11 @@ export function useStreak(childId: string | null | undefined) {
 // ─── Parent hooks ─────────────────────────────────────────────────────────────
 
 export function useParent() {
-  const [parent, setParent] = useState<{ id: string; name: string } | null>(null);
+  const [parent, setParent] = useState<{ id: string; name: string; user_id: string } | null>(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      supabase.from("jfb_parents").select("id, name").eq("user_id", user.id).single().then(({ data }) => setParent(data));
+      supabase.from("jfb_parents").select("id, name, user_id").eq("user_id", user.id).single().then(({ data }) => setParent(data));
     });
   }, []);
   return parent;
@@ -685,13 +685,15 @@ export interface ParentChild {
   card_parent_locked: boolean;
   card_weekly_limit: number | null;
   stage: string;
+  user_id: string | null;
+  username: string | null;
 }
 
 export function useParentChildren(parentId: string | null | undefined) {
   const [children, setChildren] = useState<ParentChild[]>([]);
   const refresh = useCallback(async () => {
     if (!parentId) return;
-    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak, invite_code, invest_capital, card_color, card_pattern, card_locked, card_parent_locked, card_weekly_limit, stage").eq("parent_id", parentId).order("name");
+    const { data } = await supabase.from("jfb_children").select("id, name, avatar, coins, xp, level, current_streak, invite_code, invest_capital, card_color, card_pattern, card_locked, card_parent_locked, card_weekly_limit, stage, user_id, username").eq("parent_id", parentId).order("name");
     setChildren(data ?? []);
   }, [parentId]);
   useEffect(() => { refresh(); }, [refresh]);

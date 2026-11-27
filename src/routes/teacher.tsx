@@ -276,7 +276,12 @@ function TeacherPage() {
                     </Button>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p className="font-black text-foreground">Πώς μπαίνουν οι μαθητές</p>
+                    <p className="font-black text-foreground">Τι είναι ο κωδικός τάξης;</p>
+                    <p className="mt-0.5">
+                      Το «κλειδί» της τάξης σου. Όποιος μαθητής τον γράψει στην εγγραφή μπαίνει σε αυτή την τάξη, και τον βλέπεις εδώ, στη λίστα. Να τον
+                      δίνεις μόνο στους μαθητές σου και να μην τον δημοσιεύεις.
+                    </p>
+                    <p className="mt-3 font-black text-foreground">Πώς μπαίνουν οι μαθητές</p>
                     <ol className="mt-1 list-decimal space-y-0.5 pl-5">
                       <li>buddy.kidsinbusiness.gr → Εγγραφή → 🏫 Σχολείο → «Είμαι μαθητής».</li>
                       <li>Γράφουν τον κωδικό τάξης {klass.code}.</li>

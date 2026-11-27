@@ -13,6 +13,7 @@ import {
 import { ParentCardControls, ParentRewards } from "@/components/parent-card-controls";
 import { BusinessGuide } from "@/components/business-guide";
 import { TeacherLink } from "@/components/teacher-onboarding";
+import { ChildAccessInfo } from "@/components/child-invite-help";
 
 export const Route = createFileRoute("/parent-dashboard")({
   component: ParentDashboard,
@@ -135,11 +136,12 @@ function ParentDashboard() {
                     🪙 {c.coins} · 🔥 {c.current_streak} · {levelEmoji(c.level)} Lv {c.level}
                     {c.invest_capital > 0 && <> · 🚀 {c.invest_capital} επενδυτικά</>}
                   </p>
-                  {c.invite_code && (
-                    <p className="text-xs mt-1 font-mono font-bold tracking-widest text-purple-600 bg-purple-50 rounded-lg px-2 py-0.5 inline-block">
-                      🔑 {c.invite_code}
-                    </p>
-                  )}
+                  <ChildAccessInfo
+                    name={c.name}
+                    code={c.invite_code}
+                    username={c.username}
+                    hasOwnLogin={Boolean(c.user_id && c.user_id !== parent.user_id)}
+                  />
                 </div>
               </div>
             ))}
