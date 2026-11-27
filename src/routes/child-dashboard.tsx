@@ -366,6 +366,17 @@ function ChildDashboard() {
             <p className="font-black text-foreground">Στόχοι</p>
             <p className="text-xs text-muted-foreground">Αποταμίευση</p>
           </Link>
+          <Link
+            to="/money"
+            className="col-span-2 flex items-center gap-3 rounded-2xl bg-card p-5 ring-1 ring-border transition-transform hover:-translate-y-0.5"
+          >
+            <span className="text-2xl">📒</span>
+            <div>
+              <p className="font-black text-foreground">Τα χρήματά μου</p>
+              <p className="text-xs text-muted-foreground">Αληθινά έσοδα και έξοδα σε ευρώ · προϋπολογισμός</p>
+            </div>
+            <ChevronRight size={18} className="ml-auto text-gray-400" />
+          </Link>
         </section>
 
         {/* Achievements — real data from DB */}

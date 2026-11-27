@@ -31,6 +31,7 @@ import { Route as SaveRouteImport } from './routes/save'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SpendRouteImport } from './routes/spend'
 import { Route as StocksRouteImport } from './routes/stocks'
+import { Route as MoneyRouteImport } from './routes/money'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password.'
@@ -146,6 +147,11 @@ const SpendRoute = SpendRouteImport.update({
   path: '/spend',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoneyRoute = MoneyRouteImport.update({
+  id: '/money',
+  path: '/money',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StocksRoute = StocksRouteImport.update({
   id: '/stocks',
   path: '/stocks',
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/money': typeof MoneyRoute
   '/stocks': typeof StocksRoute
   '/teacher': typeof TeacherRoute
   '/wallet': typeof WalletRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/money': typeof MoneyRoute
   '/stocks': typeof StocksRoute
   '/teacher': typeof TeacherRoute
   '/wallet': typeof WalletRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/save': typeof SaveRoute
   '/signup': typeof SignupRoute
   '/spend': typeof SpendRoute
+  '/money': typeof MoneyRoute
   '/stocks': typeof StocksRoute
   '/teacher': typeof TeacherRoute
   '/wallet': typeof WalletRoute
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/save'
     | '/signup'
     | '/spend'
+    | '/money'
     | '/stocks'
     | '/teacher'
     | '/wallet'
@@ -352,6 +362,7 @@ export interface FileRouteTypes {
     | '/save'
     | '/signup'
     | '/spend'
+    | '/money'
     | '/stocks'
     | '/teacher'
     | '/wallet'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/save'
     | '/signup'
     | '/spend'
+    | '/money'
     | '/stocks'
     | '/teacher'
     | '/wallet'
@@ -419,6 +431,7 @@ export interface RootRouteChildren {
   SaveRoute: typeof SaveRoute
   SignupRoute: typeof SignupRoute
   SpendRoute: typeof SpendRoute
+  MoneyRoute: typeof MoneyRoute
   StocksRoute: typeof StocksRoute
   TeacherRoute: typeof TeacherRoute
   WalletRoute: typeof WalletRoute
@@ -578,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/money': {
+      id: '/money'
+      path: '/money'
+      fullPath: '/money'
+      preLoaderRoute: typeof MoneyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stocks': {
       id: '/stocks'
       path: '/stocks'
@@ -685,6 +705,7 @@ const rootRouteChildren: RootRouteChildren = {
   SaveRoute: SaveRoute,
   SignupRoute: SignupRoute,
   SpendRoute: SpendRoute,
+  MoneyRoute: MoneyRoute,
   StocksRoute: StocksRoute,
   TeacherRoute: TeacherRoute,
   WalletRoute: WalletRoute,
