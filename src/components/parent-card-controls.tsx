@@ -27,6 +27,63 @@ const REWARD_IDEAS: { emoji: string; name: string; cost: number }[] = [
 
 type Payment = { id: string; amount: number; description: string; created_at: string | null };
 
+// Junior (about 7-11): the parent keeps the card's controls and the Shop.
+// Teen (about 12+): the child manages the card alone; the parent sees progress.
+function StageSwitch({ child, onChanged }: { child: ParentChild; onChanged: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(false);
+  const set = async (stage: "junior" | "teen") => {
+    if (stage === child.stage || busy) return;
+    setBusy(true);
+    setErr(false);
+    const { error } = await supabase.rpc("jfb_set_child_stage" as never, { p_child_id: child.id, p_stage: stage } as never);
+    setBusy(false);
+    if (error) return setErr(true);
+    onChanged();
+  };
+  return (
+    <div className="mb-4">
+      <div className="grid grid-cols-2 gap-1 rounded-xl bg-[oklch(0.95_0.02_250)] p-1">
+        {(
+          [
+            ["junior", "🧒 Junior", "περίπου 7–11"],
+            ["teen", "🧑 Teen", "περίπου 12+"],
+          ] as const
+        ).map(([id, label, hint]) => (
+          <button
+            key={id}
+            disabled={busy}
+            onClick={() => set(id)}
+            className={`rounded-lg py-2 text-sm font-bold disabled:opacity-60 ${child.stage === id ? "bg-white text-[oklch(0.3_0.08_250)] shadow-sm" : "text-[oklch(0.5_0.04_250)]"}`}
+          >
+            {label} <span className="block text-[11px] font-normal">{hint}</span>
+          </button>
+        ))}
+      </div>
+      {err && <p className="mt-1 text-xs font-bold text-red-600">Δεν άλλαξε. Δοκίμασε ξανά.</p>}
+    </div>
+  );
+}
+
+function TeenCard({ child }: { child: ParentChild }) {
+  return (
+    <div className="grid gap-5 sm:grid-cols-[220px_1fr]">
+      <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} level={child.level} compact />
+      <div className="space-y-2 text-sm text-[oklch(0.4_0.06_250)]">
+        <p className="font-bold text-[oklch(0.3_0.08_250)]">Ο λογαριασμός είναι Teen: την κάρτα τη διαχειρίζεται μόνο το παιδί.</p>
+        <p>
+          Πληρώνει μετοχές και startups με τα στοιχεία της κάρτας, όπως οι μεγάλοι online, και κρατά το δικό του βιβλίο εσόδων και εξόδων με
+          αληθινά ευρώ. Το βιβλίο αυτό είναι προσωπικό και δεν εμφανίζεται στον πίνακά σου.
+        </p>
+        <p>
+          Εσύ βλέπεις την πρόοδο: επίπεδο {child.level}, {child.xp} XP, 🔥 {child.current_streak} μέρες στη σειρά. Μιλήστε μαζί για τα χρήματα,
+          χωρίς έλεγχο. Αυτό χτίζει εμπιστοσύνη.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => void }) {
   const [limit, setLimit] = useState<string>(child.card_weekly_limit ? String(child.card_weekly_limit) : "");
   const [spent, setSpent] = useState<number | null>(null);
@@ -71,8 +128,17 @@ function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => 
   };
 
   const limitNum = child.card_weekly_limit;
+  if (child.stage === "teen") {
+    return (
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <StageSwitch child={child} onChanged={onChanged} />
+        <TeenCard child={child} />
+      </div>
+    );
+  }
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <StageSwitch child={child} onChanged={onChanged} />
       <div className="grid gap-5 sm:grid-cols-[220px_1fr]">
         <KibCard color={child.card_color} pattern={child.card_pattern} name={child.name} coins={child.coins} level={child.level} compact />
         <div className="space-y-3">
@@ -159,7 +225,8 @@ export function ParentCardControls({ children, onChanged }: { children: ParentCh
         <CreditCard className="h-5 w-5" /> Η κάρτα του παιδιού
       </h2>
       <p className="mb-3 text-sm text-[oklch(0.5_0.04_250)]">
-        Εικονική κάρτα με τα KidsCoins της εφαρμογής. Με αυτήν το παιδί πληρώνει τις ανταμοιβές του Καταστήματος.
+        Εικονική κάρτα με τα KidsCoins της εφαρμογής. Στο Junior την ελέγχεις εσύ και το παιδί πληρώνει τις ανταμοιβές του Καταστήματος. Στο Teen τη
+        διαχειρίζεται μόνο του.
       </p>
       <div className="flex flex-col gap-3">
         {children.map((c) => (

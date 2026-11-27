@@ -20,7 +20,7 @@ export const Route = createFileRoute("/teacher")({
 const TOTAL_LESSONS = 11;
 
 type Teacher = { id: string; name: string; role: string; school: string | null };
-type Klass = { id: string; name: string; code: string; created_at: string };
+type Klass = { id: string; name: string; code: string; created_at: string; stage: string };
 type Student = {
   id: string;
   name: string;
@@ -120,7 +120,7 @@ function TeacherPage() {
     }
     setTeacher(t);
     const [{ data: cls }, { data: kids }] = await Promise.all([
-      supabase.from("jfb_classes").select("id, name, code, created_at").eq("teacher_id", t.id).order("created_at"),
+      supabase.from("jfb_classes").select("id, name, code, created_at, stage").eq("teacher_id", t.id).order("created_at"),
       supabase.from("jfb_children").select("id, name, avatar, xp, level, class_id, username").eq("parent_id", t.id).order("name"),
     ]);
     setClasses(cls ?? []);
@@ -172,13 +172,22 @@ function TeacherPage() {
   const addClass = async () => {
     if (!teacher || !newClass.trim()) return;
     setAdding(true);
-    const { data } = await supabase.from("jfb_classes").insert({ teacher_id: teacher.id, name: newClass.trim() }).select("id, name, code, created_at").single();
+    const { data } = await supabase.from("jfb_classes").insert({ teacher_id: teacher.id, name: newClass.trim() }).select("id, name, code, created_at, stage").single();
     setAdding(false);
     if (data) {
       setClasses((c) => [...c, data]);
       setSelected(data.id);
       setNewClass("");
     }
+  };
+
+  const [stageBusy, setStageBusy] = useState(false);
+  const setClassStage = async (stage: "junior" | "teen") => {
+    if (!klass || klass.stage === stage || stageBusy) return;
+    setStageBusy(true);
+    const { error } = await supabase.rpc("jfb_set_class_stage" as never, { p_class_id: klass.id, p_stage: stage } as never);
+    setStageBusy(false);
+    if (!error) setClasses((cs) => cs.map((c) => (c.id === klass.id ? { ...c, stage } : c)));
   };
 
   const copyCode = async () => {
@@ -275,6 +284,38 @@ function TeacherPage() {
                       <li>Την επόμενη φορά συνδέονται με το όνομα χρήστη τους.</li>
                     </ol>
                   </div>
+                </div>
+
+                {/* Junior or Teen */}
+                <div className="mt-6 rounded-3xl border bg-card p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-black">Επίπεδο τάξης</p>
+                      <p className="text-sm text-muted-foreground">
+                        {klass.stage === "teen"
+                          ? "Teen: οι μαθητές διαχειρίζονται μόνοι τους την κάρτα τους και δεν έχουν Κατάστημα ανταμοιβών."
+                          : "Junior: κάρτα με όριο και Κατάστημα ανταμοιβών, που τα ορίζεις εσύ."}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
+                      {(
+                        [
+                          ["junior", "🧒 Junior"],
+                          ["teen", "🧑 Teen"],
+                        ] as const
+                      ).map(([id, label]) => (
+                        <button
+                          key={id}
+                          disabled={stageBusy}
+                          onClick={() => setClassStage(id)}
+                          className={`rounded-full px-4 py-1.5 text-sm font-black disabled:opacity-60 ${klass.stage === id ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">Ισχύει για όλους τους μαθητές της τάξης, και για όσους μπουν αργότερα.</p>
                 </div>
 
                 {/* Stats */}

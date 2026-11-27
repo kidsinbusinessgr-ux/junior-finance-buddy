@@ -265,7 +265,7 @@ function WalletPage() {
       <div className="sticky top-0 z-20 bg-background px-5 pt-4 sm:px-8">
         <div className="mx-auto max-w-xl">
           <div className="flex rounded-xl bg-secondary p-1">
-            {(["history", "chores", "shop", "statement"] as Tab[]).map((t) => (
+            {(["history", "chores", "shop", "statement"] as Tab[]).filter((t) => t !== "shop" || child.stage !== "teen").map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}

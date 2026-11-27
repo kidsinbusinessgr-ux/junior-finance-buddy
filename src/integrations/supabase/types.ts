@@ -778,6 +778,7 @@ export type Database = {
           invite_code: string
           class_id: string | null
           username: string | null
+          stage: string
           last_login_date: string | null
           level: number
           name: string
@@ -800,6 +801,7 @@ export type Database = {
           invite_code: string
           class_id: string | null
           username: string | null
+          stage?: string
           last_login_date?: string | null
           level?: number
           name: string
@@ -822,6 +824,7 @@ export type Database = {
           invite_code?: string
           class_id?: string | null
           username?: string | null
+          stage?: string
           last_login_date?: string | null
           level?: number
           name?: string
@@ -1069,6 +1072,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          stage: string
           teacher_id: string
         }
         Insert: {

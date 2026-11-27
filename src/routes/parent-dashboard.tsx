@@ -149,7 +149,7 @@ function ParentDashboard() {
 
       {/* The virtual card and the Shop's rewards */}
       <ParentCardControls children={children} onChanged={refreshChildren} />
-      <ParentRewards parentId={parent.id} />
+      {children.some((c) => c.stage !== "teen") && <ParentRewards parentId={parent.id} />}
 
       {/* Pending submissions */}
       <section className="mb-6">

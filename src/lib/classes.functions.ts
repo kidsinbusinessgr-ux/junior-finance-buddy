@@ -45,10 +45,10 @@ export const joinClass = createServerFn({ method: "POST" })
     const admin = getAdminClient();
     const { data: cls } = await admin
       .from("jfb_classes" as never)
-      .select("id, teacher_id")
+      .select("id, teacher_id, stage")
       .eq("code", data.code)
       .maybeSingle();
-    const klass = cls as { id: string; teacher_id: string } | null;
+    const klass = cls as { id: string; teacher_id: string; stage: string | null } | null;
     if (!klass) return { ok: false, reason: "bad_code" };
 
     const { count } = await admin
@@ -85,6 +85,7 @@ export const joinClass = createServerFn({ method: "POST" })
         parent_id: klass.teacher_id,
         class_id: klass.id,
         username: data.username,
+        stage: klass.stage === "teen" ? "teen" : "junior",
         name: data.name,
         avatar: data.avatar,
         invite_code: inviteCode(),
