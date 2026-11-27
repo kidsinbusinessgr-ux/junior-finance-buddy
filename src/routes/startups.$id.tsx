@@ -12,6 +12,7 @@ import { CostingSummary } from "@/components/startup-costing";
 import { AdPreview } from "@/components/startup-ad";
 import { FounderPlan } from "@/components/startup-plan-panel";
 import { readPlan } from "@/lib/startup-plan";
+import { CardCheckout } from "@/components/card-checkout";
 
 // Most a child can put into one startup in total (same as jfb_startup_invest_limit()).
 const INVEST_LIMIT = 200;
@@ -116,22 +117,24 @@ export default function StartupPage() {
   };
   useEffect(() => { fetchMine(); }, [id, child?.id]);
 
-  const handleInvest = async () => {
+  // Investing goes through the card checkout (card details, then the bank's code).
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const handleInvest = () => {
     if (!startup) return;
-    setSubmitting(true);
     setInvestError(null);
+    setCheckoutOpen(true);
+  };
+  const investAfterCheckout = async (): Promise<string | null> => {
+    if (!startup) return "Το startup δε βρέθηκε.";
+    setSubmitting(true);
     const { error } = await supabase.rpc("jfb_invest_in_startup" as never, {
       p_startup_id: startup.id,
       p_coins: selectedCoins,
     } as never);
     setSubmitting(false);
-    if (error) {
-      setInvestError(investErrorText(error.message));
-      return;
-    }
-    setSuccess(true);
-    setInvesting(false);
+    if (error) return investErrorText(error.message);
     await Promise.all([fetchData(), fetchMine(), refetchChild()]);
+    return null;
   };
 
   if (loading) return (
@@ -373,6 +376,21 @@ export default function StartupPage() {
           </Link>
         </div>
       </section>
+      {checkoutOpen && startup && (
+        <CardCheckout
+          amount={selectedCoins}
+          merchant={`Επένδυση στο ${startup.name}`}
+          name={child?.name}
+          onPay={investAfterCheckout}
+          onClose={(paid) => {
+            setCheckoutOpen(false);
+            if (paid) {
+              setSuccess(true);
+              setInvesting(false);
+            }
+          }}
+        />
+      )}
     </main>
   );
 }

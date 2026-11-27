@@ -22,6 +22,7 @@ import {
 import { askBuddy, type BuddyResponse } from "@/lib/buddy.functions";
 import { tradeMarketStock, type MarketTradeResult } from "@/lib/market.functions";
 import { useChild } from "@/hooks/useJFB";
+import { CardCheckout } from "@/components/card-checkout";
 import { supabase } from "@/integrations/supabase/client";
 import { VAPID_PUBLIC, saveSubscription, subscriptionKey } from "@/lib/push-client";
 
@@ -135,6 +136,7 @@ function StocksPage() {
     if (child?.id) loadPortfolio(child.id);
   }, [child?.id]);
   const [investInput, setInvestInput] = useState<Record<string, number>>({});
+  const [checkout, setCheckout] = useState<{ ticker: string; amount: number; name: string } | null>(null);
   const [toast, setToast] = useState("");
   const [buddy, setBuddy] = useState<BuddyResponse | null>(null);
   const [loadingBuddy, setLoadingBuddy] = useState(false);
@@ -249,7 +251,8 @@ function StocksPage() {
     }
   }
 
-  async function handleInvest(ticker: string) {
+  // Buying goes through the card checkout (card details, then the bank's code).
+  function handleInvest(ticker: string) {
     const amount = Math.floor(investInput[ticker] ?? 0);
     if (amount <= 0 || trading) return;
     if (!child) {
@@ -261,18 +264,20 @@ function StocksPage() {
       return;
     }
     const name = quotes.find((q) => q.ticker === ticker)?.name ?? ticker;
+    setCheckout({ ticker, amount, name });
+  }
+
+  async function buyAfterCheckout(ticker: string, amount: number): Promise<string | null> {
+    if (!child) return TRADE_ERRORS.no_child;
     setTrading(ticker);
     try {
       const res = await tradeMarketStock({ data: { side: "buy", ticker, coins: amount } });
-      if (!res.ok) {
-        showToast(TRADE_ERRORS[res.reason]);
-        return;
-      }
+      if (!res.ok) return TRADE_ERRORS[res.reason];
       setInvestInput((prev) => ({ ...prev, [ticker]: 0 }));
-      showToast(`✅ Επένδυσες ${amount} 🪙 στην ${name}!`);
       await Promise.all([loadPortfolio(child.id), refetchChild()]);
+      return null;
     } catch {
-      showToast(TRADE_ERRORS.failed);
+      return TRADE_ERRORS.failed;
     } finally {
       setTrading(null);
     }
@@ -937,6 +942,18 @@ function StocksPage() {
           </div>
         )}
       </div>
+      {checkout && (
+        <CardCheckout
+          amount={checkout.amount}
+          merchant={`Μετοχές ${checkout.name}`}
+          name={child?.name}
+          onPay={() => buyAfterCheckout(checkout.ticker, checkout.amount)}
+          onClose={(paid) => {
+            if (paid) showToast(`✅ Πλήρωσες με την κάρτα και επένδυσες ${checkout.amount} 🪙 στην ${checkout.name}!`);
+            setCheckout(null);
+          }}
+        />
+      )}
     </main>
   );
 }

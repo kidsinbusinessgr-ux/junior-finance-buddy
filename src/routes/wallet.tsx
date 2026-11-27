@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { KibCard } from "@/components/kib-card";
 import { MonthlyStatement } from "@/components/monthly-statement";
+import { CardDetails, useMyCard } from "@/components/card-checkout";
 import { supabase } from "@/integrations/supabase/client";
 import {
   useChild,
@@ -106,6 +107,8 @@ function WalletPage() {
   const { submissions, refetch: refetchSubmissions } = useChoreSubmissions(child?.id ?? null);
   const { transactions, refetch: refetchTransactions } = useTransactions(child?.id ?? null);
   const { rewards } = useRewards(child?.parent_id ?? null);
+  const [showDetails, setShowDetails] = useState(false);
+  const myCard = useMyCard(showDetails);
 
   // Card payments this week, for the parent's weekly limit.
   const childId = child?.id ?? null;
@@ -238,11 +241,23 @@ function WalletPage() {
                 {cardLocked ? <Lock size={14} /> : <Unlock size={14} />}
                 {child.card_parent_locked ? "Κλείδωσε ο γονιός σου" : child.card_locked ? "Ξεκλείδωσε" : "Κλείδωσε"}
               </button>
+              <button
+                onClick={() => setShowDetails((v) => !v)}
+                className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25"
+              >
+                {showDetails ? "Κλείσε τα στοιχεία" : "Στοιχεία κάρτας"}
+              </button>
               <Link to="/spend" hash="card" className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25">
                 Άλλαξε σχέδιο
               </Link>
             </div>
           </div>
+          {showDetails && (
+            <div className="mt-4 rounded-2xl bg-card p-4 text-foreground">
+              <p className="mb-3 text-sm font-black">💳 Prepaid κάρτα: με αυτά τα στοιχεία πληρώνεις μετοχές και startups, όπως πληρώνουν οι μεγάλοι online.</p>
+              <CardDetails card={myCard} name={child.name} />
+            </div>
+          )}
         </div>
       </section>
 
