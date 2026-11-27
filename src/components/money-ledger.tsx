@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Lock, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { MoneyPlan } from "@/components/money-plan";
 
 // The child's own book of real income and expenses, in euros. It is not the
 // KidsCoins of the game: the child writes down what really came in and what
@@ -69,7 +70,7 @@ const dayLabel = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("el
 
 const field = "w-full rounded-xl border border-border bg-background p-3 outline-none focus:border-primary";
 
-export function MoneyLedger({ childId }: { childId: string }) {
+export function MoneyLedger({ childId, name }: { childId: string; name: string }) {
   const [month, setMonth] = useState(thisMonth());
   const [entries, setEntries] = useState<Entry[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -325,6 +326,16 @@ export function MoneyLedger({ childId }: { childId: string }) {
           {busy ? "…" : kind === "income" ? "Γράψε το έσοδο" : "Γράψε το έξοδο"}
         </button>
       </div>
+
+      {/* The worksheet "Το πλάνο των χρημάτων μου", filled from this month */}
+      <MoneyPlan
+        childId={childId}
+        name={name}
+        month={month}
+        monthLabel={monthLabel(month)}
+        income={stats.income}
+        expenses={entries.filter((e) => e.kind === "expense")}
+      />
 
       {/* Budgets */}
       <div className="rounded-2xl bg-card p-4 ring-1 ring-border">

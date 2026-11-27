@@ -42,7 +42,7 @@ function MoneyPage() {
   return (
     <main className="min-h-screen bg-background pb-16">
       <section className="bg-primary px-5 pb-8 pt-6 text-primary-foreground sm:px-8">
-        <div className="mx-auto max-w-xl">
+        <div className="mx-auto max-w-3xl">
           <Link to="/child-dashboard" className="mb-6 flex items-center gap-2 text-sm font-bold text-[oklch(0.86_0.1_292)]">
             ← Αρχική
           </Link>
@@ -52,8 +52,8 @@ function MoneyPage() {
           </p>
         </div>
       </section>
-      <div className="mx-auto max-w-xl px-5 pt-5 sm:px-8">
-        <MoneyLedger childId={child.id} />
+      <div className="mx-auto max-w-3xl px-5 pt-5 sm:px-8">
+        <MoneyLedger childId={child.id} name={child.name} />
       </div>
     </main>
   );
