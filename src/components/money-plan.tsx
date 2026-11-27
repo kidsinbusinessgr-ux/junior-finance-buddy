@@ -382,7 +382,7 @@ export function MoneyPlan({
         {state === "error" && <p className="no-print mt-2 text-center text-sm font-bold text-red-600">Δεν αποθηκεύτηκε. Δοκίμασε ξανά.</p>}
       </div>
       <p className="py-3 text-center text-sm text-white" style={{ background: C.brown }}>
-        KidsInBusiness.gr · Junior CEO Financial Tracker
+        KidsInBusiness.gr | Σταυρούλα Αρνιθενού | Ρόδος 2026
       </p>
     </div>
   );
