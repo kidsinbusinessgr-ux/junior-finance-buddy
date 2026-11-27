@@ -426,7 +426,7 @@ function WalletPage() {
                 return (
                   <div key={reward.id} className="flex items-center gap-4 rounded-2xl bg-card px-5 py-4 ring-1 ring-border">
                     <div className="flex-1">
-                      <p className="font-black">{reward.name}</p>
+                      <p className="font-black">{reward.emoji ?? "🎁"} {reward.name}</p>
                       <p className="text-sm font-bold text-muted-foreground">{reward.cost} 🪙</p>
                     </div>
                     <Button

@@ -8,6 +8,23 @@ import { MonthlyStatement } from "@/components/monthly-statement";
 // Parent side of the virtual card: lock it, set a weekly limit, see what the
 // child paid with it, and keep the Shop's rewards (what the child can pay for).
 
+// Ready ideas: one tap adds them to the Shop. Mostly time and choices, not
+// things to buy, so the KidsCoins stay a game.
+const REWARD_IDEAS: { emoji: string; name: string; cost: number }[] = [
+  { emoji: "📱", name: "30 λεπτά επιπλέον οθόνη", cost: 20 },
+  { emoji: "🎮", name: "1 ώρα παιχνίδι", cost: 30 },
+  { emoji: "🎬", name: "Διαλέγω την ταινία της βραδιάς", cost: 40 },
+  { emoji: "🌙", name: "Ξενυχτάω 30 λεπτά το Σάββατο", cost: 40 },
+  { emoji: "🍕", name: "Διαλέγω το φαγητό του Σαββάτου", cost: 50 },
+  { emoji: "🎲", name: "Επιτραπέζιο με όλη την οικογένεια", cost: 50 },
+  { emoji: "🍦", name: "Βόλτα για παγωτό", cost: 60 },
+  { emoji: "🛝", name: "Πάρκο με τη μαμά ή τον μπαμπά", cost: 60 },
+  { emoji: "🧹", name: "Μια μέρα χωρίς δουλειές του σπιτιού", cost: 80 },
+  { emoji: "👫", name: "Φίλος ή φίλη για ύπνο στο σπίτι", cost: 150 },
+  { emoji: "🎳", name: "Έξοδος της επιλογής μου", cost: 200 },
+  { emoji: "📚", name: "Ένα καινούργιο βιβλίο", cost: 250 },
+];
+
 type Payment = { id: string; amount: number; description: string; created_at: string | null };
 
 function ChildCard({ child, onChanged }: { child: ParentChild; onChanged: () => void }) {
@@ -172,25 +189,32 @@ export function ParentRewards({ parentId }: { parentId: string }) {
 
   useEffect(() => { load(); }, [load]);
 
+  const insert = async (rewardName: string, n: number, emoji: string) => {
+    setBusy(true);
+    setError(null);
+    const { error: err } = await supabase
+      .from("jfb_rewards")
+      .insert({ parent_id: parentId, name: rewardName.trim().slice(0, 60), cost: Math.min(n, 100000), emoji });
+    setBusy(false);
+    if (err) {
+      setError("Δεν προστέθηκε. Δοκίμασε ξανά.");
+      return false;
+    }
+    load();
+    return true;
+  };
+
   const add = async () => {
     const n = parseInt(cost, 10);
     if (!name.trim() || !Number.isFinite(n) || n <= 0) {
       setError("Γράψε όνομα και κόστος σε KidsCoins.");
       return;
     }
-    setBusy(true);
-    setError(null);
-    const { error: err } = await supabase
-      .from("jfb_rewards")
-      .insert({ parent_id: parentId, name: name.trim().slice(0, 60), cost: Math.min(n, 100000), emoji: "🎁" });
-    setBusy(false);
-    if (err) {
-      setError("Δεν προστέθηκε. Δοκίμασε ξανά.");
-      return;
-    }
-    setName("");
-    load();
+    if (await insert(name, n, "🎁")) setName("");
   };
+
+  const taken = new Set(rewards.map((r) => r.name.trim().toLowerCase()));
+  const ideas = REWARD_IDEAS.filter((i) => !taken.has(i.name.toLowerCase()));
 
   // Hidden, not deleted, so past payments keep their reward.
   const remove = async (id: string) => {
@@ -212,7 +236,7 @@ export function ParentRewards({ parentId }: { parentId: string }) {
         <ul className="mb-4 divide-y divide-[oklch(0.92_0.02_250)]">
           {rewards.map((r) => (
             <li key={r.id} className="flex items-center justify-between py-2">
-              <span className="text-[oklch(0.3_0.08_250)]">{r.name}</span>
+              <span className="text-[oklch(0.3_0.08_250)]">{r.emoji ?? "🎁"} {r.name}</span>
               <span className="flex items-center gap-3">
                 <span className="text-sm font-bold text-[oklch(0.4_0.08_250)]">{r.cost} 🪙</span>
                 <button onClick={() => remove(r.id)} aria-label={`Αφαίρεση: ${r.name}`} className="rounded-lg p-1.5 text-[oklch(0.55_0.15_25)] hover:bg-red-50">
@@ -249,6 +273,27 @@ export function ParentRewards({ parentId }: { parentId: string }) {
         </button>
       </div>
       {error && <p className="mt-2 text-sm font-bold text-red-600">{error}</p>}
+
+      {ideas.length > 0 && (
+        <div className="mt-5 border-t border-[oklch(0.92_0.02_250)] pt-4">
+          <p className="text-sm font-semibold text-[oklch(0.35_0.08_250)]">💡 Έτοιμες ιδέες: πάτα μία για να μπει στο Κατάστημα</p>
+          <p className="mt-0.5 text-xs text-[oklch(0.5_0.04_250)]">
+            Βάλε μικρές και μεγάλες τιμές, ώστε το παιδί να μάθει να μαζεύει KidsCoins για κάτι μεγαλύτερο. Για άλλη τιμή, γράψε την ανταμοιβή στη φόρμα από πάνω.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {ideas.map((i) => (
+              <button
+                key={i.name}
+                disabled={busy}
+                onClick={() => insert(i.name, i.cost, i.emoji)}
+                className="rounded-full border border-[oklch(0.85_0.04_250)] bg-[oklch(0.98_0.01_250)] px-3 py-1.5 text-sm text-[oklch(0.3_0.08_250)] hover:border-[oklch(0.55_0.18_250)] hover:bg-[oklch(0.95_0.03_250)] disabled:opacity-50"
+              >
+                {i.emoji} {i.name} · <span className="font-bold">{i.cost} 🪙</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
