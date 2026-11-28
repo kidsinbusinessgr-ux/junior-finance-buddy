@@ -212,7 +212,7 @@ export function FounderMoneyTools({ startup, onChanged }: { startup: ShareNumber
       <div className="mt-4">
         <p className="text-sm font-black">🎯 Γύρος χρηματοδότησης</p>
         {open ? (
-          <p className="mt-1 text-sm text-muted-foreground">Ο γύρος σου είναι ανοιχτός. Δείξε το startup σου στους φίλους σου.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Ο γύρος σου είναι ανοιχτός. Δείξε τη startup σου στους φίλους σου.</p>
         ) : (
           <>
             <p className="mt-1 text-xs text-muted-foreground">Βάλε στόχο για 7 μέρες. «Όλα ή τίποτα»: αν τον πιάσεις, τα KidsCoins μπαίνουν στο ταμείο και η εταιρεία κερδίζει +10 φήμη και ένα 🏆· αν όχι, επιστρέφονται στους επενδυτές.</p>

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/investments")({
   head: () => ({
     meta: [
       { title: "Επενδύσεις – Kids in Business" },
-      { name: "description", content: "Οι μετοχές και τα startups σου σε ένα σημείο" },
+      { name: "description", content: "Οι μετοχές και οι startups σου σε ένα σημείο" },
     ],
   }),
   component: InvestmentsPage,
@@ -115,21 +115,21 @@ function InvestmentsPage() {
             <p className="text-2xl">🚀</p>
             <p className="mt-2 text-lg font-black">Startups φίλων</p>
             <p className="mt-1 text-sm text-muted-foreground">Επένδυσε στις ιδέες άλλων παιδιών και δες αν θα πετύχουν.</p>
-            <p className="mt-3 text-sm font-black text-[oklch(0.45_0.2_292)]">Δες τα startups →</p>
+            <p className="mt-3 text-sm font-black text-[oklch(0.45_0.2_292)]">Δες τις startups →</p>
           </Link>
         </div>
 
         {/* Own startups */}
         <section className="rounded-2xl border bg-card p-5">
           <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-lg font-black">Τα startups μου</h2>
+            <h2 className="text-lg font-black">Οι startups μου</h2>
             {ownStartups.length < 3 && (
               <Link to="/build" className="text-sm font-black text-[oklch(0.45_0.2_292)]">+ Φτιάξε νέο</Link>
             )}
           </div>
           {ownStartups.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              Δεν έχεις ακόμα startup. Φτιάξε το δικό σου και πάρε μια απόφαση κάθε μέρα.
+              Δεν έχεις ακόμα startup. Φτιάξε τη δική σου και πάρε μια απόφαση κάθε μέρα.
             </p>
           ) : (
             <div className="mt-3 space-y-2">

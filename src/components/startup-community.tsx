@@ -64,7 +64,7 @@ export function StartupReactions({ startupId, canReact, isFounder = false }: { s
         })}
       </div>
       {isFounder ? (
-        <p className="mt-2 text-xs text-muted-foreground">Τις αντιδράσεις τις δίνουν οι άλλοι μαθητές. Δείξε το startup σου στους φίλους σου.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Τις αντιδράσεις τις δίνουν οι άλλοι μαθητές. Δείξε τη startup σου στους φίλους σου.</p>
       ) : !canReact && <p className="mt-2 text-xs text-muted-foreground">Συνδέσου ως μαθητής για να αντιδράσεις.</p>}
     </div>
   );

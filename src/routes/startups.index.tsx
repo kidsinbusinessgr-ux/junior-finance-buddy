@@ -12,7 +12,7 @@ export const Route = createFileRoute("/startups/")({
   head: () => ({
     meta: [
       { title: "Startups – Kids in Business" },
-      { name: "description", content: "Δες τα startups που έφτιαξαν οι μαθητές μας. Επένδυσε εικονικά KidsCoins στις ιδέες που πιστεύεις." },
+      { name: "description", content: "Δες τις startups που έφτιαξαν οι μαθητές μας. Επένδυσε εικονικά KidsCoins στις ιδέες που πιστεύεις." },
     ],
   }),
   component: StartupsPage,
@@ -63,7 +63,7 @@ export default function StartupsPage() {
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link to="/build">
                 <Button className="h-12 rounded-full bg-white px-8 font-black text-[oklch(0.57_0.23_292)] hover:bg-white/90">
-                  + Φτιάξε το δικό σου
+                  + Φτιάξε τη δική σου
                 </Button>
               </Link>
             </div>
@@ -85,7 +85,7 @@ export default function StartupsPage() {
             <p className="mt-4 text-xl font-black">Δεν υπάρχουν startups ακόμα.</p>
             <p className="mt-2 text-muted-foreground">Γίνε ο/η πρώτος/η που θα φτιάξει ένα.</p>
             <Link to="/build">
-              <Button className="mt-6 h-12 rounded-full px-8 font-black">🚀 Φτιάξε το πρώτο startup</Button>
+              <Button className="mt-6 h-12 rounded-full px-8 font-black">🚀 Φτιάξε την πρώτη startup</Button>
             </Link>
           </div>
         )}
@@ -126,7 +126,7 @@ export default function StartupsPage() {
         {/* Rest */}
         {rest.length > 0 && (
           <>
-            <h2 className="mb-6 text-2xl font-black">Όλα τα startups</h2>
+            <h2 className="mb-6 text-2xl font-black">Όλες οι startups</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {rest.map((s) => (
                 <Link key={s.id} to="/startups/$id" params={{ id: s.id }}>

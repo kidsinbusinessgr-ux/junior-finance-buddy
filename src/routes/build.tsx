@@ -7,17 +7,17 @@ import { IDEA_SPARKS, WORKBOOK_URL } from "@/lib/startup-plan";
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
 
 const CREATE_ERRORS: Record<Exclude<CreateStartupResult, { ok: true }>["reason"], string> = {
-  login: "Συνδέσου για να φτιάξεις το startup σου.",
+  login: "Συνδέσου για να φτιάξεις τη startup σου.",
   no_child: "Μόνο ο λογαριασμός παιδιού μπορεί να φτιάξει startup.",
   bad_words: "Ας κρατήσουμε τα κείμενα ευγενικά 😊 Άλλαξε τις λέξεις που δεν ταιριάζουν και δοκίμασε ξανά.",
-  too_many: "Έχεις ήδη 3 startups. Εστίασε σε αυτά που έχεις 💪",
+  too_many: "Έχεις ήδη 3 startups. Εστίασε σε αυτές που έχεις 💪",
   failed: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
 };
 
 export const Route = createFileRoute("/build")({
   head: () => ({
     meta: [
-      { title: "Φτιάξε το startup σου – Kids in Business" },
+      { title: "Φτιάξε τη startup σου – Kids in Business" },
       { name: "description", content: "Βήμα βήμα, από την ιδέα στο business plan: πελάτες, ανταγωνισμός, κοστολόγηση με break-even και διαφήμιση." },
     ],
   }),
@@ -197,7 +197,7 @@ export default function BuildPage() {
           <BrightlyNav active="build" />
           <div className="mx-auto max-w-xl pt-16 text-center">
             <p className="text-sm font-black uppercase tracking-widest text-[oklch(0.86_0.1_173)]">Business plan</p>
-            <h1 className="mt-3 text-4xl font-black sm:text-5xl">Φτιάξε το startup σου</h1>
+            <h1 className="mt-3 text-4xl font-black sm:text-5xl">Φτιάξε τη startup σου</h1>
             <p className="mt-4 text-lg text-[oklch(0.96_0.02_173)]">Από την ιδέα στο πραγματικό σχέδιο, σε τρεις φάσεις.</p>
           </div>
           <div className="mx-auto mt-8 grid max-w-2xl gap-2 text-left text-sm sm:grid-cols-3">
@@ -397,7 +397,7 @@ export default function BuildPage() {
             <Field label="Πωλήσεις" value={form.model} onChange={(v) => set("model", v)} placeholder="Πού πουλάς; Πώς πληρώνει ο πελάτης; Μία φορά, συνδρομή, ανά παραγγελία;" />
 
             <div className="rounded-2xl bg-[oklch(0.95_0.05_173)] p-4 text-sm text-[oklch(0.3_0.1_173)]">
-              <p className="font-black">Μετά τη δημοσίευση συνεχίζεις στη σελίδα του startup σου:</p>
+              <p className="font-black">Μετά τη δημοσίευση συνεχίζεις στη σελίδα της startup σου:</p>
               <p className="mt-1">🎨 Σχεδίασε το προϊόν · 🧮 Κοστολόγηση και break-even · 📣 Η διαφήμισή σου · 🗓️ Σχέδιο δράσης</p>
             </div>
 

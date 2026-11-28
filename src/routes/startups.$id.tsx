@@ -20,8 +20,8 @@ const INVEST_LIMIT = 200;
 // Database error messages from jfb_invest_in_startup → what the child sees.
 function investErrorText(message: string): string {
   if (message.includes("Not enough coins")) return "Δεν έχεις αρκετά KidsCoins.";
-  if (message.includes("Own startup")) return "Δεν μπορείς να επενδύσεις στο δικό σου startup.";
-  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} KidsCoins σε αυτό το startup. Μοίρασε τα KidsCoins σου και σε άλλα.`;
+  if (message.includes("Own startup")) return "Δεν μπορείς να επενδύσεις στη δική σου startup.";
+  if (message.includes("Startup limit")) return `Έχεις φτάσει το όριο των ${INVEST_LIMIT} KidsCoins σε αυτή τη startup. Μοίρασε τα KidsCoins σου και σε άλλες.`;
   if (message.includes("child account")) return "Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.";
   return "Κάτι πήγε στραβά. Δοκίμασε ξανά.";
 }
@@ -125,7 +125,7 @@ export default function StartupPage() {
     setCheckoutOpen(true);
   };
   const investAfterCheckout = async (): Promise<string | null> => {
-    if (!startup) return "Το startup δε βρέθηκε.";
+    if (!startup) return "Η startup δε βρέθηκε.";
     setSubmitting(true);
     const { error } = await supabase.rpc("jfb_invest_in_startup" as never, {
       p_startup_id: startup.id,
@@ -153,8 +153,8 @@ export default function StartupPage() {
       </section>
       <div className="py-24 text-center">
         <div className="text-6xl">😕</div>
-        <p className="mt-4 text-xl font-black">Το startup δε βρέθηκε</p>
-        <Link to="/startups"><Button className="mt-6 rounded-full">← Πίσω στα startups</Button></Link>
+        <p className="mt-4 text-xl font-black">Η startup δε βρέθηκε</p>
+        <Link to="/startups"><Button className="mt-6 rounded-full">← Πίσω στις startups</Button></Link>
       </div>
     </main>
   );
@@ -281,7 +281,7 @@ export default function StartupPage() {
             <p className="mt-4 text-sm font-bold text-muted-foreground">Μόνο ο λογαριασμός παιδιού μπορεί να επενδύσει.</p>
           ) : child && startup.child_id === child.id ? (
             <p className="mt-4 rounded-xl bg-white/70 px-4 py-3 text-sm font-bold">
-              🌟 Αυτό είναι το δικό σου startup. Δείξ' το στους φίλους σου για να επενδύσουν.
+              🌟 Αυτή είναι η δική σου startup. Δείξ' τη στους φίλους σου για να επενδύσουν.
             </p>
           ) : !investing ? (
             <>
@@ -295,7 +295,7 @@ export default function StartupPage() {
                 disabled={!child || myInvested >= INVEST_LIMIT}
                 onClick={() => { setInvesting(true); setSuccess(false); setInvestError(null); }}
               >
-                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτό το startup" : "🪙 Επένδυσε KidsCoins"}
+                {myInvested >= INVEST_LIMIT ? "Έφτασες το όριο για αυτή τη startup" : "🪙 Επένδυσε KidsCoins"}
               </Button>
             </>
           ) : (
@@ -331,8 +331,8 @@ export default function StartupPage() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {(child?.invest_capital ?? 0) > 0
-                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά KidsCoins και μετά τα δικά σου. Μην τα βάλεις όλα σε ένα startup."
-                    : "Τα KidsCoins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε ένα startup."}
+                    ? "Πρώτα χρησιμοποιούνται τα 🚀 επενδυτικά KidsCoins και μετά τα δικά σου. Μην τα βάλεις όλα σε μία startup."
+                    : "Τα KidsCoins φεύγουν από το πορτοφόλι σου. Μην τα βάλεις όλα σε μία startup."}
                 </p>
               </div>
               {investError && (
@@ -372,14 +372,14 @@ export default function StartupPage() {
         {/* Back */}
         <div className="mt-10">
           <Link to="/startups">
-            <Button variant="outline" className="rounded-full">← Όλα τα startups</Button>
+            <Button variant="outline" className="rounded-full">← Όλες οι startups</Button>
           </Link>
         </div>
       </section>
       {checkoutOpen && startup && (
         <CardCheckout
           amount={selectedCoins}
-          merchant={`Επένδυση στο ${startup.name}`}
+          merchant={`Επένδυση στη startup «${startup.name}»`}
           name={child?.name}
           onPay={investAfterCheckout}
           onClose={(paid) => {

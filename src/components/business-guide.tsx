@@ -51,7 +51,7 @@ export function BusinessGuide() {
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between text-left">
         <span>
           <span className="block text-lg font-semibold text-[oklch(0.35_0.08_250)]">🧭 Οδηγός για το business plan του παιδιού</span>
-          <span className="mt-1 block text-sm text-[oklch(0.5_0.04_250)]">Πώς να σταθείς δίπλα του όταν φτιάχνει το startup του.</span>
+          <span className="mt-1 block text-sm text-[oklch(0.5_0.04_250)]">Πώς να σταθείς δίπλα του όταν φτιάχνει τη startup του.</span>
         </span>
         <span className="ml-3 text-2xl text-[oklch(0.5_0.04_250)]">{open ? "−" : "+"}</span>
       </button>
