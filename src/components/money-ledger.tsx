@@ -70,7 +70,10 @@ const dayLabel = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("el
 
 const field = "w-full rounded-xl border border-border bg-background p-3 outline-none focus:border-primary";
 
-export function MoneyLedger({ childId, name }: { childId: string; name: string }) {
+// variant "lesson" (lesson 4): only the form, the money plan and the month's
+// entries; the full book with budgets and tips is on /money.
+export function MoneyLedger({ childId, name, variant = "full" }: { childId: string; name: string; variant?: "full" | "lesson" }) {
+  const full = variant === "full";
   const [month, setMonth] = useState(thisMonth());
   const [entries, setEntries] = useState<Entry[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -206,6 +209,7 @@ export function MoneyLedger({ childId, name }: { childId: string; name: string }
       </div>
 
       {/* Summary */}
+      {full && (<>
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-2xl bg-[oklch(0.95_0.05_150)] p-3 text-center">
           <p className="text-xs font-bold text-[oklch(0.4_0.1_150)]">Έσοδα</p>
@@ -244,6 +248,7 @@ export function MoneyLedger({ childId, name }: { childId: string; name: string }
           {overBudget.length > 0 && <p>🚦 Ξεπέρασες το όριο σε: {overBudget.map((c) => c.name).join(", ")}.</p>}
         </div>
       )}
+      </>)}
 
       {/* Add */}
       <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
@@ -338,6 +343,7 @@ export function MoneyLedger({ childId, name }: { childId: string; name: string }
       />
 
       {/* Budgets */}
+      {full && (
       <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
         <p className="font-black">Όρια ανά μήνα</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
@@ -416,6 +422,7 @@ export function MoneyLedger({ childId, name }: { childId: string; name: string }
         </ul>
         <p className="mt-3 text-xs text-muted-foreground">Για να σβήσεις ένα όριο, άφησε το ποσό κενό και πάτα OK.</p>
       </div>
+      )}
 
       {/* Entries */}
       <div className="rounded-2xl bg-card p-4 ring-1 ring-border">

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { completeLesson, useChild } from "@/hooks/useJFB";
 import { BusinessModelCanvas } from "@/components/bmc-canvas";
 import { BrainstormWorkshop } from "@/components/brainstorm-workshop";
+import { LessonMoneyPlan } from "@/components/lesson-money-plan";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -60,7 +61,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
-  workshop?: "bmc" | "brainstorm"; // an interactive exercise between the slides and the quiz
+  workshop?: "bmc" | "brainstorm" | "moneyplan"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -247,6 +248,7 @@ const lessons: Record<string, Lesson> = {
     emoji: "📊",
     xp: 200,
     color: "oklch(0.57_0.23_292)",
+    workshop: "moneyplan",
     slides: [
       {
         heading: "Ο προϋπολογισμός είναι ο χάρτης των χρημάτων σου",
@@ -648,7 +650,7 @@ function LessonPage() {
               </Button>
             ) : lesson.workshop ? (
               <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
-                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : "Φτιάξε το canvas σου ✏️"}
+                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : "Φτιάξε το canvas σου ✏️"}
               </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
@@ -674,7 +676,7 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : <BusinessModelCanvas />}
+          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : <BusinessModelCanvas />}
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες
