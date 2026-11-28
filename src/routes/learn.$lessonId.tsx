@@ -5,6 +5,7 @@ import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
 import { completeLesson, useChild } from "@/hooks/useJFB";
 import { BusinessModelCanvas } from "@/components/bmc-canvas";
+import { BrainstormWorkshop } from "@/components/brainstorm-workshop";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -59,7 +60,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
-  workshop?: "bmc"; // an interactive exercise between the slides and the quiz
+  workshop?: "bmc" | "brainstorm"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -423,6 +424,7 @@ const lessons: Record<string, Lesson> = {
     emoji: "💡",
     xp: 200,
     color: "oklch(0.57_0.23_292)",
+    workshop: "brainstorm",
     slides: [
       { heading: "Το πρόβλημα είναι η ιδέα", body: "Κάθε επιτυχημένη επιχείρηση λύνει ένα πρόβλημα. Οι ιδρυτές της Airbnb είδαν ότι τα ξενοδοχεία ήταν ακριβά και γέμιζαν όταν γινόταν ένα μεγάλο συνέδριο. Οι ιδρυτές της Uber δεν έβρισκαν εύκολα ταξί. Ρώτα τον εαυτό σου: «Τι με εκνευρίζει; Τι μου λείπει στην καθημερινότητά μου;». Εκεί κρύβεται η ιδέα.", emoji: "🔍" },
       { heading: "Τεχνικές brainstorming", body: "Τρεις τρόποι για να βρεις ιδέες:\n1) Χάρτης ιδεών (mind map): γράψε ένα πρόβλημα στη μέση της σελίδας και γύρω του όσες λύσεις σκεφτείς.\n2) «Τι θα έκανε ο…»: σκέψου πώς θα έλυνε το πρόβλημα ένας επιχειρηματίας που θαυμάζεις.\n3) Παρατήρηση: κάθισε μία ώρα σε ένα σημείο και γράψε ό,τι βλέπεις να μη λειτουργεί καλά.", emoji: "🧠" },
@@ -590,7 +592,7 @@ function LessonPage() {
               <Star size={14} /> {lesson.xp} XP
             </span>
             <span className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-secondary-foreground">
-              📖 {lesson.slides.length} διαφάνειες{lesson.workshop ? " + canvas" : ""} + {totalQuestions} ερωτήσεις
+              📖 {lesson.slides.length} διαφάνειες{lesson.workshop ? " + εργαστήριο" : ""} + {totalQuestions} ερωτήσεις
             </span>
           </div>
           <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
@@ -646,7 +648,7 @@ function LessonPage() {
               </Button>
             ) : lesson.workshop ? (
               <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
-                Φτιάξε το canvas σου ✏️
+                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : "Φτιάξε το canvas σου ✏️"}
               </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
@@ -672,7 +674,7 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          <BusinessModelCanvas />
+          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : <BusinessModelCanvas />}
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες
