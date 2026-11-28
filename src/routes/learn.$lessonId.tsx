@@ -8,6 +8,7 @@ import { BusinessModelCanvas } from "@/components/bmc-canvas";
 import { BrainstormWorkshop } from "@/components/brainstorm-workshop";
 import { LessonMoneyPlan } from "@/components/lesson-money-plan";
 import { BrandingWorkshop } from "@/components/branding-workshop";
+import { CostingWorkshop } from "@/components/costing-workshop";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -62,7 +63,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
-  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding"; // an interactive exercise between the slides and the quiz
+  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding" | "costing"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -469,7 +470,7 @@ const lessons: Record<string, Lesson> = {
     ],
   },
   "10": {
-    id: 10, title: "Τιμολόγηση και νεκρό σημείο", emoji: "💹", xp: 300, color: "oklch(0.57_0.23_292)",
+    id: 10, title: "Τιμολόγηση και νεκρό σημείο", emoji: "💹", xp: 300, color: "oklch(0.57_0.23_292)", workshop: "costing",
     slides: [
       { heading: "Πώς ορίζεις την τιμή", body: "Τρεις τρόποι:\nΑ) Κόστος και περιθώριο (cost-plus): υπολογίζεις το κόστος και προσθέτεις το κέρδος που θέλεις. Π.χ. κόστος €3 και 50% κέρδος δίνουν τιμή €4,50.\nΒ) Ανταγωνισμός: κοιτάς τι χρεώνουν οι άλλοι.\nΓ) Αξία: χρεώνεις με βάση το πόσο αξίζει η λύση για τον πελάτη. Αν, για παράδειγμα, του γλιτώνεις €100, μπορείς άνετα να χρεώσεις €30.", emoji: "💰" },
       { heading: "Το νεκρό σημείο (break-even)", body: "Νεκρό σημείο είναι το σημείο όπου ούτε χάνεις ούτε κερδίζεις.\nΤύπος: νεκρό σημείο = σταθερό κόστος ÷ (τιμή − μεταβλητό κόστος ανά τεμάχιο)\nΠαράδειγμα:\n1) Σταθερό κόστος: €200 τον μήνα.\n2) Τιμή: €10 το τεμάχιο.\n3) Κόστος ανά προϊόν: €4.\n4) Νεκρό σημείο: 200 ÷ (10 − 4) ≈ 33,3, άρα χρειάζεσαι 34 πωλήσεις τον μήνα.", emoji: "📊" },
@@ -651,7 +652,7 @@ function LessonPage() {
               </Button>
             ) : lesson.workshop ? (
               <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
-                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : "Φτιάξε το canvas σου ✏️"}
+                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : lesson.workshop === "costing" ? "Υπολόγισε το κόστος σου ✏️" : "Φτιάξε το canvas σου ✏️"}
               </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
@@ -677,7 +678,7 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : <BusinessModelCanvas />}
+          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : <BusinessModelCanvas />}
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες
