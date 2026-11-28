@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from "react";
+import { reportClientError } from "@/lib/report-client-error";
 
 // Around a lesson's workshop: if something in it breaks, the lesson page
 // stays up (slides and quiz still work) and shows what went wrong, so the
@@ -13,6 +14,7 @@ export class WorkshopBoundary extends Component<{ children: ReactNode }, { error
 
   componentDidCatch(error: Error) {
     console.error("workshop failed", error);
+    reportClientError(error, "workshop");
   }
 
   render() {
