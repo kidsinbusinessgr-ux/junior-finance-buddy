@@ -122,7 +122,10 @@ export function useChild() {
   useEffect(() => {
     if (!child?.id) return;
     const channel = supabase
-      .channel(`child-${child.id}`)
+      // A name of its own: several parts of a page (e.g. a lesson and its
+      // workshop) use this hook at once, and a shared channel can't take a
+      // second listener after it has subscribed.
+      .channel(`child-${child.id}-${Math.random().toString(36).slice(2, 10)}`)
       .on("postgres_changes", {
         event: "UPDATE",
         schema: "public",
@@ -764,7 +767,7 @@ export function useChildNotifications(childId: string | null) {
       });
 
     const channel = supabase
-      .channel("notifications:" + childId)
+      .channel("notifications:" + childId + ":" + Math.random().toString(36).slice(2, 10))
       .on(
         "postgres_changes",
         {
