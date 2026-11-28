@@ -39,10 +39,28 @@ function NotFoundComponent() {
   );
 }
 
+// After a new version is published, an open or cached page may ask for
+// files that no longer exist. Then one reload fixes it, so it is done once
+// on its own instead of showing the error page.
+const STALE_RE = /dynamically imported module|Importing a module script failed|error loading dynamically|ChunkLoadError|Loading chunk|Unable to preload/i;
+function reloadOnceForNewVersion(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const last = Number(sessionStorage.getItem("kib-reloaded-at") || 0);
+    if (Date.now() - last < 60_000) return false;
+    sessionStorage.setItem("kib-reloaded-at", String(Date.now()));
+  } catch {
+    return false;
+  }
+  window.location.reload();
+  return true;
+}
+
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
+    if (STALE_RE.test(errorText(error)) && reloadOnceForNewVersion()) return;
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
     reportClientError(error, "root");
   }, [error]);
@@ -121,6 +139,15 @@ const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password", "/privacy",
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  // A part of the app that fails to load after a new version: reload once.
+  useEffect(() => {
+    const onPreloadError = (e: Event) => {
+      if (reloadOnceForNewVersion()) e.preventDefault();
+    };
+    window.addEventListener("vite:preloadError", onPreloadError);
+    return () => window.removeEventListener("vite:preloadError", onPreloadError);
+  }, []);
 
   useEffect(() => {
     rememberSignupSource();
