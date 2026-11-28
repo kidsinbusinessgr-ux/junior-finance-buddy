@@ -361,7 +361,17 @@ export function GoalCardBuilder({
     if (mode !== "lesson") return;
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      if (raw) setD({ ...EMPTY, ...JSON.parse(raw) });
+      if (raw) {
+        // Only text fields, so an old or broken draft can't break the card.
+        const saved = JSON.parse(raw) as Record<string, unknown>;
+        const next = { ...EMPTY };
+        for (const k of Object.keys(EMPTY) as (keyof GoalDraft)[]) {
+          const v = saved?.[k];
+          if (typeof v === "string") (next as Record<string, string>)[k] = v.slice(0, 300);
+        }
+        next.kind = saved?.kind === "personal" ? "personal" : "money";
+        setD(next);
+      }
     } catch {
       /* no storage */
     }

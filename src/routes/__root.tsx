@@ -54,6 +54,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
         <p className="mt-2 text-sm text-muted-foreground">
           Κάτι πήγε στραβά. Δοκίμασε να ανανεώσεις ή επέστρεψε στην αρχική.
         </p>
+        {error instanceof Error && error.message && (
+          <p className="mt-3 break-words text-xs text-muted-foreground/70">Για την υποστήριξη: {error.message.slice(0, 200)}</p>
+        )}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {

@@ -11,6 +11,7 @@ import { BrandingWorkshop } from "@/components/branding-workshop";
 import { CostingWorkshop } from "@/components/costing-workshop";
 import { PitchWorkshop } from "@/components/pitch-workshop";
 import { LessonGoalCard } from "@/components/lesson-goal-card";
+import { WorkshopBoundary } from "@/components/workshop-boundary";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -681,7 +682,9 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : lesson.workshop === "pitch" ? <PitchWorkshop /> : lesson.workshop === "goal" ? <LessonGoalCard /> : <BusinessModelCanvas />}
+          <WorkshopBoundary>
+            {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : lesson.workshop === "pitch" ? <PitchWorkshop /> : lesson.workshop === "goal" ? <LessonGoalCard /> : <BusinessModelCanvas />}
+          </WorkshopBoundary>
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες
