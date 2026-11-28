@@ -10,6 +10,7 @@ import { LessonMoneyPlan } from "@/components/lesson-money-plan";
 import { BrandingWorkshop } from "@/components/branding-workshop";
 import { CostingWorkshop } from "@/components/costing-workshop";
 import { PitchWorkshop } from "@/components/pitch-workshop";
+import { LessonGoalCard } from "@/components/lesson-goal-card";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -64,7 +65,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
-  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding" | "costing" | "pitch"; // an interactive exercise between the slides and the quiz
+  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding" | "costing" | "pitch" | "goal"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -192,6 +193,7 @@ const lessons: Record<string, Lesson> = {
     emoji: "🐷",
     xp: 150,
     color: "oklch(0.57_0.2_28)",
+    workshop: "goal",
     slides: [
       {
         heading: "Ο κανόνας του 72: η δύναμη του χρόνου",
@@ -653,7 +655,7 @@ function LessonPage() {
               </Button>
             ) : lesson.workshop ? (
               <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
-                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : lesson.workshop === "costing" ? "Υπολόγισε το κόστος σου ✏️" : lesson.workshop === "pitch" ? "Γράψε το pitch σου 🎤" : "Φτιάξε το canvas σου ✏️"}
+                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : lesson.workshop === "costing" ? "Υπολόγισε το κόστος σου ✏️" : lesson.workshop === "pitch" ? "Γράψε το pitch σου 🎤" : lesson.workshop === "goal" ? "Φτιάξε την κάρτα στόχου σου 🎯" : "Φτιάξε το canvas σου ✏️"}
               </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
@@ -679,7 +681,7 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : lesson.workshop === "pitch" ? <PitchWorkshop /> : <BusinessModelCanvas />}
+          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : lesson.workshop === "pitch" ? <PitchWorkshop /> : lesson.workshop === "goal" ? <LessonGoalCard /> : <BusinessModelCanvas />}
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες
