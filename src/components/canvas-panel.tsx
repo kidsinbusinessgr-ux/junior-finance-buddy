@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { BusinessModelCanvas } from "@/components/bmc-canvas";
+import { BusinessModelCanvas, countNotes, fetchAccountCanvas } from "@/components/bmc-canvas";
 
 // On /build: the child's Business Model Canvas from the lesson, to look at
-// (and change) while making their startup. It is kept on this device
-// (localStorage "kib-bmc"), the same as in the lesson.
+// (and change) while making their startup. It is the same canvas as in the
+// lesson, kept in the account (jfb_canvases) and on this device.
 
 function canvasNoteCount(): number {
   try {
@@ -21,7 +21,11 @@ export function MyCanvasPanel() {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState(0);
   useEffect(() => {
-    setNotes(canvasNoteCount());
+    const local = canvasNoteCount();
+    setNotes(local);
+    fetchAccountCanvas().then((res) => {
+      if (res?.draft) setNotes(Math.max(local, countNotes(res.draft)));
+    });
   }, [open]);
 
   return (
@@ -33,7 +37,7 @@ export function MyCanvasPanel() {
             <p className="text-sm text-muted-foreground">
               {notes > 0
                 ? `Έχεις ${notes} post-it από το μάθημα. Άνοιξέ το για να το έχεις μπροστά σου όσο φτιάχνεις τη startup σου.`
-                : "Δεν το έχεις συμπληρώσει ακόμα σε αυτή τη συσκευή. Μπορείς να το φτιάξεις εδώ ή στο μάθημα."}
+                : "Δεν το έχεις συμπληρώσει ακόμα. Μπορείς να το φτιάξεις εδώ ή στο μάθημα."}
             </p>
           </div>
           <button

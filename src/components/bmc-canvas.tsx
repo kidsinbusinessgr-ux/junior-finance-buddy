@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Lightbulb, Lock, Plus, Printer, RotateCcw, X } from "lucide-react";
 import { SignupCta } from "@/components/signup-gate";
+import { supabase } from "@/integrations/supabase/client";
 
 // The Business Model Canvas from the Kids in Business worksheet: the nine
 // boxes keep their places, teens add short post-its to each one, and the
@@ -231,11 +232,34 @@ function emptyDraft(): Draft {
 }
 
 function loadDraft(): Draft {
-  const base = emptyDraft();
   try {
     const raw = localStorage.getItem(DRAFT_KEY);
-    if (!raw) return base;
-    const d = JSON.parse(raw) as Partial<Draft>;
+    return raw ? parseDraft(JSON.parse(raw)) : emptyDraft();
+  } catch {
+    return emptyDraft();
+  }
+}
+
+const draftIsEmpty = (d: Draft) => !d.problem.trim() && BOXES.every((b) => d.notes[b.id].length === 0);
+
+// The canvas saved in the account (jfb_canvases), or null when there is none
+// or nobody is signed in.
+export async function fetchAccountCanvas(): Promise<{ userId: string; draft: Draft | null } | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase.from("jfb_canvases" as never).select("data").eq("user_id", user.id).maybeSingle();
+  const row = data as { data: unknown } | null;
+  return { userId: user.id, draft: row ? parseDraft(row.data) : null };
+}
+
+export const countNotes = (d: Draft) => BOXES.reduce((s, b) => s + d.notes[b.id].length, 0);
+
+function parseDraft(raw: unknown): Draft {
+  const base = emptyDraft();
+  try {
+    const d = (raw ?? {}) as Partial<Draft>;
     for (const b of BOXES) {
       const list = d.notes?.[b.id];
       if (Array.isArray(list)) base.notes[b.id] = list.filter((x) => typeof x === "string").slice(0, 30);
@@ -453,10 +477,26 @@ export function BusinessModelCanvas({ locked = false }: { locked?: boolean } = {
   const [view, setView] = useState<"mine" | "airbnb">("mine");
   const [active, setActive] = useState<BoxId>("segments");
 
+  // Signed in: the canvas lives in the account, so it follows the child from
+  // the school computer to home. The copy on this device is the fallback, and
+  // the first time it moves into the account.
+  const [accountUser, setAccountUser] = useState<string | null>(null);
+
   useEffect(() => {
-    setDraft(loadDraft());
+    const local = loadDraft();
+    setDraft(local);
     setLoaded(true);
-  }, []);
+    if (locked) return;
+    let cancelled = false;
+    fetchAccountCanvas().then((res) => {
+      if (cancelled || !res) return;
+      if (res.draft && !draftIsEmpty(res.draft)) setDraft(res.draft);
+      setAccountUser(res.userId);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locked]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -465,7 +505,15 @@ export function BusinessModelCanvas({ locked = false }: { locked?: boolean } = {
     } catch {
       /* private mode: the canvas still works, it just isn't kept */
     }
-  }, [draft, loaded]);
+    if (!accountUser) return;
+    const t = setTimeout(() => {
+      supabase
+        .from("jfb_canvases" as never)
+        .upsert({ user_id: accountUser, data: draft, updated_at: new Date().toISOString() } as never, { onConflict: "user_id" })
+        .then(() => undefined);
+    }, 800);
+    return () => clearTimeout(t);
+  }, [draft, loaded, accountUser]);
 
   const showAirbnb = locked || view === "airbnb";
   const activeBox = BOXES.find((b) => b.id === active) ?? BY_STEP[0];
