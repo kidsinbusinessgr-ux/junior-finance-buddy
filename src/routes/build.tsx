@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { createStartup, type CreateStartupResult } from "@/lib/startups.functions";
 import { IDEA_SPARKS, WORKBOOK_URL } from "@/lib/startup-plan";
 import { useChild, useCurrentUser } from "@/hooks/useJFB";
+import { MyCanvasPanel } from "@/components/canvas-panel";
 
 const CREATE_ERRORS: Record<Exclude<CreateStartupResult, { ok: true }>["reason"], string> = {
   login: "Συνδέσου για να φτιάξεις τη startup σου.",
@@ -248,6 +249,8 @@ export default function BuildPage() {
           </div>
         </div>
       </div>
+
+      <MyCanvasPanel />
 
       {/* Form */}
       <section className="mx-auto max-w-xl px-6 py-10">

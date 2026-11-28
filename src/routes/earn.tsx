@@ -2,10 +2,9 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Circle } from "lucide-react";
 import { HeroArt } from "@/components/hero-art";
-import { BusinessModelCanvas } from "@/components/bmc-canvas";
 import { BrightlyNav } from "@/components/brightly-nav";
 import { Button } from "@/components/ui/button";
-import { useChild, useCurrentUser } from "@/hooks/useJFB";
+import { useChild } from "@/hooks/useJFB";
 
 export const Route = createFileRoute("/earn")({
   head: () => ({
@@ -62,7 +61,6 @@ function EarnPage() {
   const [tasks, setTasks] = useState(initialTasks);
   // A signed-in child sees a way to their real chores (sent to the parent for approval).
   const { child } = useChild();
-  const { userId } = useCurrentUser();
 
   const toggle = (id: number) =>
     setTasks((prev) =>
@@ -170,27 +168,6 @@ function EarnPage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Business Model Canvas: plan your own business idea */}
-      <section id="canvas" className="scroll-mt-6 px-4 py-20 sm:px-6 lg:px-16">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <p className="font-bold uppercase tracking-[0.15em] text-[oklch(0.56_0.15_35)]">Η δική σου επιχείρηση</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Σχεδίασε την ιδέα σου</h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Έχεις μια ιδέα για να βγάλεις χρήματα; Γράψε τη σε ένα Business Model Canvas: εννέα κουτάκια που δείχνουν όλη την
-              επιχείρηση σε μία σελίδα. Συμπλήρωσέ τα με τη σειρά των αριθμών και δες πώς το έκανε η Airbnb.
-              {child && (
-                <>
-                  {" "}Για περισσότερα, δες το{" "}
-                  <Link to="/learn/$lessonId" params={{ lessonId: "8" }} className="font-bold underline">μάθημα για το Business Model Canvas</Link>.
-                </>
-              )}
-            </p>
-          </div>
-          <BusinessModelCanvas locked={!userId} />
         </div>
       </section>
 
