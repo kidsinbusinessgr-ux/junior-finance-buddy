@@ -9,6 +9,7 @@ import { BrainstormWorkshop } from "@/components/brainstorm-workshop";
 import { LessonMoneyPlan } from "@/components/lesson-money-plan";
 import { BrandingWorkshop } from "@/components/branding-workshop";
 import { CostingWorkshop } from "@/components/costing-workshop";
+import { PitchWorkshop } from "@/components/pitch-workshop";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -63,7 +64,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
-  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding" | "costing"; // an interactive exercise between the slides and the quiz
+  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding" | "costing" | "pitch"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -483,7 +484,7 @@ const lessons: Record<string, Lesson> = {
     ],
   },
   "11": {
-    id: 11, title: "Pitch: πούλησε την ιδέα σου", emoji: "🎤", xp: 300, color: "oklch(0.55_0.17_173)",
+    id: 11, title: "Pitch: πούλησε την ιδέα σου", emoji: "🎤", xp: 300, color: "oklch(0.55_0.17_173)", workshop: "pitch",
     slides: [
       { heading: "Τι είναι ένα pitch", body: "Pitch είναι η σύντομη παρουσίαση της ιδέας σου σε κάποιον που μπορεί να επενδύσει ή να αγοράσει. Έχεις περίπου δύο λεπτά ή δέκα διαφάνειες. Ο στόχος δεν είναι να τα εξηγήσεις όλα, αλλά να τους κάνεις να πουν «θέλω να μάθω περισσότερα». Το pitch της Airbnb το 2009 είχε μόλις δέκα διαφάνειες και η εταιρεία πήρε τότε τα πρώτα $600.000 από επενδυτές.", emoji: "🚀" },
       { heading: "Η δομή του pitch (δέκα διαφάνειες)", body: "1) Πρόβλημα\n2) Λύση\n3) Αγορά\n4) Προϊόν\n5) Πώς βγάζεις χρήματα\n6) Ανταγωνισμός\n7) Marketing\n8) Ομάδα\n9) Αριθμοί\n10) Τι ζητάς", emoji: "📑" },
@@ -652,7 +653,7 @@ function LessonPage() {
               </Button>
             ) : lesson.workshop ? (
               <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
-                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : lesson.workshop === "costing" ? "Υπολόγισε το κόστος σου ✏️" : "Φτιάξε το canvas σου ✏️"}
+                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : lesson.workshop === "costing" ? "Υπολόγισε το κόστος σου ✏️" : lesson.workshop === "pitch" ? "Γράψε το pitch σου 🎤" : "Φτιάξε το canvas σου ✏️"}
               </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
@@ -678,7 +679,7 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : <BusinessModelCanvas />}
+          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : lesson.workshop === "costing" ? <CostingWorkshop /> : lesson.workshop === "pitch" ? <PitchWorkshop /> : <BusinessModelCanvas />}
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες
