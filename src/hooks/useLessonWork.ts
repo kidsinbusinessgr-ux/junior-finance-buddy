@@ -13,6 +13,8 @@ export function useLessonWork<T>(workshop: string, empty: T, parse: (raw: unknow
   const [loaded, setLoaded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [saved, setSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  // True once the account has been checked (or there is nobody signed in).
+  const [ready, setReady] = useState(false);
   const parseRef = useRef(parse);
   parseRef.current = parse;
 
@@ -26,7 +28,8 @@ export function useLessonWork<T>(workshop: string, empty: T, parse: (raw: unknow
     }
     setLoaded(true);
     supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user || cancelled) return;
+      if (cancelled) return;
+      if (!user) return setReady(true);
       const { data: row } = await supabase
         .from("jfb_lesson_work" as never)
         .select("data")
@@ -37,6 +40,7 @@ export function useLessonWork<T>(workshop: string, empty: T, parse: (raw: unknow
       const r = row as { data: unknown } | null;
       if (r && r.data && Object.keys(r.data as object).length > 0) setData(parseRef.current(r.data));
       setUserId(user.id);
+      setReady(true);
     });
     return () => {
       cancelled = true;
@@ -61,5 +65,5 @@ export function useLessonWork<T>(workshop: string, empty: T, parse: (raw: unknow
     return () => clearTimeout(t);
   }, [data, loaded, userId, key, workshop]);
 
-  return { data, setData, signedIn: Boolean(userId), saved };
+  return { data, setData, signedIn: Boolean(userId), saved, ready };
 }

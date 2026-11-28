@@ -125,7 +125,7 @@ function textBox(c: CanvasRenderingContext2D, t: TextItem) {
     return { x: x1 - pad, y: y1 - pad, w: x2 - x1 + pad * 2, h: y2 - y1 + pad * 2 };
   }
   c.font = itemFont(t);
-  const w = Math.min(c.measureText(t.text).width, WIDTH - 20);
+  const w = Math.min(c.measureText(t.text).width, c.canvas.width - 20);
   return { x: t.x - w / 2 - 10, y: t.y - t.px * 0.6 - 6, w: w + 20, h: t.px * 1.2 + 12 };
 }
 
@@ -148,8 +148,8 @@ const X_RADIUS = 17;
 function xButton(c: CanvasRenderingContext2D, t: TextItem) {
   const b = textBox(c, t);
   return {
-    x: Math.max(X_RADIUS, Math.min(WIDTH - X_RADIUS, b.x + b.w)),
-    y: Math.max(X_RADIUS, Math.min(HEIGHT - X_RADIUS, b.y)),
+    x: Math.max(X_RADIUS, Math.min(c.canvas.width - X_RADIUS, b.x + b.w)),
+    y: Math.max(X_RADIUS, Math.min(c.canvas.height - X_RADIUS, b.y)),
   };
 }
 
@@ -182,7 +182,7 @@ function drawTexts(c: CanvasRenderingContext2D, items: TextItem[], selected: num
       c.textAlign = "center";
       c.textBaseline = "middle";
       c.fillStyle = t.color;
-      c.fillText(t.text, t.x, t.y, WIDTH - 20);
+      c.fillText(t.text, t.x, t.y, c.canvas.width - 20);
     }
     if (controls && i === selected) {
       const b = textBox(c, t);
@@ -296,12 +296,32 @@ export function StartupDrawing({
   imageUrl,
   onSaved,
   onClose,
+  width = 800,
+  height = 600,
+  title = "🎨 Ζωγράφισε το προϊόν σου",
+  intro = "Δείξε σε όλους πώς μοιάζει! Ζωγράφισε μόνο το προϊόν, χωρίς ονόματα, τηλέφωνα ή πρόσωπα.",
+  onSavePng,
+  stamp,
+  closeLabel = "Κλείσιμο",
+  showClose = true,
 }: {
-  startupId: string;
+  startupId?: string;
   imageUrl: string | null;
   onSaved: (url: string) => void;
   onClose: () => void;
+  width?: number;
+  height?: number;
+  title?: string;
+  intro?: string;
+  // Saves the picture somewhere else than the startup; returns an error text, or null.
+  onSavePng?: (png: string) => Promise<string | null>;
+  // A picture the child can put on the page with one tap (e.g. their logo).
+  stamp?: { src: string; label: string } | null;
+  closeLabel?: string;
+  showClose?: boolean;
 }) {
+  const WIDTH = width;
+  const HEIGHT = height;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // A brush or eraser line being drawn: its place in the list.
   const newStroke = useRef<number | null>(null);
@@ -622,6 +642,20 @@ export function StartupDrawing({
     setDirty(true);
   };
 
+  const putStamp = () => {
+    if (!stamp) return;
+    const img = new Image();
+    img.onload = () => {
+      const c = ctx();
+      if (!c) return;
+      remember();
+      const size = Math.round(Math.min(WIDTH, HEIGHT) * 0.3);
+      c.drawImage(img, WIDTH - size - 16, 16, size, size);
+      setDirty(true);
+    };
+    img.src = stamp.src;
+  };
+
   const handleSave = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -636,6 +670,17 @@ export function StartupDrawing({
       if (!oc) throw new Error("no canvas");
       oc.drawImage(canvas, 0, 0);
       drawTexts(oc, texts, null, false);
+      if (onSavePng) {
+        const png = out.toDataURL("image/png");
+        const fail = await onSavePng(png);
+        if (fail) setError(fail);
+        else {
+          setDirty(false);
+          onSaved(png);
+        }
+        return;
+      }
+      if (!startupId) throw new Error("no startup");
       const res = await saveStartupDrawing({ data: { startupId, png: out.toDataURL("image/png") } });
       if (res.ok) {
         onSaved(res.imageUrl);
@@ -651,10 +696,17 @@ export function StartupDrawing({
 
   return (
     <div className="rounded-2xl border-2 border-[oklch(0.57_0.23_292)] bg-card p-4 sm:p-5">
-      <h3 className="text-lg font-black">🎨 Ζωγράφισε το προϊόν σου</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Δείξε σε όλους πώς μοιάζει! Ζωγράφισε μόνο το προϊόν, χωρίς ονόματα, τηλέφωνα ή πρόσωπα.
-      </p>
+      <h3 className="text-lg font-black">{title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{intro}</p>
+      {stamp && (
+        <button
+          type="button"
+          onClick={putStamp}
+          className="mt-3 inline-flex h-9 items-center gap-2 rounded-full bg-[oklch(0.95_0.05_292)] px-4 text-sm font-black text-[oklch(0.45_0.2_292)] hover:bg-[oklch(0.92_0.07_292)]"
+        >
+          <img src={stamp.src} alt="" className="h-6 w-6 rounded bg-white object-contain" /> {stamp.label}
+        </button>
+      )}
 
       {/* Music while drawing */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -820,7 +872,7 @@ export function StartupDrawing({
         </p>
       )}
 
-      <div className="relative mt-4">
+      <div className="relative mx-auto mt-4" style={{ maxWidth: HEIGHT > WIDTH ? 480 : WIDTH === HEIGHT ? 560 : undefined }}>
         <canvas
           ref={canvasRef}
           width={WIDTH}
@@ -830,7 +882,8 @@ export function StartupDrawing({
           onPointerUp={up}
           onPointerCancel={up}
           onPointerLeave={up}
-          className="block aspect-[4/3] w-full cursor-crosshair touch-none rounded-xl border bg-white"
+          style={{ aspectRatio: `${WIDTH} / ${HEIGHT}` }}
+          className="block w-full cursor-crosshair touch-none rounded-xl border bg-white"
         />
         {/* The texts, above the drawing; taps go through to the drawing. */}
         <canvas
@@ -861,9 +914,11 @@ export function StartupDrawing({
       {error && <p className="mt-3 rounded-xl bg-destructive/10 px-4 py-2 text-sm font-bold text-destructive">{error}</p>}
 
       <div className="mt-4 flex gap-3">
-        <Button variant="outline" className="h-11 flex-1 rounded-full" onClick={onClose} disabled={saving}>
-          Κλείσιμο
-        </Button>
+        {showClose && (
+          <Button variant="outline" className="h-11 flex-1 rounded-full" onClick={onClose} disabled={saving}>
+            {closeLabel}
+          </Button>
+        )}
         <Button
           className="h-11 flex-1 rounded-full bg-[oklch(0.55_0.17_173)] font-black text-white hover:bg-[oklch(0.48_0.17_173)]"
           onClick={handleSave}

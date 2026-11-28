@@ -7,6 +7,7 @@ import { completeLesson, useChild } from "@/hooks/useJFB";
 import { BusinessModelCanvas } from "@/components/bmc-canvas";
 import { BrainstormWorkshop } from "@/components/brainstorm-workshop";
 import { LessonMoneyPlan } from "@/components/lesson-money-plan";
+import { BrandingWorkshop } from "@/components/branding-workshop";
 
 // A slide's text: each line on its own; lines that start with "1)", "2)", …
 // become a numbered list, one point under the other.
@@ -61,7 +62,7 @@ type Lesson = {
   color: string;
   slides: Slide[];
   questions: Question[];
-  workshop?: "bmc" | "brainstorm" | "moneyplan"; // an interactive exercise between the slides and the quiz
+  workshop?: "bmc" | "brainstorm" | "moneyplan" | "branding"; // an interactive exercise between the slides and the quiz
 };
 
 const lessons: Record<string, Lesson> = {
@@ -455,7 +456,7 @@ const lessons: Record<string, Lesson> = {
     ],
   },
   "9": {
-    id: 9, title: "Marketing και branding", emoji: "📣", xp: 250, color: "oklch(0.57_0.2_28)",
+    id: 9, title: "Marketing και branding", emoji: "📣", xp: 250, color: "oklch(0.57_0.2_28)", workshop: "branding",
     slides: [
       { heading: "Ποιος είναι ο πελάτης σου;", body: "Πριν κάνεις οτιδήποτε, πρέπει να ξέρεις ΑΚΡΙΒΩΣ σε ποιον απευθύνεσαι. Όχι «σε όλους», γιατί αυτό στην πράξη σημαίνει σε κανέναν. Για παράδειγμα: «Κορίτσια 13–16 που αγαπούν τη μόδα, μένουν σε πόλη, έχουν χαρτζιλίκι περίπου €20 την εβδομάδα και ακολουθούν influencers στο TikTok». Όσο πιο συγκεκριμένα ξέρεις τον πελάτη σου, τόσο πιο εύκολο γίνεται το marketing.", emoji: "🎯" },
       { heading: "Πώς χτίζεις ένα brand", body: "Το brand δεν είναι το λογότυπο· είναι η αίσθηση που αφήνεις. Απάντησε σε τρεις ερωτήσεις: Α) Ποιες αξίες εκπροσωπεί η επιχείρησή σου; Β) Αν ήταν άνθρωπος, πώς θα μιλούσε; Γ) Ποιο πρόβλημα λύνει και πώς νιώθει ο πελάτης μετά; Η Apple δεν πουλάει απλώς κινητά· πουλάει την αίσθηση «είμαι δημιουργικός».", emoji: "✨" },
@@ -650,7 +651,7 @@ function LessonPage() {
               </Button>
             ) : lesson.workshop ? (
               <Button onClick={() => setPhase("workshop")} className="h-12 flex-1 rounded-full font-black">
-                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : "Φτιάξε το canvas σου ✏️"}
+                {lesson.workshop === "brainstorm" ? "Φτιάξε τον χάρτη ιδεών σου ✏️" : lesson.workshop === "moneyplan" ? "Φτιάξε το πλάνο σου ✏️" : lesson.workshop === "branding" ? "Φτιάξε το branding σου ✏️" : "Φτιάξε το canvas σου ✏️"}
               </Button>
             ) : (
               <Button onClick={() => setPhase("quiz")} className="h-12 flex-1 rounded-full font-black">
@@ -676,7 +677,7 @@ function LessonPage() {
           <Link to="/learn" className="mb-5 flex items-center gap-1 text-sm text-muted-foreground hover:underline">
             <ArrowLeft size={14} /> Μαθήματα
           </Link>
-          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : <BusinessModelCanvas />}
+          {lesson.workshop === "brainstorm" ? <BrainstormWorkshop /> : lesson.workshop === "moneyplan" ? <LessonMoneyPlan /> : lesson.workshop === "branding" ? <BrandingWorkshop /> : <BusinessModelCanvas />}
           <div className="mx-auto mt-8 flex max-w-xl gap-4">
             <Button variant="outline" onClick={() => setPhase("theory")} className="h-12 flex-1 rounded-full">
               <ArrowLeft size={18} /> Διαφάνειες

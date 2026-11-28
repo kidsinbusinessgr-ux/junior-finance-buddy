@@ -29,6 +29,7 @@ type Startup = {
   created_at: string;
   valuation: number;
   image_url: string | null;
+  logo_url: string | null;
 };
 
 export default function StartupsPage() {
@@ -39,7 +40,7 @@ export default function StartupsPage() {
   useEffect(() => {
     supabase
       .from("startups")
-      .select("id, name, emoji, problem, solution, creator_name, coins_raised, created_at, valuation, image_url")
+      .select("id, name, emoji, problem, solution, creator_name, coins_raised, created_at, valuation, image_url, logo_url")
       .order("valuation", { ascending: false })
       .then(({ data }) => {
         setStartups(data ?? []);
@@ -104,7 +105,11 @@ export default function StartupsPage() {
                   }`}>
                     <div className="mb-3 flex items-center gap-2">
                       <span className="text-3xl">{i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</span>
-                      <span className="text-2xl">{s.emoji}</span>
+                      {s.logo_url ? (
+                        <img src={s.logo_url} alt={`Λογότυπο ${s.name}`} loading="lazy" className="h-9 w-9 rounded-lg border bg-white object-contain" />
+                      ) : (
+                        <span className="text-2xl">{s.emoji}</span>
+                      )}
                     </div>
                     {s.image_url && (
                       <img src={s.image_url} alt="" loading="lazy" className="mb-3 aspect-[4/3] w-full rounded-xl border bg-white object-contain" />
@@ -132,8 +137,8 @@ export default function StartupsPage() {
                 <Link key={s.id} to="/startups/$id" params={{ id: s.id }}>
                   <div className="group rounded-2xl border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg">
                     <div className="flex items-start gap-4">
-                      {s.image_url ? (
-                        <img src={s.image_url} alt="" loading="lazy" className="h-14 w-14 shrink-0 rounded-xl border bg-white object-contain" />
+                      {s.logo_url || s.image_url ? (
+                        <img src={(s.logo_url || s.image_url)!} alt="" loading="lazy" className="h-14 w-14 shrink-0 rounded-xl border bg-white object-contain" />
                       ) : (
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-muted text-3xl">{s.emoji}</div>
                       )}

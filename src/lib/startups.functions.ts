@@ -244,6 +244,40 @@ export const saveStartupDrawing = createServerFn({ method: "POST" })
     return { ok: true, imageUrl };
   });
 
+// Lesson 9: the logo or the ad the founder drew, put on their startup.
+const artSchema = drawingSchema.extend({ kind: z.enum(["logo", "ad"]) });
+
+export const saveStartupArt = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof artSchema>) => artSchema.parse(data))
+  .handler(async ({ data }): Promise<SaveDrawingResult> => {
+    const owned = await ownStartup(data.startupId);
+    if ("error" in owned) return { ok: false, reason: owned.error! };
+
+    const bytes = Buffer.from(data.png.slice("data:image/png;base64,".length), "base64");
+    if (bytes.length < 100 || bytes.length > MAX_DRAWING_BYTES || PNG_SIGNATURE.some((b, i) => bytes[i] !== b)) {
+      return { ok: false, reason: "bad_file" };
+    }
+
+    const path = `${data.startupId}-${data.kind}.png`;
+    const bucket = owned.admin.storage.from("startup-images");
+    const { error: upErr } = await bucket.upload(path, bytes, { contentType: "image/png", upsert: true });
+    if (upErr) {
+      console.error("art upload failed", upErr.message);
+      return { ok: false, reason: "failed" };
+    }
+    const imageUrl = `${bucket.getPublicUrl(path).data.publicUrl}?v=${Date.now()}`;
+    const column = data.kind === "logo" ? "logo_url" : "ad_url";
+    const { error } = await owned.admin
+      .from("startups")
+      .update({ [column]: imageUrl } as never)
+      .eq("id", data.startupId);
+    if (error) {
+      console.error("art save failed", error.message);
+      return { ok: false, reason: "failed" };
+    }
+    return { ok: true, imageUrl };
+  });
+
 // ── Business plan (idea, costing, ad) ─────────────────────────────────────────
 // The founder fills the plan step by step on the startup's page. Each part is
 // checked here (owner, sizes, polite words) and merged into startups.plan.

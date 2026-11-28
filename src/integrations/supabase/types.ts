@@ -1456,6 +1456,8 @@ export type Database = {
           name: string
           problem: string
           image_url: string | null
+          logo_url: string | null
+          ad_url: string | null
           plan: Json
           solution: string
         }
@@ -1484,6 +1486,8 @@ export type Database = {
           name: string
           problem: string
           image_url?: string | null
+          logo_url?: string | null
+          ad_url?: string | null
           plan?: Json
           solution: string
         }
@@ -1512,6 +1516,8 @@ export type Database = {
           name?: string
           problem?: string
           image_url?: string | null
+          logo_url?: string | null
+          ad_url?: string | null
           plan?: Json
           solution?: string
         }

@@ -11,6 +11,7 @@ import { StartupReactions } from "@/components/startup-community";
 import { CostingSummary } from "@/components/startup-costing";
 import { AdPreview } from "@/components/startup-ad";
 import { FounderPlan } from "@/components/startup-plan-panel";
+import { StartupJourney } from "@/components/startup-journey";
 import { readPlan } from "@/lib/startup-plan";
 import { CardCheckout } from "@/components/card-checkout";
 
@@ -172,7 +173,11 @@ export default function StartupPage() {
         <div className="mx-auto max-w-[1440px]">
           <BrightlyNav active="startups" />
           <div className="mx-auto max-w-2xl pt-16 text-center">
-            <div className="text-7xl">{startup.emoji}</div>
+            {startup.logo_url ? (
+              <img src={startup.logo_url} alt={`Λογότυπο ${startup.name}`} className="mx-auto h-28 w-28 rounded-3xl bg-white object-contain p-1 shadow-lg" />
+            ) : (
+              <div className="text-7xl">{startup.emoji}</div>
+            )}
             <h1 className="mt-4 text-5xl font-black sm:text-6xl">{startup.name}</h1>
             <p className="mt-3 text-lg text-[oklch(0.9_0.04_292)]">by {startup.creator_name}</p>
 
@@ -198,7 +203,8 @@ export default function StartupPage() {
 
       {/* Founder: phases 2 and 3 of the business plan */}
       {isFounder && (
-        <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+        <section className="mx-auto max-w-5xl space-y-6 px-4 pt-12 sm:px-6">
+          {child && <StartupJourney startup={startup} childId={child.id} />}
           <FounderPlan startup={startup} onChange={setStartup} />
         </section>
       )}
@@ -263,6 +269,12 @@ export default function StartupPage() {
             </div>
           ))}
           {plan.costing && <CostingSummary costing={plan.costing} />}
+          {startup.ad_url && (
+            <div className="rounded-2xl border bg-card p-6">
+              <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-muted-foreground">📣 Η διαφήμισή μας</h3>
+              <img src={startup.ad_url} alt={`Διαφήμιση της ${startup.name}`} loading="lazy" className="mx-auto w-full max-w-sm rounded-xl border bg-white" />
+            </div>
+          )}
           {plan.ad && !isFounder && <AdPreview design={plan.ad} info={adInfo} />}
         </div>
 

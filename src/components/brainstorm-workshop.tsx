@@ -312,7 +312,7 @@ function parseBoard(raw: unknown): Board {
 }
 
 // Shrinks a picture in the browser, so a few fit in the account.
-async function shrinkImage(file: File): Promise<string> {
+export async function shrinkImage(file: File): Promise<string> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -439,7 +439,7 @@ function IdeaBoardPart() {
 
 // ── Shared ──────────────────────────────────────────────────────────────────
 
-function SaveNote({ signedIn, saved }: { signedIn: boolean; saved: string }) {
+export function SaveNote({ signedIn, saved }: { signedIn: boolean; saved: string }) {
   return (
     <p className="mt-2 text-center text-xs text-muted-foreground">
       {!signedIn
